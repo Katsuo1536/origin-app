@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String    @id   @db.Uuid
+  name        String    
+  email       String    @unique
+  role        Role      @default(CLIENT)
+  icon        String    
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  recipes     Recipe[]
+  planners    Planner[]
+  budgets      Budget?
+  shoppinglists   ShoppingList[]
+}
+
+model Recipe {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  image       String    
+  recipeUrl   String    @map("recipe_url")
+  favorite    Boolean   @default(false)
+  userId      String   @db.Uuid  @map("user_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planners    Planner[]
+  shoppinglists    ShoppingList[]
+  recipeingredients  RecipeIngredient[]
+  processes   Process[]
+}
+
+model ShoppingList {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid  @map("user_id")
+  name        String    
+  quantity    String    
+  recipeId    String    @db.Uuid  @map("recipe_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe      Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+}
+
+model RecipeIngredient {
+  id          String    @id @default(uuid()) @db.Uuid
+  quantity    String
+  recipeId    String    @db.Uuid  @map("recipe_id")
+  ingredientId String   @db.Uuid  @map("ingredient_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  recipe      Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient  Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+}
+
+model Ingredient {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  quantity    String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  recipeingredients  RecipeIngredient[]
+}
+
+model Process {
+  id          String   @id @default(uuid()) @db.Uuid
+  stepNumber  Int    
+  description String
+  recipeId    String   @db.Uuid @map("recipe_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  recipe      Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model Budget {
+  id          String   @id @default(uuid()) @db.Uuid 
+  balance     Int      @default(0)
+  userId      String   @db.Uuid  @unique  @map("user_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Planner {
+  id          String   @id @default(uuid()) @db.Uuid
+  recipeId    String   @db.Uuid @map("recipe_id")
+  date        DateTime  
+  userId      String   @db.Uuid @map("user_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe      Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
