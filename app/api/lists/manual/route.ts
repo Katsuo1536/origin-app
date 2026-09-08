@@ -1,10 +1,10 @@
 import { prisma } from "@/app/_libs/prisma"
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
 
 
-export type ListsArrayResponse = {
-  lists: {
+export type ListIndexRequest = {
+  list: {
     id: string
     userId: string
     name: string
@@ -12,12 +12,12 @@ export type ListsArrayResponse = {
     recipeId: string | null
     createdAt: Date
     updatedAt: Date
-  }[]
+  }
 }
 
-export const GET = async () => {
+export const POST = async (request: NextRequest) => {
 
-    //認証機能(トークン認証によるAPIの制限)
+  //認証機能(トークン認証によるAPIの制限)
   // const token = request.headers.get('Authorization') ?? ''
 
   // const { error } = await supabase.auth.getUser(token)
@@ -29,13 +29,16 @@ export const GET = async () => {
   // const req: ListIndexRequest = await request.json();
 
   try {
-    const lists = await prisma.shoppingList.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+    const list = await prisma.shoppingList.create({
+      data: {
+        userId: "649cadc2-edfe-4e72-a553-d49bfb89a8c5",
+        name: "meat",
+        quantity: "1 pack",
+        // recipeId: "test-1"
+      }
     })
 
-    return NextResponse.json<ListsArrayResponse>({ lists }, { status: 200 })
+    return NextResponse.json({ list }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
