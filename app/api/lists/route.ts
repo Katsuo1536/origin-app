@@ -16,15 +16,17 @@ export type ListsArrayResponse = {
   }[]
 }
 
-export const GET = async () => {
+export const GET = async (_request : NextRequest) => {
 
     //認証機能(トークン認証によるAPIの制限)
-  // const token = request.headers.get('Authorization') ?? ''
+  const token = _request.headers.get('Authorization') ?? ''
 
-  // const { error } = await supabase.auth.getUser(token)
+  const { error } = await supabase.auth.getUser(token)
 
-  // if (error)
-  //   return NextResponse.json({ status: error.message }, { status: 401 })
+  console.log("authError:", error);
+
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 401 })
 
   //フロント側からリクエストの受け取り　バックエンド実装中は、不要なためコメントアウト
   // const req: ListIndexRequest = await request.json();
@@ -43,15 +45,15 @@ export const GET = async () => {
   }
 }
 
-export const DELETE = async (request: NextRequest) => {
+export const DELETE = async (_request: NextRequest) => {
 
     //認証機能(トークン認証によるAPIの制限)
-  // const token = request.headers.get('Authorization') ?? ''
+  const token = _request.headers.get('Authorization') ?? ''
 
-  // const { error } = await supabase.auth.getUser(token)
+  const { error } = await supabase.auth.getUser(token)
 
-  // if (error)
-  //   return NextResponse.json({ status: error.message }, { status: 401 })
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 401 })
 
   //フロント側からリクエストの受け取り　バックエンド実装中は、不要なためコメントアウト
   // const req: ListIndexRequest = await request.json();
@@ -60,7 +62,7 @@ export const DELETE = async (request: NextRequest) => {
     const list = await prisma.shoppingList.delete({
       where: {
         //id(listId), 全て削除や選択項目の削除の可能性あり？for文で回す方法もあり
-        id : "1f10af9b-592f-4914-87de-1c6fd97603e9", 
+        id : "934bbd63-9626-4ab7-a5a6-7a9e12268be4", 
       }
     })
 
