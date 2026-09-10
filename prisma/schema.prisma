@@ -47,9 +47,9 @@ model ShoppingList {
   userId      String    @db.Uuid  @map("user_id")
   name        String    
   quantity    String    
-  recipeId    String    @db.Uuid  @map("recipe_id")
+  recipeId    String?    @db.Uuid  @map("recipe_id")
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recipe      Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipe      Recipe?      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 }
