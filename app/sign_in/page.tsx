@@ -2,22 +2,22 @@
 
 import { supabase } from '@/app/_libs/supabase'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import type { Data } from '../sign_up/page';
+import { useForm } from 'react-hook-form';
+
+const defaultValues: Data = {
+  email: '',
+  password: ''
+}
 
 export default function Page() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    setIsLoading(true)
+  const onSubmit = async (data: Data) => {
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: data.email,
+      password: data.password
     })
 
     if (error) {
@@ -25,12 +25,17 @@ export default function Page() {
     } else {
       router.replace('/')
     }
-    setIsLoading(false)
   }
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isLoading, errors }
+  } = useForm<Data>({ defaultValues })
 
   return (
     <div className="flex justify-center pt-60">
-      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-100">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-100">
         <div>
           <label
             htmlFor="email"
@@ -40,15 +45,18 @@ export default function Page() {
           </label>
           <input
             type="email"
-            name="email"
             id="email"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             placeholder="name@company.com"
-            required
-            onChange={(e) => setEmail(e.target.value)}
+            {...register('email', {
+              required: 'メールアドレスは必須です。',
+            })}
             disabled={isLoading}
           />
         </div>
+
+        <div className="justify-center mx-auto container items-center text-red-500">{errors.email?.message}</div>
+
         <div>
           <label
             htmlFor="password"
@@ -58,15 +66,17 @@ export default function Page() {
           </label>
           <input
             type="password"
-            name="password"
             id="password"
             placeholder="••••••••"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            required
-            onChange={(e) => setPassword(e.target.value)}
+            {...register('password', {
+              required: 'パスワードは必須です。',
+            })}
             disabled={isLoading}
           />
         </div>
+
+        <div className="justify-center mx-auto container items-center text-red-500">{errors.password?.message}</div>
 
         <div>
           <button

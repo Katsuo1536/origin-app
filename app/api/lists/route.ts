@@ -16,7 +16,8 @@ export type ListsArrayResponse = {
   }[]
 }
 
-export const GET = async (_request : NextRequest) => {
+export const GET = async (_request : NextRequest ,
+  { params }: { params: Promise<{ id: string }> }) => {
 
     //認証機能(トークン認証によるAPIの制限)
   const token = _request.headers.get('Authorization') ?? ''
@@ -28,8 +29,13 @@ export const GET = async (_request : NextRequest) => {
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
 
+    const { id } = await params;
+
   try {
     const lists = await prisma.shoppingList.findMany({
+      where: {
+        userId : id,
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -60,6 +66,7 @@ export const DELETE = async (_request: NextRequest) => {
       where: {
         //id(listId), 全て削除や選択項目の削除の可能性あり？for文で回す方法もあり
         id : req.list.id, 
+        userId : req.list.userId,
       }
     })
 
