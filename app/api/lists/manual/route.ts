@@ -20,7 +20,7 @@ export const POST = async (_request: NextRequest) => {
   //認証機能(トークン認証によるAPIの制限)
   const token = _request.headers.get('Authorization') ?? ''
 
-  const { data, error } = await supabase.auth.getUser(token)
+  const { error } = await supabase.auth.getUser(token)
 
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
