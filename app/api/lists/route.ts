@@ -28,9 +28,6 @@ export const GET = async (_request : NextRequest) => {
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
 
-  //フロント側からリクエストの受け取り　バックエンド実装中は、不要なためコメントアウト
-  // const req: ListIndexRequest = await request.json();
-
   try {
     const lists = await prisma.shoppingList.findMany({
       orderBy: {
@@ -55,14 +52,14 @@ export const DELETE = async (_request: NextRequest) => {
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
 
-  //フロント側からリクエストの受け取り　バックエンド実装中は、不要なためコメントアウト
-  // const req: ListIndexRequest = await request.json();
+  //フロント側からリクエストの受け取り
+  const req: ListIndexRequest = await _request.json();
 
   try {
     const list = await prisma.shoppingList.delete({
       where: {
         //id(listId), 全て削除や選択項目の削除の可能性あり？for文で回す方法もあり
-        id : "934bbd63-9626-4ab7-a5a6-7a9e12268be4", 
+        id : req.list.id, 
       }
     })
 
