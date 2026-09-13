@@ -20,7 +20,7 @@ export const POST = async (_request: NextRequest) => {
   //認証機能(トークン認証によるAPIの制限)
   const token = _request.headers.get('Authorization') ?? ''
 
-  const { error } = await supabase.auth.getUser(token)
+  const { data, error } = await supabase.auth.getUser(token)
 
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
@@ -31,7 +31,7 @@ export const POST = async (_request: NextRequest) => {
   try {
     const list = await prisma.shoppingList.create({
       data: {
-        userId: req.list.userId,
+        userId: data.user.id,
         name: req.list.name,
         quantity: req.list.quantity,
         recipeId: req.list.recipeId,
