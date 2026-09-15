@@ -1,7 +1,14 @@
 import { prisma } from "@/app/_libs/prisma"
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
-import type { UserResponse } from "@/app/api/account/route";
+
+export type UserUpdateBody = {
+  user: {
+    name: string
+    email: string
+    icon: string
+  }
+}
 
 
 export const PUT = async (_request: NextRequest,
@@ -10,7 +17,7 @@ export const PUT = async (_request: NextRequest,
   //認証機能(トークン認証によるAPIの制限)
   const token = _request.headers.get('Authorization') ?? ''
 
-  const { data, error } = await supabase.auth.getUser(token)
+  const { error } = await supabase.auth.getUser(token)
 
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
@@ -18,7 +25,7 @@ export const PUT = async (_request: NextRequest,
   const { id } = await params;
 
   //フロント側からリクエストの受け取り
-  const req: UserResponse = await _request.json();
+  const req: UserUpdateBody = await _request.json();
 
   try {
     const user = await prisma.user.update({
@@ -32,7 +39,7 @@ export const PUT = async (_request: NextRequest,
     })
 
 
-    return NextResponse.json<UserResponse>({ user }, { status: 200 })
+    return NextResponse.json<UserUpdateBody>({ user }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
@@ -61,7 +68,7 @@ export const DELETE = async (_request: NextRequest,
       }
     })
 
-    return NextResponse.json<UserResponse>({ user }, { status: 200 })
+    return NextResponse.json<UserUpdateBody>({ user }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
