@@ -63,7 +63,6 @@ export const DELETE = async (_request: NextRequest,
   try {
     const user = await prisma.user.delete({
       where: {
-        //id(listId), 全て削除や選択項目の削除の可能性あり？for文で回す方法もあり
         id: id,
       }
     })

@@ -3,15 +3,17 @@ import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
 
 
-export type UserResponse = {
-  user: {
+export type RecipeArrayResponse = {
+  recipes: {
     id: string
     name: string
-    email: string
-    icon: string
+    image: string
+    recipeUrl: string
+    favorite: boolean
+    userId: string
     createdAt: Date
     updatedAt: Date
-  }
+  }[]
 }
 
 export const GET = async (_request: NextRequest) => {
@@ -29,17 +31,20 @@ export const GET = async (_request: NextRequest) => {
 
 
   try {
-    const user = await prisma.user.findUnique({
+    const recipes = await prisma.recipe.findMany({
       where: {
-        id: data.user.id,
-      }
+        userId: data.user.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     })
 
-    if (!user) {
+    if (!recipes) {
       return NextResponse.json({ message: "アカウントが見つかりません" }, { status: 404 })
     }
 
-    return NextResponse.json<UserResponse>({ user }, { status: 200 })
+    return NextResponse.json<RecipeArrayResponse>({ recipes }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
