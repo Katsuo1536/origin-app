@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
 
 
-export type RecipeResponse = {
+export type RecipeArrayResponse = {
   recipes: {
     id: string
     name: string
@@ -44,7 +44,7 @@ export const GET = async (_request: NextRequest) => {
       return NextResponse.json({ message: "アカウントが見つかりません" }, { status: 404 })
     }
 
-    return NextResponse.json<RecipeResponse>({ recipes }, { status: 200 })
+    return NextResponse.json<RecipeArrayResponse>({ recipes }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
