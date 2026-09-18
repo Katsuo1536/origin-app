@@ -3,12 +3,16 @@ import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
 
 
-export type PlannerPostType = {
-  planner: {
-    recipeId: string
-    date: Date
+export type RecipeListBody = {
+  lists: {
+    id: string
     userId: string
-  }
+    name: string
+    quantity: string
+    recipeId: string
+    createdAt: Date
+    updatedAt: Date
+  }[]
 }
 
 
@@ -23,18 +27,21 @@ export const POST = async (_request: NextRequest) => {
     return NextResponse.json({ status: error.message }, { status: 401 })
 
   //フロント側からリクエストの受け取り
-  const req: PlannerPostType = await _request.json();
+  const req: RecipeListBody = await _request.json();
 
   try {
-    const planner = await prisma.planner.create({
-      data: {
-        recipeId: req.planner.recipeId,
-        date: req.planner.date,
+
+    //createManyの返り値は件数(count)
+    const lists = await prisma.shoppingList.createMany({
+      data: req.lists.map((list) => ({
         userId: data.user.id,
-      }
+        name: list.name,
+        quantity: list.quantity,
+        recipeId: list.recipeId,
+      })),
     })
 
-    return NextResponse.json({ planner }, { status: 200 })
+    return NextResponse.json({ count: lists.count }, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
