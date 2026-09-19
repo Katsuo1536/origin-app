@@ -5,7 +5,6 @@ import { supabase } from "@/app/_libs/supabase";
 
 export type RecipeListBody = {
   lists: {
-    userId: string
     name: string
     quantity: string
     recipeId: string
