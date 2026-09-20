@@ -5,11 +5,7 @@ import { supabase } from "@/app/_libs/supabase";
 
 export type BudgetRequest = {
   budget: {
-    id: string
     balance: number
-    userId: string
-    createdAt: Date
-    updatedAt: Date
   }
 }
 
@@ -33,6 +29,8 @@ export const GET = async (_request: NextRequest) => {
         userId: data.user.id,
       }
     })
+
+    console.log(budget)
 
     if (!budget) {
       return NextResponse.json({ message: "予算が見つかりません" }, { status: 404 })
@@ -59,6 +57,11 @@ export const POST = async (_request: NextRequest) => {
   const req: BudgetRequest = await _request.json();
 
   try {
+
+    await prisma.budget.deleteMany({
+      where: { userId: data.user.id },
+    })
+
     const budget = await prisma.budget.create({
       data: {
         userId: data.user.id,
@@ -93,7 +96,7 @@ export const PUT = async (_request: NextRequest) => {
     const budget = await prisma.budget.update({
       where: { userId: data.user.id },
       data: {
-        balance: req.budget.balance,
+        balance: {decrement: req.budget.balance},
       }
     })
 
