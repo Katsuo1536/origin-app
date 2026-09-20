@@ -1,11 +1,16 @@
 "use client";
 
-import { Fragment } from "react";
 import Link from 'next/link';
 import Image from 'next/image';
 import { time } from '@/app/_utils/time'
+import { useFetch } from "@/app/_hooks/useFetch";
+import type { BudgetResponce } from "../budget/page";
 
 export default function Home() {
+
+  const { data } = useFetch("/api/budget")
+
+  const budget: BudgetResponce = data ? data.budget : '';
 
   return (
     <>
@@ -57,17 +62,19 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
-            <h2 className="font-bold px-2 py-1 m-1">
-              予算
-            </h2>
-            <div className="flex justify-center">
-              <span className="flex size-45 justify-center items-center rounded-full bg-orange-400">
-                <span className="text-md text-white mx-2">のこり:</span>
-                <span className="text-xl text-white">XXXXXX</span>
-              </span>
-            </div>
-          </section>
+          <Link href="/budget" >
+            <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
+              <h2 className="font-bold px-2 py-1 m-1">
+                予算
+              </h2>
+              <div className="flex justify-center">
+                <span className="flex size-45 justify-center items-center rounded-full bg-orange-400">
+                  <span className="text-md text-white mx-2">のこり:</span>
+                  <span className="text-xl text-white">{budget.balance ?? "XXXXX"}</span>
+                </span>
+              </div>
+            </section>
+          </Link>
 
         </div>
 

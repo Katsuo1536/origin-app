@@ -11,7 +11,7 @@ export const Header = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-   router.replace('/')
+    router.replace('/')
   }
 
   const { session, isLoading } = useSupabaseSession()
@@ -20,7 +20,17 @@ export const Header = () => {
 
     <header className="bg-white">
       <nav className="flex justify-between mx-auto container items-center">
-        <Link href="/" ><Image src="/Logo_TABERU.png" alt="" width={125} height={125} /></Link>
+
+        {(!isLoading) && (
+          <>
+            {session ? (
+              <Link href="/home" ><Image src="/Logo_TABERU.png" alt="" width={125} height={125} /></Link>
+            ) : (
+              <Link href="/" ><Image src="/Logo_TABERU.png" alt="" width={125} height={125} /></Link>
+            )}
+          </>
+        )}
+
 
         {(!isLoading) && (
           <div className="flex items-center gap-4">
@@ -34,7 +44,7 @@ export const Header = () => {
             ) : (
               <>
                 <Link href="/sign_in" className="text-gray-300 border-2 border-gray-300 rounded-lg px-1 py-1">
-                 ログイン
+                  ログイン
                 </Link>
 
                 <Link href="/sign_up" className="text-white bg-green-400 border-2 border-green-400 rounded-lg px-1 py-1">
