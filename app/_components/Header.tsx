@@ -22,7 +22,7 @@ export const Header = () => {
   const components: { name: string, link: string }[] =
     [{ name: "買い物リスト", link: "lists" },
     { name: "献立", link: "planners" },
-    { name: "レシピ", link: "recipe" },
+    { name: "レシピ", link: "recipes" },
     { name: "予算", link: "budget" },
     { name: "アカウント", link: "account" }];
 
