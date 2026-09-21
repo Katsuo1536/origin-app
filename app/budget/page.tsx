@@ -20,6 +20,8 @@ export default function Budget() {
   const { token } = useSupabaseSession()
 
   const { data, isLoading, error, mutate } = useFetch("/api/budget")
+
+  mutate()
   
   const budget: BudgetResponce = data ? data.budget : '';
 
@@ -53,7 +55,6 @@ export default function Budget() {
       })
 
       alert('予算を変更しました。')
-      await mutate()
     }
     catch {
       alert('予算の変更に失敗しました。')
@@ -80,7 +81,6 @@ export default function Budget() {
       })
 
       alert('予算を記録しました。')
-      await mutate()
     }
     catch {
       alert('予算の記録に失敗しました。')
