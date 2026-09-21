@@ -20,7 +20,7 @@ export default function Budget() {
   const { token } = useSupabaseSession()
 
   const { data, isLoading, error, mutate } = useFetch("/api/budget")
-  
+
   const budget: BudgetResponce = data ? data.budget : '';
 
   if (isLoading) {

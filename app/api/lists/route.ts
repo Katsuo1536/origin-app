@@ -16,9 +16,9 @@ export type ListsArrayResponse = {
   }[]
 }
 
-export const GET = async (_request : NextRequest) => {
+export const GET = async (_request: NextRequest) => {
 
-    //認証機能(トークン認証によるAPIの制限)
+  //認証機能(トークン認証によるAPIの制限)
   const token = _request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
@@ -31,13 +31,13 @@ export const GET = async (_request : NextRequest) => {
   try {
     const lists = await prisma.shoppingList.findMany({
       where: {
-        userId : data.user.id
+        userId: data.user.id
       },
       orderBy: {
         createdAt: 'desc',
       },
     })
-    
+
 
     return NextResponse.json<ListsArrayResponse>({ lists }, { status: 200 })
   } catch (error) {
@@ -47,12 +47,12 @@ export const GET = async (_request : NextRequest) => {
 }
 
 export type DeleteKeyId = {
-  listId : string
+  listId: string
 }
 
 export const DELETE = async (_request: NextRequest) => {
 
-    //認証機能(トークン認証によるAPIの制限)
+  //認証機能(トークン認証によるAPIの制限)
   const token = _request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
@@ -64,15 +64,15 @@ export const DELETE = async (_request: NextRequest) => {
   const req: DeleteKeyId = await _request.json();
 
   try {
-    const list = await prisma.shoppingList.delete({
+    const lists = await prisma.shoppingList.deleteMany({
       where: {
         //id(listId), 全て削除や選択項目の削除の可能性あり？for文で回す方法もあり
-        id : req.listId, 
-        userId : data.user.id,
+        ...(req.listId ? { id: req.listId } : {}),
+        userId: data.user.id,
       }
     })
 
-    return NextResponse.json<ListIndexRequest>({ list }, { status: 200 })
+    return NextResponse.json({ status: 200, count: lists.count })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })

@@ -57,11 +57,33 @@ export default function Lists() {
     }
   }
 
+  const ListDeleteAll = async () => {
+    if (!token) return
+    try {
+
+      const res: Response = await fetch("/api/lists", {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify({})
+      })
+
+      alert('買い物リストを削除しました。')
+      await mutate()
+    }
+    catch {
+      alert('買い物リストの削除に失敗しました。')
+    }
+  }
+
 
   return (
     <ListForm
       values={lists ?? undefined}
       onDelete={ListDelete}
+      onDeleteAll={ListDeleteAll}
     />
 
   );

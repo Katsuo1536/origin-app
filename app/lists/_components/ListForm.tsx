@@ -6,13 +6,15 @@ import type { ListsResponse } from "../page";
 
 type Props = {
   values?: ListsResponse
-  onDelete: (id : string) => void
+  onDelete: (id: string) => void
+  onDeleteAll: () => void
 };
 
 
 export const ListForm = ({
   values,
   onDelete,
+  onDeleteAll,
 }: Props
 ) => {
 
@@ -22,7 +24,9 @@ export const ListForm = ({
       <span className="flex items-center translate-x-275 py-5 gap-5">
         <button className="flex justify-center items-center bg-red-500
                             text-xl text-white font-semibold h-10 w-20
-                            rounded-lg">
+                            rounded-lg" type="button"
+          onClick={() => onDeleteAll()}
+        >
           全削除
         </button>
         <Link href={"/lists/new_lists"} className="flex justify-center items-center
@@ -37,7 +41,7 @@ export const ListForm = ({
           <div key={elem.id} className="flex flex-col-2 gap-10 justify-center items-center">
             <button key={elem.id} className="flex 
                   h-10 w-10" type="button"
-                  onClick={() => onDelete(elem.id)}>
+              onClick={() => onDelete(elem.id)}>
               <Image src="/trashBox.png" alt="イメージ画像＿香味だれ鶏もも肉" width={200} height={200} />
             </button>
 
