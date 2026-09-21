@@ -1,11 +1,11 @@
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import Image from 'next/image';
-import type { RecipeArrayResponse } from "@/app/api/recipes/route";
 import { getRecipeImageUrl } from "../page";
+import type { RecipesResponse } from "../page";
 
 type Props = {
-  values?: RecipeArrayResponse
+  values?: RecipesResponse
   onDeleteAll: () => void
 };
 
@@ -32,26 +32,23 @@ export const RecipesArray = ({
         </Link>
       </span>
 
-      <div className="flex flex-col-2 items-center justify-center gap-3 py-5">
+      <div className="grid grid-cols-2 justify-items-center gap-10 w-fit mx-auto">
 
-        {values?.recipes?.map(elem => (
-          <div key={elem.id} className="flex flex-col-2 gap-10 justify-center items-center">
+        {values?.map(elem => (
 
-              <Image src={getRecipeImageUrl(elem.image)} alt="recipe_image" width={200} height={200} />
-
-            <span className="flex items-center  justify-between
-                  border border-gray-300 h-7 w-80 rounded-lg
-                  px-3 py-7">
-
-              <span className="text-black  text-2xl">
-                {elem.name}{elem.id}
-              </span>
-            </span>
-          </div>
+          <Link href={`/recipes/${elem.id}`}>
+            <section key={elem.id} className="rounded-2xl border-2 border-orange-400 h-45 w-60 gap-3 py-3">
+              <div className="flex flex-col justify-center items-center">
+                <Image src={getRecipeImageUrl(elem.image)} alt="recipe_image" width={150} height={150} className="flex justify-center items-center" />
+                <span className="rouded-2xl text-center m-3 font-semibold ">
+                  {elem.name}
+                </span>
+              </div>
+            </section>
+          </Link>
         ))}
-
-
       </div>
+
     </>
   );
 

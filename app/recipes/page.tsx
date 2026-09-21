@@ -3,11 +3,21 @@
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
 import { RecipesArray } from './_components/RecipesArray';
-import type { RecipeArrayResponse } from '../api/recipes/route';
 import { supabase } from '../_libs/supabase';
 
+export type RecipesResponse = {
+ id: string;
+ name: string;
+ image: string;
+ recipeUrl: string;
+ favorite: boolean;
+ userId: string;
+ createdAt: Date;
+ updatedAt: Date;
+}[]
+
 export const getRecipeImageUrl = (imageKey: string) => {
-  const { data } = supabase.storage.from("recipe_image").getPublicUrl(imageKey);
+  const { data } = supabase.storage.from('image').getPublicUrl(imageKey);
   return data.publicUrl;
 };
 
@@ -18,7 +28,9 @@ export default function Recipes() {
 
   const { data, isLoading, error, mutate } = useFetch("/api/recipes")
 
-  const recipes: RecipeArrayResponse = data ? data.recipes : [];
+  const recipes: RecipesResponse = data ? data.recipes : [];
+
+  console.log(recipes)
 
 
   if (isLoading) {
