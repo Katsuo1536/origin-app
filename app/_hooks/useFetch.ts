@@ -18,7 +18,7 @@ const fetcher = async () => {
   return data;
 }
 
-const {data, isLoading, error} = useSWR(token ? url : null , fetcher);
+const {data, isLoading, error, mutate} = useSWR(token ? url : null , fetcher);
 
-return { data, isLoading, error}
+return { data, isLoading, error, mutate}
 }

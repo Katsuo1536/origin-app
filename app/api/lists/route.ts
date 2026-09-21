@@ -37,6 +37,7 @@ export const GET = async (_request : NextRequest) => {
         createdAt: 'desc',
       },
     })
+    
 
     return NextResponse.json<ListsArrayResponse>({ lists }, { status: 200 })
   } catch (error) {

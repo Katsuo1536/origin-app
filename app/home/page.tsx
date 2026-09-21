@@ -5,12 +5,18 @@ import Image from 'next/image';
 import { time } from '@/app/_utils/time'
 import { useFetch } from "@/app/_hooks/useFetch";
 import type { BudgetResponce } from "../budget/page";
+import type { ListsResponse } from '../lists/page';
 
 export default function Home() {
 
-  const { data } = useFetch("/api/budget")
+  const { data: budgetData } = useFetch("/api/budget")
 
-  const budget: BudgetResponce = data ? data.budget : '';
+  const budget: BudgetResponce = budgetData ? budgetData.budget : '';
+
+  const { data: listData } = useFetch("/api/lists")
+
+  const lists: ListsResponse = listData ? listData.lists : [];
+
 
   return (
     <>
@@ -19,15 +25,30 @@ export default function Home() {
 
         <div className="flex justify-center gap-10">
 
-          <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
-            <h2 className="font-bold px-2 py-1 m-1">買い物リスト</h2>
-            <div className="flex flex-col items-center gap-3 m-5">
-              <div className="border border-gray-300 h-7 w-50 rounded-lg px-2">もつ</div>
-              <div className="border border-gray-300 h-7 w-50 rounded-lg px-2">にんにく</div>
-              <div className="border border-gray-300 h-7 w-50 rounded-lg px-2">みそ</div>
-              <div className="border border-gray-300 h-7 w-50 rounded-lg px-2">にら</div>
-            </div>
-          </section>
+          <Link href="/lists" >
+            <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
+              <h2 className="font-bold px-2 py-1 m-1">買い物リスト</h2>
+              <div className="flex flex-col items-center gap-1 m-3">
+                {lists?.slice(0,6).map(elem => (
+                  <div className="flex flex-col-2 justify-center items-center">
+
+                    <span key={elem.id} className="flex items-center  justify-between
+                  border border-gray-300 h-5 w-50 rounded-lg
+                  px-2 py-3">
+
+                      <span className="text-black  text-lg">
+                        {elem.name}
+                      </span>
+
+                      <span className="text-gray-400  text-md">
+                        {elem.quantity}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </Link>
 
           <section className="rounded-2xl border-2 border-orange-400 h-60 w-75">
             <span className="flex justify-left m-1">
