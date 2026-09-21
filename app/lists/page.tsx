@@ -49,6 +49,11 @@ export default function Lists() {
         body: JSON.stringify(body)
       })
 
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message)
+      }
+
       alert('買い物リストを削除しました。')
       await mutate()
     }
@@ -69,6 +74,11 @@ export default function Lists() {
         },
         body: JSON.stringify({})
       })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message)
+      }
 
       alert('買い物リストを削除しました。')
       await mutate()

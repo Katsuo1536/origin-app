@@ -52,6 +52,11 @@ export default function Budget() {
         body: JSON.stringify(body)
       })
 
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message)
+      }
+
       alert('予算を変更しました。')
       await mutate()
     }
@@ -78,6 +83,12 @@ export default function Budget() {
         },
         body: JSON.stringify(body)
       })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message)
+      }
+
 
       alert('予算を記録しました。')
       await mutate()
