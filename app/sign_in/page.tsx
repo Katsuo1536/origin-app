@@ -23,7 +23,7 @@ export default function Page() {
     if (error) {
       alert('ログインに失敗しました')
     } else {
-      router.replace('/')
+      router.replace('/home')
     }
   }
 
