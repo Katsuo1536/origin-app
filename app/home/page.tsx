@@ -91,7 +91,7 @@ export default function Home() {
               <div className="flex justify-center">
                 <span className="flex size-45 justify-center items-center rounded-full bg-orange-400">
                   <span className="text-md text-white mx-2">のこり:</span>
-                  <span className="text-xl text-white">{budget.balance ?? "XXXXX"}</span>
+                  <span className="text-xl text-white">{budget?.balance ?? "XXXXX"}</span>
                 </span>
               </div>
             </section>
