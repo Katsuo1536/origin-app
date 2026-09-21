@@ -30,8 +30,6 @@ export const GET = async (_request: NextRequest) => {
       }
     })
 
-    console.log(budget)
-
     if (!budget) {
       return NextResponse.json({ message: "予算が見つかりません" }, { status: 404 })
     }
