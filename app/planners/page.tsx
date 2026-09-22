@@ -2,18 +2,20 @@
 
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
-import { RecipesArray } from './_components/RecipesArray';
-import { supabase } from '../_libs/supabase';
+import { PlannersArray } from "./_components/PlannersArray"
 
-export type RecipesResponse = {
- id: string;
- name: string;
- image: string;
- recipeUrl: string;
- favorite: boolean;
- userId: string;
- createdAt: Date;
- updatedAt: Date;
+export type PlannersResponse = {
+  id: string
+  recipeId: string
+  date: Date
+  userId: string
+  createdAt: Date
+  updatedAt: Date
+  recipe: {
+    name: string
+    image: string
+    favorite: boolean
+  }
 }[]
 
 
@@ -21,9 +23,9 @@ export default function Recipes() {
 
   const { token } = useSupabaseSession()
 
-  const { data, isLoading, error, mutate } = useFetch("/api/recipes")
+  const { data, isLoading, error, mutate } = useFetch("/api/planners")
 
-  const recipes: RecipesResponse = data ? data.recipes : [];
+  const planners: PlannersResponse = data ? data.planners : [];
 
 
   if (isLoading) {
@@ -34,7 +36,7 @@ export default function Recipes() {
   };
 
 
-  const ListDeleteAll = async () => {
+  const PlannersDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -62,9 +64,9 @@ export default function Recipes() {
 
 
   return (
-    <RecipesArray
-      values={recipes ?? undefined}
-      onDeleteAll={ListDeleteAll}
+    <PlannersArray
+      values={planners ?? undefined}
+      onDeleteAll={PlannersDeleteAll}
     />
 
   );

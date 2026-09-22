@@ -1,15 +1,15 @@
 import Link from "next/link";
 import Image from 'next/image';
 import { getRecipeImageUrl } from "@/app/_components/getImage"
-import type { RecipesResponse } from "../page";
+import type { PlannersResponse } from "../page";
 
 type Props = {
-  values?: RecipesResponse
+  values?: PlannersResponse
   onDeleteAll: () => void
 };
 
 
-export const RecipesArray = ({
+export const PlannersArray = ({
   values,
   onDeleteAll,
 }: Props
@@ -25,7 +25,7 @@ export const RecipesArray = ({
         >
           全削除
         </button>
-        <Link href={"/recipes/new_recipe"} className="flex justify-center items-center
+        <Link href={"/planners/new_planner"} className="flex justify-center items-center
        text-white text-3xl bg-green-400 border-2 border-green-400 rounded-lg h-10 w-10  py-5">
           +
         </Link>
@@ -35,12 +35,12 @@ export const RecipesArray = ({
 
         {values?.map(elem => (
 
-          <Link href={`/recipes/${elem.id}`}>
+          <Link href={`/planners/${elem.id}`}>
             <section key={elem.id} className="rounded-2xl border-2 border-orange-400 h-45 w-55 gap-3 py-6">
               <div className="flex flex-col justify-center items-center">
-                <Image src={getRecipeImageUrl(elem.image)} alt="recipe_image" width={150} height={150} className="flex justify-center items-center rounded-lg" />
+                <Image src={getRecipeImageUrl(elem.recipe.image)} alt="recipe_image" width={150} height={150} className="flex justify-center items-center rounded-lg" />
                 <span className="rouded-2xl text-center m-3 font-semibold ">
-                  {elem.name}
+                  {elem.recipe.name}
                 </span>
               </div>
             </section>
