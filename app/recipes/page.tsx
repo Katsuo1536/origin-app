@@ -3,7 +3,7 @@
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
 import { RecipesArray } from './_components/RecipesArray';
-import { supabase } from '../_libs/supabase';
+import type { RecipeArrayDeleteBody } from '../api/recipes/route';
 
 export type RecipesResponse = {
  id: string;
