@@ -51,18 +51,6 @@ export const GET = async (_request: NextRequest) => {
   }
 }
 
-export type RecipeArrayRequest = {
-  recipes: {
-    id: string
-    name: string
-    image: string
-    recipeUrl: string
-    favorite: boolean
-    userId: string
-    createdAt: Date
-    updatedAt: Date
-  }[]
-}
 
 export const DELETE = async (_request: NextRequest) => {
 

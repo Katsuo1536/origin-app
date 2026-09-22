@@ -19,7 +19,7 @@ export type PlannersResponse = {
 }[]
 
 
-export default function Recipes() {
+export default function Planners() {
 
   const { token } = useSupabaseSession()
 
@@ -29,10 +29,10 @@ export default function Recipes() {
 
 
   if (isLoading) {
-    return <div className="mx-auto text-center mt-5">レシピ読み込み中！！！</div>
+    return <div className="mx-auto text-center mt-5">献立読み込み中！！！</div>
   }
   else if (error) {
-    return <div className="mx-auto text-center mt-5">レシピを取得できませんでした</div>
+    return <div className="mx-auto text-center mt-5">献立を取得できませんでした</div>
   };
 
 
@@ -40,7 +40,7 @@ export default function Recipes() {
     if (!token) return
     try {
 
-      const res: Response = await fetch("/api/recipes", {
+      const res: Response = await fetch("/api/planners", {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -54,11 +54,11 @@ export default function Recipes() {
         throw new Error(errorData.message)
       }
 
-      alert('レシピ一覧を削除しました。')
+      alert('献立一覧を削除しました。')
       await mutate()
     }
     catch {
-      alert('レシピ一覧の削除に失敗しました。')
+      alert('献立一覧の削除に失敗しました。')
     }
   }
 
