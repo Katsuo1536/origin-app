@@ -101,7 +101,7 @@ export const GET = async (_request: NextRequest,
 export type PlannerUpdateBody = {
   planner: {
     recipeId: string
-    date: Date
+    date: string
   }
 }
 
@@ -121,12 +121,14 @@ export const PUT = async (_request: NextRequest,
   //フロント側からリクエストの受け取り
   const req: PlannerUpdateBody = await _request.json();
 
+  console.log(req)
+
   try {
     const planner = await prisma.planner.update({
       where: { id: id },
       data: {
         recipeId: req.planner.recipeId,
-        date: req.planner.date,
+        date: new Date (req.planner.date),
         userId: data.user.id,
       }
     })

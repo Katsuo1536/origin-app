@@ -5,11 +5,10 @@ import Image from 'next/image';
 import { Fragment } from "react/jsx-runtime";
 import { time } from "@/app/_utils/time";
 
-
 export type Data = {
   id: string
   recipeId: string
-  date: Date
+  date: string
   recipe: {
     name: string
     image: string
@@ -34,7 +33,7 @@ export type Data = {
 const defaultValues: Data = {
   id: '',
   recipeId: '',
-  date: new Date,
+  date: '',
   recipe: {
     name: '',
     image: '',
@@ -62,7 +61,7 @@ export const PlanForm = ({
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, }
   } = useForm<Data>({
     defaultValues,
     values,
@@ -74,22 +73,47 @@ export const PlanForm = ({
     reset()
   }
 
+  const dateOptions = Array.from({ length: 8 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() + i)
+    return d
+  })
+
 
   return (
     <form className="flex w-full flex-col items-center m-10"
       onSubmit={handleSubmit(handleUpdate)}>
 
-<div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-90">
-  <span />
+      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-90">
+        <span />
 
-  <span className="text-2xl font-bold text-amber-950">
-    {values?.recipe.name}
-  </span>
+        <span className="text-2xl font-bold text-amber-950">
+          {values?.recipe.name}
+        </span>
 
-  <span className="justify-self-end rounded-2xl bg-orange-500 px-2 py-1 text-lg font-semibold text-white">
-    {time(values?.date ?? new Date())}
-  </span>
-</div>
+        <span className="flex items-center gap-10 justify-self-end ">
+          <select className="cursor-pointer rounded-2xl bg-orange-500 p-2 text-lg font-semibold text-white"
+            {...register('date', {
+            })}
+            disabled={isSubmitting}
+          >
+            {dateOptions.map((d) => {
+              const value = d.toLocaleDateString('sv-SE') 
+              return (
+                <option key={value} value={value}>
+                  {time(d)}
+                </option>
+              )
+            })}
+          </select>
+
+
+          <span className="rounded-2xl bg-green-500 px-2 py-1 text-lg font-semibold text-white">
+            人数を自動変換
+            {/* mastaraからの変換を予定　後にbottonになりそう */}
+          </span>
+        </span>
+      </div>
 
 
       <section className="mx-auto grid max-w-6xl grid-cols-1 gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
@@ -108,7 +132,7 @@ export const PlanForm = ({
                 <span className="w-full bg-transparent font-bold">
                   {values.recipe.recipeingredients?.[index].ingredient.name}
                 </span>
-                <span className="w-24 bg-transparent text-right text-gray-500">
+                <span className="w-40 bg-transparent text-right text-gray-500">
                   {values.recipe.recipeingredients?.[index].quantity}
                 </span>
               </Fragment>

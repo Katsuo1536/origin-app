@@ -24,10 +24,10 @@ export default function Recipe() {
 
 
   if (isLoading) {
-    return <div className="mx-auto text-center mt-5">レシピ読み込み中！！！</div>
+    return <div className="mx-auto text-center mt-5">献立読み込み中！！！</div>
   }
   else if (error) {
-    return <div className="mx-auto text-center mt-5">レシピを取得できませんでした</div>
+    return <div className="mx-auto text-center mt-5">献立を取得できませんでした</div>
   };
 
   const RecipeUpdate = async (data: Data) => {
@@ -40,6 +40,8 @@ export default function Recipe() {
           date: data.date,
         }
       }
+
+      console.log(body)
 
       const res: Response = await fetch(`/api/planners/${id}`, {
         method: 'PUT',
@@ -56,11 +58,11 @@ export default function Recipe() {
       }
 
 
-      alert(`${time(data.date)}の献立を更新しました。`)
+      alert(`${time(new Date(data.date))}の献立を更新しました。`)
       await mutate()
     }
     catch {
-      alert(`${time(data.date)}の献立を更新に失敗しました。`)
+      alert(`${time(new Date(data.date))}の献立を更新に失敗しました。`)
     }
   }
 
@@ -106,7 +108,7 @@ export default function Recipe() {
           values={(planner) ? {
             id: planner.id,
             recipeId: planner.recipeId,
-            date: planner.date,
+            date: new Date(planner.date).toLocaleDateString('sv-SE') ,
             recipe: planner.recipe,
           } : undefined}
           onUpdate={RecipeUpdate}
