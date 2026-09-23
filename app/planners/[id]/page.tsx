@@ -3,11 +3,11 @@
 import { PlanForm, Data } from '@/app/planners/[id]/_components/PlanForm';
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
-import { RecipeResponse } from "@/app/api/recipes/[id]/route";
 import { useRouter, useParams } from 'next/navigation';
 import type { PlannerUpdateBody } from '@/app/api/planners/[id]/route';
 import { PlannerDeleteBody } from '@/app/api/planners/[id]/route';
 import { time } from '@/app/_utils/time';
+import { CreateListsBody } from '@/app/api/lists/new_lists/route';
 
 
 export default function Recipe() {
@@ -30,7 +30,7 @@ export default function Recipe() {
     return <div className="mx-auto text-center mt-5">献立を取得できませんでした</div>
   };
 
-  const RecipeUpdate = async (data: Data) => {
+  const PlannerUpdate = async (data: Data) => {
     if (!token) return
     try {
 
@@ -66,7 +66,7 @@ export default function Recipe() {
     }
   }
 
-  const RecipeDelete = async (id: string) => {
+  const PlannerDelete = async (id: string) => {
     if (!token) return
     try {
 
@@ -98,6 +98,41 @@ export default function Recipe() {
     }
   }
 
+  const CreateLists = async (data: Data) => {
+    if (!token) return
+    try {
+
+      const body: CreateListsBody = {
+        lists: data.recipe.recipeingredients.map(elem => ({
+          name: elem.ingredient.name,
+          quantity: elem.quantity,
+          recipeId: data.recipeId,
+        }))
+      }
+
+      const res: Response = await fetch('/api/lists/new_lists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message)
+      }
+
+
+      alert(`${data.recipe.name}から買い物リスト作成しました。`)
+      router.push('/lists')
+    }
+    catch {
+      alert(`${data.recipe.name}から買い物リスト作成に失敗しました。`)
+    }
+  }
+
 
   return (
     <>
@@ -108,11 +143,12 @@ export default function Recipe() {
           values={(planner) ? {
             id: planner.id,
             recipeId: planner.recipeId,
-            date: new Date(planner.date).toLocaleDateString('sv-SE') ,
+            date: new Date(planner.date).toLocaleDateString('sv-SE'),
             recipe: planner.recipe,
           } : undefined}
-          onUpdate={RecipeUpdate}
-          onDelete={RecipeDelete}
+          onUpdate={PlannerUpdate}
+          onDelete={PlannerDelete}
+          onCreateLists={CreateLists}
 
         />
 

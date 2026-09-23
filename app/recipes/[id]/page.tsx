@@ -1,11 +1,11 @@
 "use client";
 
-import { RecipeForm, Data} from './components/RecipeForm';
+import { RecipeForm, Data } from './components/RecipeForm';
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
-import { RecipeListBody } from "@/app/api/lists/new_lists/route";
 import type { RecipeUpdateBody } from '@/app/api/recipes/[id]/route';
 import { useRouter, useParams } from 'next/navigation';
+import { CreateListsBody } from '@/app/api/lists/new_lists/route';
 
 
 export default function Recipe() {
@@ -13,7 +13,7 @@ export default function Recipe() {
   const { token } = useSupabaseSession()
 
   const router = useRouter()
-  const { id } = useParams<{ id : string}>();
+  const { id } = useParams<{ id: string }>();
 
   const { data, isLoading, error, mutate } = useFetch(`/api/recipes/${id}`)
 
@@ -70,7 +70,7 @@ export default function Recipe() {
 
 
   type RecipeDeleteId = {
-    recipeId : string
+    recipeId: string
   }
 
   const RecipeDelete = async (id: string) => {
@@ -108,13 +108,13 @@ export default function Recipe() {
     if (!token) return
     try {
 
-      const body: RecipeListBody = {
-         lists: data.recipeingredients.map( elem => ({
+      const body: CreateListsBody = {
+        lists: data.recipeingredients.map(elem => ({
           name: elem.ingredient.name,
           quantity: elem.quantity,
           recipeId: id,
-         }))
-        }
+        }))
+      }
 
       const res: Response = await fetch('/api/lists/new_lists', {
         method: 'POST',
@@ -131,11 +131,11 @@ export default function Recipe() {
       }
 
 
-      alert(`${data.name}の材料から買い物リスト作成しました。`)
+      alert(`${data.name}から買い物リスト作成しました。`)
       router.push('/lists')
     }
     catch {
-      alert(`${data.name}の材料から買い物リスト作成に失敗しました。`)
+      alert(`${data.name}から買い物リスト作成に失敗しました。`)
     }
   }
 

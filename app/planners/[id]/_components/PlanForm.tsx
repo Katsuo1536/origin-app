@@ -48,6 +48,7 @@ type Props = {
   values?: Data
   onUpdate: (data: Data) => void
   onDelete: (id: string) => void
+  onCreateLists: (data: Data) => void
 };
 
 
@@ -55,6 +56,7 @@ export const PlanForm = ({
   values,
   onUpdate,
   onDelete,
+  onCreateLists,
 }: Props
 ) => {
   const {
@@ -84,21 +86,30 @@ export const PlanForm = ({
     <form className="flex w-full flex-col items-center m-10"
       onSubmit={handleSubmit(handleUpdate)}>
 
-      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-90">
+      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-80">
         <span />
 
         <span className="text-2xl font-bold text-amber-950">
           {values?.recipe.name}
         </span>
 
-        <span className="flex items-center gap-10 justify-self-end ">
-          <select className="cursor-pointer rounded-2xl bg-orange-500 p-2 text-lg font-semibold text-white"
+        <span className="flex items-center gap-5 justify-self-end ">
+
+          <button className="rounded-2xl bg-amber-700
+                      px-4 py-1 text-md font-semibold text-white"
+            onClick={handleSubmit(onCreateLists)}
+            disabled={isSubmitting}
+          >
+            <Image src="/shoppingLogo.png" alt="ShoppingBag_Logo" width={28} height={50} />
+          </button>
+
+          <select className="cursor-pointer rounded-2xl bg-orange-500 px-2 py-1 text-xl font-semibold text-white"
             {...register('date', {
             })}
             disabled={isSubmitting}
           >
             {dateOptions.map((d) => {
-              const value = d.toLocaleDateString('sv-SE') 
+              const value = d.toLocaleDateString('sv-SE')
               return (
                 <option key={value} value={value}>
                   {time(d)}

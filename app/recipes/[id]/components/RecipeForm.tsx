@@ -77,7 +77,7 @@ export const RecipeForm = ({
         <span className="flex items-center gap-5 justify-self-start px-20">
           <label className="px-3 py-2 font-semibold rounded-2xl p-4 cursor-pointer border
                       border-red-500 text-red-500
-                       has-[:checked]:bg-red-500 has-[:checked]:text-white">
+                       has-checked:bg-red-500 has-checked:text-white">
             <input
               className="border border-b-gray-700 rounded-2xl p-4 sr-only"
               type="checkbox"
