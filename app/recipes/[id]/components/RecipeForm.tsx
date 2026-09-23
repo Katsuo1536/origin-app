@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from 'next/image';
 import { Fragment } from "react/jsx-runtime";
 
+
+
 export type Data = {
   id: string
   name: string
@@ -39,6 +41,7 @@ type Props = {
   values?: Data
   onUpdate: (data: Data) => void
   onDelete: (id: string) => void
+  onCreateLists: (data: Data) => void
 };
 
 
@@ -46,6 +49,7 @@ export const RecipeForm = ({
   values,
   onUpdate,
   onDelete,
+  onCreateLists,
 }: Props
 ) => {
   const {
@@ -68,11 +72,50 @@ export const RecipeForm = ({
   return (
     <form className="flex w-full flex-col items-center m-10"
       onSubmit={handleSubmit(handleUpdate)}>
+      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-70">
 
-      <div className="flex justify-center items-center 
-      text-2xl text-amber-950 font-bold ">
+        <span className="flex items-center gap-5 justify-self-start px-20">
+          <label className="px-3 py-2 font-semibold rounded-2xl p-4 cursor-pointer border
+                      border-red-500 text-red-500
+                       has-[:checked]:bg-red-500 has-[:checked]:text-white">
+            <input
+              className="border border-b-gray-700 rounded-2xl p-4 sr-only"
+              type="checkbox"
+              {...register('favorite', {
+              })}
+              disabled={isSubmitting} />
+            お気に入り
+          </label>
+        </span>
 
-        {values?.name}
+        <span className="text-2xl font-bold text-amber-950">
+          {values?.name}
+        </span>
+
+        <span className="flex items-center gap-5 justify-self-end ">
+
+          <button className="rounded-2xl bg-amber-700
+            px-4 py-1 text-md font-semibold text-white"
+            onClick={handleSubmit(onCreateLists)}
+            disabled={isSubmitting}
+          >
+            <Image src="/shoppingLogo.png" alt="ShoppingBag_Logo" width={28} height={50} />
+          </button>
+
+          {values?.recipeUrl && (
+            <Link href={values?.recipeUrl} className="rounded-2xl bg-orange-500 
+            px-2 py-1 text-md font-semibold text-white"
+              target="_blank" rel="noopener noreferrer">
+              レシピを開く
+            </Link>
+          )}
+
+
+          <span className="rounded-2xl bg-green-500 px-2 py-1 text-md font-semibold text-white">
+            人数を自動変換
+            {/* mastaraからの変換を予定　後にbottonになりそう */}
+          </span>
+        </span>
       </div>
 
 
