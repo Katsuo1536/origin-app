@@ -1,6 +1,6 @@
 "use client";
 
-import { PlanForm, Data } from '@/app/planners/[id]/_components/PlanForm';
+import { PlanForm, Data } from '@/app/planners/_components/PlanForm';
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
 import { useRouter, useParams } from 'next/navigation';
@@ -10,7 +10,7 @@ import { time } from '@/app/_utils/time';
 import { CreateListsBody } from '@/app/api/lists/new_lists/route';
 
 
-export default function Recipe() {
+export default function Planner() {
 
   const { token } = useSupabaseSession()
 
@@ -140,13 +140,14 @@ export default function Recipe() {
       <div className="flex gap-20">
 
         <PlanForm
+          mode='edit'
           values={(planner) ? {
             id: planner.id,
             recipeId: planner.recipeId,
             date: new Date(planner.date).toLocaleDateString('sv-SE'),
             recipe: planner.recipe,
           } : undefined}
-          onUpdate={PlannerUpdate}
+          onSubmit={PlannerUpdate}
           onDelete={PlannerDelete}
           onCreateLists={CreateLists}
 
