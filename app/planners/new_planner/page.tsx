@@ -85,7 +85,7 @@ export default function NewPlanner() {
 
 
       alert(`${time(new Date(data.date))}の献立を作成しました。`)
-      await mutate()
+      router.push('/planners')
     }
     catch {
       alert(`${time(new Date(data.date))}の献立作成に失敗しました。`)

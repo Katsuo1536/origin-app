@@ -90,11 +90,6 @@ export const PlanForm = ({
   })
 
 
-  // const recipeOptions = Array.from({ length: array.length }, (r) => {
-  //   r.setDate(d.getDate() + i)
-  //   return d
-  // })
-
 
   return (
     <form className="flex w-full flex-col items-center m-10"

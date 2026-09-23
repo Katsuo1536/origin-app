@@ -46,7 +46,7 @@ export const GET = async (_request: NextRequest) => {
         }
       },
       orderBy: {
-        createdAt: 'desc',
+        date: 'desc',
       },
     })
 
