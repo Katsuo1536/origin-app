@@ -15,9 +15,26 @@ export const RecipesArray = ({
 }: Props
 ) => {
 
+  const booleanRecipe: boolean = values?.every(t => t.favorite) ? true : false
+
   return (
     <>
+
       <span className="flex items-center translate-x-275 py-5 gap-5">
+
+
+        {booleanRecipe ? (
+          <Link href={"/recipes"} className="flex justify-center items-center
+       text-orange-500 text-xl font-bold border-2 border-orange-500 rounded-lg h-5 w-30  py-5">
+            もどる
+          </Link>) :
+          (
+            <Link href={"/recipes/favorite_recipe"} className="flex justify-center items-center
+       text-white text-xl bg-orange-500 rounded-lg h-5 w-30  py-5">
+              お気に入り
+            </Link>)
+        }
+
         <button className="flex justify-center items-center bg-red-500
                             text-xl text-white font-semibold h-10 w-20
                             rounded-lg" type="button"

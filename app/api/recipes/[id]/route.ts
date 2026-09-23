@@ -26,8 +26,6 @@ export type RecipeResponse = {
       stepNumber: number
       description: string
       recipeId: string
-      createdAt: Date
-      updatedAt: Date
     }[]
   }
 }
@@ -79,7 +77,6 @@ export const GET = async (_request: NextRequest,
       return NextResponse.json({ message: error.message }, { status: 400 })
   }
 }
-
 
 export type RecipeUpdateBody = {
   recipe: {

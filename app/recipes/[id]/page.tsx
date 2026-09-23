@@ -22,10 +22,10 @@ export default function Recipe() {
   console.log(recipe)
 
   if (isLoading) {
-    return <div className="mx-auto text-center mt-5">予算読み込み中！！！</div>
+    return <div className="mx-auto text-center mt-5">レシピ読み込み中！！！</div>
   }
   else if (error) {
-    return <div className="mx-auto text-center mt-5">予算を取得できませんでした</div>
+    return <div className="mx-auto text-center mt-5">レシピを取得できませんでした</div>
   };
 
   const RecipeUpdate = async (data: Data) => {
@@ -45,7 +45,7 @@ export default function Recipe() {
 
       }
 
-      const res: Response = await fetch("/api/budget", {
+      const res: Response = await fetch(`/api/recipes/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -60,11 +60,11 @@ export default function Recipe() {
       }
 
 
-      alert('予算を記録しました。')
+      alert('レシピを記録しました。')
       await mutate()
     }
     catch {
-      alert('予算の記録に失敗しました。')
+      alert('レシピの記録に失敗しました。')
     }
   }
 
@@ -81,7 +81,7 @@ export default function Recipe() {
         recipeId: id
       }
 
-      const res: Response = await fetch("/api/recipes/[id]", {
+      const res: Response = await fetch(`/api/recipes/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

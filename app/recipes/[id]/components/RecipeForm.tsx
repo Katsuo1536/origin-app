@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { getRecipeImageUrl } from "@/app/_components/getImage"
 import Link from "next/link";
 import Image from 'next/image';
+import { Fragment } from "react/jsx-runtime";
 
 export type Data = {
   id: string
@@ -70,51 +71,81 @@ export const RecipeForm = ({
 
       <div className="flex justify-center items-center 
       text-2xl text-amber-950 font-bold ">
+
         {values?.name}
       </div>
 
 
-      <section className="grid grid-cols-2 m-10">
+      <section className="mx-auto grid max-w-6xl grid-cols-1 gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
 
         <section className="flex flex-col justify-center items-center">
 
-          <div className="flex justify-center items-center">
+          <div className="flex flex-col gap-4">
             {values && (<Image src={getRecipeImageUrl(values?.image)}
               alt="recipe_image" width={300} height={300}
-              className="flex justify-center items-center rounded-lg" />
+              className="w-full rounded-lg object-cover" />
             )}
           </div>
-          <div className="m-15 h-auto w-auto bg-orange-100 rounded-lg text-xl p-3">
+          <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 rounded-lg bg-orange-100 p-4 m-5">
             {values?.recipeingredients.map((elem, index) => (
-              <div key={elem.id} className=" grid grid-cols-2 justify-items-center ">
-                <input className="text-center font-bold w-40"
+              <Fragment key={elem.id} >
+                <input className="w-full bg-transparent font-bold"
                   {...register(`recipeingredients.${index}.ingredient.name`, {
+                    required: '材料名を入力してください',
+                    minLength: { value: 1, message: '1文字以上で入力してください' },
+                    maxLength: { value: 15, message: '15文字以内で入力してください' },
                   })}
                   disabled={isSubmitting} />
-                <input className="text-end text-gray-500 w-30"
+
+                <input className="w-24 bg-transparent text-right text-gray-500"
                   {...register(`recipeingredients.${index}.quantity`, {
+                    required: '分量を入力してください',
+                    minLength: { value: 1, message: '1文字以上で入力してください' },
+                    maxLength: { value: 10, message: '10文字以内で入力してください' },
                   })}
                   disabled={isSubmitting} />
-              </div>
-              //  <div className="flex justify-center mx-auto items-center text-red-500">{errors.elem?.message}</div> 
+
+                {(errors.recipeingredients?.[index]?.ingredient?.name ||
+                  errors.recipeingredients?.[index]?.quantity) && (
+                    <span className="col-span-2 -mt-1 text-sm text-red-500">
+                      {errors.recipeingredients[index]?.ingredient?.name?.message ??
+                        errors.recipeingredients[index]?.quantity?.message}
+                    </span>
+                  )}
+
+
+              </Fragment>
+
 
             ))}
           </div>
         </section>
 
-        <section className="grid grid-cols-2 justify-items-centercenter ">
+        <section className="flex flex-col gap-3 rounded-lg bg-orange-200 p-5">
           {values?.processes.map((elem, index) => (
-            <>
-              <span className="">
-                {elem.stepNumber}
+            <div key={elem.id} className="flex items-center gap-3">
+              <span className="w-8 shrink-0 pt-2 text-xl font-bold tabular-nums">
+                {`${elem.stepNumber}. `}
               </span>
-              <input key={elem.id} className="text-center w-[64ch] "
+              <textarea
+                rows={2}
+                className="field-sizing-content min-h-10 
+              flex-1 resize-none rounded 
+              px-3 py-2 text-lg font-medium"
                 {...register(`processes.${index}.description`, {
+                  required: '手順を入力してください',
+                  minLength: { value: 1, message: '1文字以上で入力してください' },
                 })}
                 disabled={isSubmitting} />
-            </>
 
-            //  <div className="flex justify-center mx-auto items-center text-red-500">{errors.elem?.message}</div> 
+              {(errors.processes?.[index]?.description) && (
+                <span className="pl-11 text-sm text-red-500">
+                  {errors.processes?.[index]?.description.message}
+                </span>
+              )}
+
+            </div>
+
 
           ))}
         </section>
@@ -123,9 +154,13 @@ export const RecipeForm = ({
 
       <div className="flex justify-center mx-auto items-center">
         <Link href={"/recipes"}>
-          <button className="border border-gray-500 text-gray-500 rounded-2xl text-2xl font-bold p-3 mr-30  h-20 w-30" type="submit" disabled={isSubmitting}>
-            削除
-          </button>
+          {values && (
+            <button className="border border-gray-500 text-gray-500 rounded-2xl text-2xl font-bold p-3 mr-30  h-20 w-30"
+              type="button" onClick={() => onDelete(values?.id)}
+              disabled={isSubmitting}>
+              削除
+            </button>
+          )}
         </Link>
 
         <button className="bg-green-400 text-white text-2xl rounded-2xl font-bold p-3 h-20 w-30"
