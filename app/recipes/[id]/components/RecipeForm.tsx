@@ -62,7 +62,6 @@ export const RecipeForm = ({
     values,
   });
 
-
   const handleUpdate = async (data: Data) => {
     await onUpdate(data)
     reset()
@@ -74,7 +73,7 @@ export const RecipeForm = ({
       onSubmit={handleSubmit(handleUpdate)}>
       <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-70">
 
-        <span className="flex items-center gap-5 justify-self-start px-20">
+        <span className="flex items-center gap-10 justify-self-start px-5">
           <label className="px-3 py-2 font-semibold rounded-2xl p-4 cursor-pointer border
                       border-red-500 text-red-500
                        has-checked:bg-red-500 has-checked:text-white">
@@ -86,6 +85,11 @@ export const RecipeForm = ({
               disabled={isSubmitting} />
             お気に入り
           </label>
+
+          <Link href={`/planners/new_planner?recipeId=${values?.id}`} className="px-3 py-2 font-semibold rounded-2xl p-4 
+          bg-emerald-700 text-white">
+            献立に追加
+          </Link>
         </span>
 
         <span className="text-2xl font-bold text-amber-950">

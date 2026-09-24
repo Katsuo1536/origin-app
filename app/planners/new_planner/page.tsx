@@ -8,7 +8,7 @@ import { time } from '@/app/_utils/time';
 import { RecipesResponse } from '@/app/recipes/page';
 import { PlannerPostType } from '@/app/api/planners/new_planner/route';
 import { useState } from 'react';
-
+import { useSearchParams } from 'next/navigation';
 
 export type recipeData = {
   id: string
@@ -37,13 +37,17 @@ export default function NewPlanner() {
   const { token } = useSupabaseSession()
 
   const router = useRouter()
-  const { id } = useParams();
 
   const { data: recipesArray, isLoading, error, mutate } = useFetch("/api/recipes")
 
   const recipes: RecipesResponse = recipesArray ? recipesArray.recipes : [];
 
-  const [recipeId, setRecipeId] = useState('')
+  const searchParams = useSearchParams();
+  const paramRecipeId = searchParams.get("recipeId");
+
+  const [recipeId, setRecipeId] = useState<string>(
+    paramRecipeId ?? ''
+  )
 
   const { data: recipeData } = useFetch(recipeId ? `/api/recipes/${recipeId}` : '')
 
