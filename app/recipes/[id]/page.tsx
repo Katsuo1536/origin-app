@@ -1,6 +1,6 @@
 "use client";
 
-import { RecipeForm, Data } from './components/RecipeForm';
+import { RecipeForm, Data } from './_components/RecipeForm';
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession';
 import { useFetch } from "@/app/_hooks/useFetch";
 import type { RecipeUpdateBody } from '@/app/api/recipes/[id]/route';
