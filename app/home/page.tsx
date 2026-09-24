@@ -51,7 +51,7 @@ export default function Home() {
             <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
               <h2 className="font-bold px-2 py-1 m-1">買い物リスト</h2>
               <div className="flex flex-col items-center gap-1 m-3">
-                {lists?.slice(0, 6).map(elem => (
+                {lists.slice(0, 6).map(elem => (
                   <div key={elem.id} className="flex flex-col-2 justify-center items-center">
                     <span className="flex items-center  justify-between
                   border border-gray-300 h-5 w-50 rounded-lg

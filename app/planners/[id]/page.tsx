@@ -41,8 +41,6 @@ export default function Planner() {
         }
       }
 
-      console.log(body)
-
       const res: Response = await fetch(`/api/planners/${id}`, {
         method: 'PUT',
         headers: {
