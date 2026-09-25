@@ -46,7 +46,7 @@ export const GET = async (_request: NextRequest) => {
         }
       },
       orderBy: {
-        createdAt: 'desc',
+        date: 'desc',
       },
     })
 
@@ -60,3 +60,28 @@ export const GET = async (_request: NextRequest) => {
       return NextResponse.json({ message: error.message }, { status: 400 })
   }
 }
+
+export const DELETE = async (_request: NextRequest) => {
+
+  //認証機能(トークン認証によるAPIの制限)
+  const token = _request.headers.get('Authorization') ?? ''
+
+  const { data, error } = await supabase.auth.getUser(token)
+
+  if (error)
+    return NextResponse.json({ status: error.message }, { status: 401 })
+
+  try {
+    const planners = await prisma.planner.deleteMany({
+      where: {
+        userId: data.user.id
+      }
+    })
+
+    return NextResponse.json({ status: 200, count: planners.count })
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 })
+  }
+}
+
