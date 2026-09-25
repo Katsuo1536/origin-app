@@ -1,7 +1,7 @@
 "use client";
 
 import { useFetch } from "@/app/_hooks/useFetch";
-import { AccountForm } from './_components/AccountForm';
+import { AccountInformation } from './_components/AccountInformation';
 import { UserResponse } from '../api/account/route';
 import { RecipeArrayResponse } from "../api/recipes/route";
 
@@ -27,7 +27,7 @@ export default function Account() {
 
 
   return (
-    <AccountForm
+    <AccountInformation
       values={account.user ?? undefined}
       recipes={favorite.recipes ?? undefined}
     />

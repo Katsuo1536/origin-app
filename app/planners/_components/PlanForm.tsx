@@ -184,7 +184,7 @@ export const PlanForm = ({
               </div>
             )}
 
-            <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 rounded-lg bg-orange-100 p-4 m-5">
+            <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 rounded-lg bg-orange-100 p-3 m-5">
               {values?.recipe?.recipeingredients.map((elem, index) => (
                 <Fragment key={elem.id} >
                   <span className="w-full bg-transparent font-bold">
