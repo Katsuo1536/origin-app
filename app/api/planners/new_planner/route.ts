@@ -6,8 +6,7 @@ import { supabase } from "@/app/_libs/supabase";
 export type PlannerPostType = {
   planner: {
     recipeId: string
-    date: Date
-    userId: string
+    date: string
   }
 }
 
@@ -29,7 +28,7 @@ export const POST = async (_request: NextRequest) => {
     const planner = await prisma.planner.create({
       data: {
         recipeId: req.planner.recipeId,
-        date: req.planner.date,
+        date: new Date(req.planner.date),
         userId: data.user.id,
       }
     })

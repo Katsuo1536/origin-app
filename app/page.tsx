@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { time } from '@/app/_utils/time'
 
 
-
 export default function Home() {
 
   return (

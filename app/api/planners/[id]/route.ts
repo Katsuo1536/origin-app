@@ -16,6 +16,19 @@ export type PlannerIndexResponse = {
       image: string
       recipeUrl: string
       favorite: boolean
+      recipeingredients: {
+      id: string
+      quantity: string
+      ingredient: {
+        id: string
+        name: string
+      }
+    }[]
+    processes: {
+      id: string
+      stepNumber: number
+      description: string
+    }[]
     }
   }
 }
@@ -39,18 +52,37 @@ export const GET = async (_request: NextRequest,
   try {
     const planner = await prisma.planner.findUnique({
       where: {
-        id : id,
+        id: id,
         userId: data.user.id,
       },
       include: {
         recipe: {
           select: {
-            name: true, 
-            image: true, 
+            name: true,
+            image: true,
             recipeUrl: true,
-            favorite: true
-          }
-        }
+            favorite: true,
+            recipeingredients: {
+              select: {
+                id: true,
+                quantity: true,
+                ingredient: {
+                  select: {
+                    id: true,
+                    name: true,
+                  }
+                }
+              }
+            },
+            processes:{
+              select:{
+                id: true,
+                stepNumber: true,
+                description: true,
+              }
+            },
+          },
+        },
       },
     })
 
@@ -69,8 +101,7 @@ export const GET = async (_request: NextRequest,
 export type PlannerUpdateBody = {
   planner: {
     recipeId: string
-    date: Date
-    userId: string
+    date: string
   }
 }
 
@@ -90,12 +121,14 @@ export const PUT = async (_request: NextRequest,
   //フロント側からリクエストの受け取り
   const req: PlannerUpdateBody = await _request.json();
 
+  console.log(req)
+
   try {
     const planner = await prisma.planner.update({
       where: { id: id },
       data: {
         recipeId: req.planner.recipeId,
-        date: req.planner.date,
+        date: new Date (req.planner.date),
         userId: data.user.id,
       }
     })
@@ -110,8 +143,7 @@ export const PUT = async (_request: NextRequest,
 
 export type PlannerDeleteBody = {
   planner: {
-    recipeId: string
-    userId: string
+    id: string
   }
 }
 

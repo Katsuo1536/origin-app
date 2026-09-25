@@ -6,6 +6,13 @@ import { time } from '@/app/_utils/time'
 import { useFetch } from "@/app/_hooks/useFetch";
 import type { BudgetResponce } from "../budget/page";
 import type { ListsResponse } from '../lists/page';
+import type { RecipesResponse } from '../recipes/page';
+import { getRecipeImageUrl } from "@/app/_components/getImage";
+import { PlannersResponse } from '../planners/page';
+
+export const toJstDate = (d: Date | string) =>
+  new Date(d).toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+
 
 export default function Home() {
 
@@ -16,6 +23,21 @@ export default function Home() {
   const { data: listData } = useFetch("/api/lists")
 
   const lists: ListsResponse = listData ? listData.lists : [];
+
+  const { data: recipeData } = useFetch("/api/recipes")
+
+  const recipes: RecipesResponse = recipeData ? recipeData.recipes : [];
+
+  const randomRecipe = recipes ? recipes.at(Math.floor(Math.random() * recipes.length)) : undefined;
+
+  const { data: plannerData } = useFetch("/api/planners")
+
+  const planners: PlannersResponse = plannerData ? plannerData.planners : [];
+
+  const todayPlan = planners ? planners.filter(t => toJstDate(t.date) === toJstDate(new Date())) : undefined;
+
+  const randomPlan = todayPlan ? todayPlan.at(Math.floor(Math.random() * todayPlan.length)) : undefined;
+
 
 
   return (
@@ -29,10 +51,9 @@ export default function Home() {
             <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
               <h2 className="font-bold px-2 py-1 m-1">買い物リスト</h2>
               <div className="flex flex-col items-center gap-1 m-3">
-                {lists?.slice(0,6).map(elem => (
-                  <div className="flex flex-col-2 justify-center items-center">
-
-                    <span key={elem.id} className="flex items-center  justify-between
+                {lists.slice(0, 6).map(elem => (
+                  <div key={elem.id} className="flex flex-col-2 justify-center items-center">
+                    <span className="flex items-center  justify-between
                   border border-gray-300 h-5 w-50 rounded-lg
                   px-2 py-3">
 
@@ -50,38 +71,48 @@ export default function Home() {
             </section>
           </Link>
 
-          <section className="rounded-2xl border-2 border-orange-400 h-60 w-75">
-            <span className="flex justify-left m-1">
-              <h2 className="font-bold px-2 py-1">
-                献立
-              </h2>
-              <time className="bg-gray-300 rounded-2xl px-1 py-0.5">
-                {time(new Date)}
-              </time>
-            </span>
-            <div className="flex justify-center">
-              <span className="rouded-2xl text-right m-5 font-semibold">
-                <Image src="/Koidare_torimomo.png" alt="イメージ画像＿香味だれ鶏もも肉" width={200} height={200} />
-                香味だれ
+          <Link href="/planners" >
+            <section className="rounded-2xl border-2 border-orange-400 h-60 w-75">
+              <span className="flex justify-left m-1">
+                <h2 className="font-bold px-2 py-1">
+                  献立
+                </h2>
+                <time className="bg-gray-300 rounded-2xl px-1 py-0.5">
+                  {time(new Date)}
+                </time>
               </span>
-            </div>
-          </section>
+              {randomPlan && (
+                <div key={randomPlan.id}
+                  className="flex flex-col justify-center items-center py-3">
+                  <Image src={getRecipeImageUrl(randomPlan.recipe.image)} alt="planner_image" width={200} height={200} className="flex justify-center items-center rounded-lg" />
+                  <span className="rouded-2xl text-center m-3 font-semibold ">
+                    {randomPlan.recipe.name}
+                  </span>
+                </div>
+              )}
+            </section>
+          </Link>
 
         </div >
 
         <div className="flex justify-center gap-10 m-10">
 
-          <section className="rounded-2xl border-2 border-orange-400 h-60 w-75">
-            <h2 className="font-bold px-2 py-1 m-1">
-              レシピ
-            </h2>
-            <div className="flex justify-center">
-              <span className="rouded-2xl text-right m-3 font-semibold">
-                <Image src="/MotsuNabe.png" alt="イメージ画像＿もつ鍋" width={200} height={200} />
-                もつ鍋
-              </span>
-            </div>
-          </section>
+          <Link href="/recipes" >
+            <section className="rounded-2xl border-2 border-orange-400 h-60 w-75">
+              <h2 className="font-bold px-2 py-1">
+                レシピ
+              </h2>
+              {randomRecipe && (
+                <div key={randomRecipe?.id}
+                  className="flex flex-col justify-center items-center py-3">
+                  <Image src={getRecipeImageUrl(randomRecipe.image)} alt="recipe_image" width={200} height={200} className="flex justify-center items-center rounded-lg" />
+                  <span className="rouded-2xl text-center m-3 font-semibold ">
+                    {randomRecipe?.name}
+                  </span>
+                </div>
+              )}
+            </section>
+          </Link>
 
           <Link href="/budget" >
             <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
