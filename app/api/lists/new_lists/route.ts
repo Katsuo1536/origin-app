@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
 
 
-export type RecipeListBody = {
+export type CreateListsBody = {
   lists: {
     name: string
     quantity: string
@@ -23,7 +23,7 @@ export const POST = async (_request: NextRequest) => {
     return NextResponse.json({ status: error.message }, { status: 401 })
 
   //フロント側からリクエストの受け取り
-  const req: RecipeListBody = await _request.json();
+  const req: CreateListsBody = await _request.json();
 
   try {
 
