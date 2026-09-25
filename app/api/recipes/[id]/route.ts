@@ -26,8 +26,6 @@ export type RecipeResponse = {
       stepNumber: number
       description: string
       recipeId: string
-      createdAt: Date
-      updatedAt: Date
     }[]
   }
 }
@@ -80,9 +78,6 @@ export const GET = async (_request: NextRequest,
   }
 }
 
-
-
-
 export type RecipeUpdateBody = {
   recipe: {
     id: string
@@ -90,7 +85,6 @@ export type RecipeUpdateBody = {
     image: string
     recipeUrl: string
     favorite: boolean
-    userId: string
     recipeingredients: {
       id: string
       quantity: string
@@ -103,7 +97,6 @@ export type RecipeUpdateBody = {
       id: string
       stepNumber: number
       description: string
-      recipeId: string
     }[]
   }
 }
