@@ -6,16 +6,16 @@ export type UserUpdateBody = {
   user: {
     name: string
     email: string
-    icon: string
+    iconImageKey: string
   }
 }
 
 
-export const PUT = async (_request: NextRequest,
+export const PUT = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { error } = await supabase.auth.getUser(token)
 
@@ -25,7 +25,8 @@ export const PUT = async (_request: NextRequest,
   const { id } = await params;
 
   //フロント側からリクエストの受け取り
-  const req: UserUpdateBody = await _request.json();
+  const req: UserUpdateBody = await request.json();
+
 
   try {
     const user = await prisma.user.update({
@@ -33,11 +34,10 @@ export const PUT = async (_request: NextRequest,
       data: {
         name: req.user.name,
         email: req.user.email,
-        icon: req.user.icon,
-
+        iconImageKey: req.user.iconImageKey,
       }
     })
-
+    
 
     return NextResponse.json<UserUpdateBody>({ user }, { status: 200 })
   } catch (error) {
@@ -47,11 +47,11 @@ export const PUT = async (_request: NextRequest,
 }
 
 
-export const DELETE = async (_request: NextRequest,
+export const DELETE = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { error } = await supabase.auth.getUser(token)
 

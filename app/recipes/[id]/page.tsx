@@ -19,7 +19,6 @@ export default function Recipe() {
 
   const recipe: Data = data ? data.recipe : undefined;
 
-  console.log(recipe)
 
   if (isLoading) {
     return <div className="mx-auto text-center mt-5">レシピ読み込み中！！！</div>

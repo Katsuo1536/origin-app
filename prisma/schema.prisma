@@ -17,7 +17,7 @@ model User {
   name        String    
   email       String    @unique
   role        Role      @default(CLIENT)
-  icon        String    
+  iconImageKey        String  @default("")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   recipes     Recipe[]

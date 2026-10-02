@@ -12,10 +12,10 @@ export type CreateListsBody = {
 }
 
 
-export const POST = async (_request: NextRequest) => {
+export const POST = async (request: NextRequest) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
@@ -23,7 +23,7 @@ export const POST = async (_request: NextRequest) => {
     return NextResponse.json({ status: error.message }, { status: 401 })
 
   //フロント側からリクエストの受け取り
-  const req: CreateListsBody = await _request.json();
+  const req: CreateListsBody = await request.json();
 
   try {
 

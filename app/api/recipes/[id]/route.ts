@@ -30,15 +30,13 @@ export type RecipeResponse = {
   }
 }
 
-export const GET = async (_request: NextRequest,
+export const GET = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
-
-  console.log("authError:", error);
 
 
   if (error)
@@ -101,11 +99,11 @@ export type RecipeUpdateBody = {
   }
 }
 
-export const PUT = async (_request: NextRequest,
+export const PUT = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
@@ -115,7 +113,7 @@ export const PUT = async (_request: NextRequest,
   const { id } = await params;
 
   //フロント側からリクエストの受け取り
-  const req: RecipeUpdateBody = await _request.json();
+  const req: RecipeUpdateBody = await request.json();
 
   try {
     const recipe = await prisma.recipe.update({
@@ -180,11 +178,11 @@ export type RecipeDeleteBody = {
   }
 }
 
-export const DELETE = async (_request: NextRequest,
+export const DELETE = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 

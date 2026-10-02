@@ -19,14 +19,12 @@ export type PlannerArrayResponse = {
   }[]
 }
 
-export const GET = async (_request: NextRequest) => {
+export const GET = async (request: NextRequest) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
-
-  console.log("authError:", error);
 
 
   if (error)
@@ -61,10 +59,10 @@ export const GET = async (_request: NextRequest) => {
   }
 }
 
-export const DELETE = async (_request: NextRequest) => {
+export const DELETE = async (request: NextRequest) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
