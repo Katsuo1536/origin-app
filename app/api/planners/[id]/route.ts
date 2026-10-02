@@ -41,8 +41,6 @@ export const GET = async (_request: NextRequest,
 
   const { data, error } = await supabase.auth.getUser(token)
 
-  console.log("authError:", error);
-
 
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
@@ -120,8 +118,6 @@ export const PUT = async (_request: NextRequest,
 
   //フロント側からリクエストの受け取り
   const req: PlannerUpdateBody = await _request.json();
-
-  console.log(req)
 
   try {
     const planner = await prisma.planner.update({

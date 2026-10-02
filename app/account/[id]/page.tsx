@@ -38,12 +38,11 @@ export default function Account() {
         user: {
           name : data.name,
           email : data.email,
-          icon : data.icon
+          iconImageKey : data.iconImageKey
         }
-
       }
 
-      const res: Response = await fetch(`/api/recipes/${id}`, {
+      const res: Response = await fetch(`/api/account/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -58,11 +57,11 @@ export default function Account() {
       }
 
 
-      alert('レシピを記録しました。')
+      alert('アカウント情報を更新しました。')
       await mutate()
     }
     catch {
-      alert('レシピの記録に失敗しました。')
+      alert('アカウント情報の更新に失敗しました。')
     }
   }
 
@@ -97,6 +96,8 @@ export default function Account() {
   return (
     <AccountForm
       values={account.user ?? undefined}
+      onUpdate={UserUpdate}
+      onDelete={UserDelete}
     />
 
   );

@@ -23,8 +23,6 @@ export const GET = async (_request: NextRequest) => {
 
   const { data, error } = await supabase.auth.getUser(token)
 
-  console.log("authError:", error);
-
   if (error)
     return NextResponse.json({ status: error.message }, { status: 401 })
 

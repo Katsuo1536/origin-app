@@ -6,7 +6,7 @@ export type UserUpdateBody = {
   user: {
     name: string
     email: string
-    icon: string
+    iconImageKey: string
   }
 }
 
@@ -27,17 +27,17 @@ export const PUT = async (_request: NextRequest,
   //フロント側からリクエストの受け取り
   const req: UserUpdateBody = await _request.json();
 
+
   try {
     const user = await prisma.user.update({
       where: { id: id },
       data: {
         name: req.user.name,
         email: req.user.email,
-        icon: req.user.icon,
-
+        iconImageKey: req.user.iconImageKey,
       }
     })
-
+    
 
     return NextResponse.json<UserUpdateBody>({ user }, { status: 200 })
   } catch (error) {

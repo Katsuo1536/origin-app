@@ -27,11 +27,11 @@ export default function ListsData() {
                   border border-gray-300 h-5 w-50 rounded-lg
                   px-2 py-3">
 
-                      <span className="text-black  text-lg">
+                      <span className="text-black  text-md">
                         {elem.name}
                       </span>
 
-                      <span className="text-gray-400  text-md">
+                      <span className="text-gray-400  text-sm">
                         {elem.quantity}
                       </span>
                     </span>
