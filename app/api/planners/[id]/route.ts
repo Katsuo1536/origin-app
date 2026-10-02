@@ -33,11 +33,11 @@ export type PlannerIndexResponse = {
   }
 }
 
-export const GET = async (_request: NextRequest,
+export const GET = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
@@ -103,11 +103,11 @@ export type PlannerUpdateBody = {
   }
 }
 
-export const PUT = async (_request: NextRequest,
+export const PUT = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
@@ -117,7 +117,7 @@ export const PUT = async (_request: NextRequest,
   const { id } = await params;
 
   //フロント側からリクエストの受け取り
-  const req: PlannerUpdateBody = await _request.json();
+  const req: PlannerUpdateBody = await request.json();
 
   try {
     const planner = await prisma.planner.update({
@@ -143,11 +143,11 @@ export type PlannerDeleteBody = {
   }
 }
 
-export const DELETE = async (_request: NextRequest,
+export const DELETE = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 

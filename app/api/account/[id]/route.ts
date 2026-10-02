@@ -11,11 +11,11 @@ export type UserUpdateBody = {
 }
 
 
-export const PUT = async (_request: NextRequest,
+export const PUT = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { error } = await supabase.auth.getUser(token)
 
@@ -25,7 +25,7 @@ export const PUT = async (_request: NextRequest,
   const { id } = await params;
 
   //フロント側からリクエストの受け取り
-  const req: UserUpdateBody = await _request.json();
+  const req: UserUpdateBody = await request.json();
 
 
   try {
@@ -47,11 +47,11 @@ export const PUT = async (_request: NextRequest,
 }
 
 
-export const DELETE = async (_request: NextRequest,
+export const DELETE = async (request: NextRequest,
   { params }: { params: Promise<{ id: string }> }) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { error } = await supabase.auth.getUser(token)
 

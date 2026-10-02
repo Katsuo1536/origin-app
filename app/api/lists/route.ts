@@ -16,10 +16,10 @@ export type ListsArrayResponse = {
   }[]
 }
 
-export const GET = async (_request: NextRequest) => {
+export const GET = async (request: NextRequest) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
@@ -48,10 +48,10 @@ export type DeleteKeyId = {
   listId: string
 }
 
-export const DELETE = async (_request: NextRequest) => {
+export const DELETE = async (request: NextRequest) => {
 
   //認証機能(トークン認証によるAPIの制限)
-  const token = _request.headers.get('Authorization') ?? ''
+  const token = request.headers.get('Authorization') ?? ''
 
   const { data, error } = await supabase.auth.getUser(token)
 
@@ -59,7 +59,7 @@ export const DELETE = async (_request: NextRequest) => {
     return NextResponse.json({ status: error.message }, { status: 401 })
 
   //フロント側からリクエストの受け取り
-  const req: DeleteKeyId = await _request.json();
+  const req: DeleteKeyId = await request.json();
 
   try {
     const lists = await prisma.shoppingList.deleteMany({
