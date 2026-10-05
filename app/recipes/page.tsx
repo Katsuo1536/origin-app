@@ -8,12 +8,9 @@ import type { RecipeArrayDeleteBody } from '../api/recipes/route';
 export type RecipesResponse = {
  id: string;
  name: string;
- image: string;
+ recipeImageKey: string;
  recipeUrl: string;
  favorite: boolean;
- userId: string;
- createdAt: Date;
- updatedAt: Date;
 }[]
 
 

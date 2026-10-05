@@ -35,7 +35,7 @@ export default function Recipe() {
         recipe: {
           id: data.id,
           name: data.name,
-          image: data.image,
+          recipeImageKey: data.recipeImageKey,
           recipeUrl: data.recipeUrl,
           favorite: data.favorite,
           recipeingredients: data.recipeingredients,
@@ -59,11 +59,11 @@ export default function Recipe() {
       }
 
 
-      alert('レシピを記録しました。')
+      alert('レシピを更新しました。')
       await mutate()
     }
     catch {
-      alert('レシピの記録に失敗しました。')
+      alert('レシピの更新に失敗しました。')
     }
   }
 
@@ -145,16 +145,17 @@ export default function Recipe() {
       <div className="flex gap-20">
 
         <RecipeForm
+          mode='edit'
           values={recipe ? {
             id: recipe.id,
             name: recipe.name,
-            image: recipe.image,
+            recipeImageKey: recipe.recipeImageKey,
             recipeUrl: recipe.recipeUrl,
             favorite: recipe.favorite,
             recipeingredients: recipe.recipeingredients,
             processes: recipe.processes,
           } : undefined}
-          onUpdate={RecipeUpdate}
+          onSubmit={RecipeUpdate}
           onDelete={RecipeDelete}
           onCreateLists={CreateLists}
 

@@ -69,7 +69,7 @@ export const AccountInformation = ({
                   <Link key={elem.id} href={`/recipes/${elem.id}`}>
                     <section className="rounded-2xl border-2 border-orange-400 h-45 w-55 py-6">
                       <div className="flex flex-col justify-center items-center">
-                        <Image src={getRecipeImageUrl(elem.image)} alt="recipe_image" width={150} height={150} className="rounded-lg" />
+                        <Image src={getRecipeImageUrl(elem.recipeImageKey)} alt="recipe_image" width={150} height={150} className="rounded-lg" />
                         <span className="text-center m-3 font-semibold">
                           {elem.name}
                         </span>

@@ -60,7 +60,7 @@ export default function Planner() {
       await mutate()
     }
     catch {
-      alert(`${time(new Date(data.date))}の献立を更新に失敗しました。`)
+      alert(`${time(new Date(data.date))}の献立更新に失敗しました。`)
     }
   }
 
