@@ -30,7 +30,7 @@ export default function Account() {
   };
 
 
-  const UserUpdate = async (data: Data) => {
+  const userUpdate = async (data: Data) => {
     if (!token) return
     try {
 
@@ -66,7 +66,7 @@ export default function Account() {
   }
 
 
-  const UserDelete = async () => {
+  const userDelete = async () => {
     if (!token) return
     try {
 
@@ -96,8 +96,8 @@ export default function Account() {
   return (
     <AccountForm
       values={account.user ?? undefined}
-      onUpdate={UserUpdate}
-      onDelete={UserDelete}
+      onUpdate={userUpdate}
+      onDelete={userDelete}
     />
 
   );

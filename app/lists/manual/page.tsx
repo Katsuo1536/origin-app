@@ -18,7 +18,7 @@ export default function Manual() {
   const router = useRouter();
 
 
-  const ManualPost = async (data: Data) => {
+  const manualPost = async (data: Data) => {
     if (!token) return
     try {
 
@@ -54,7 +54,7 @@ export default function Manual() {
       <div className="flex gap-20">
 
         <ManualForm
-          onPost={ManualPost}
+          onPost={manualPost}
         />
 
       </div>

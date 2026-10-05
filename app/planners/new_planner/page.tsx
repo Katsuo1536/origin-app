@@ -62,7 +62,7 @@ export default function NewPlanner() {
     return <div className="mx-auto text-center mt-5">献立を取得できませんでした</div>
   };
 
-  const PlannerPost = async (data: Data) => {
+  const plannerPost = async (data: Data) => {
     if (!token) return
     try {
 
@@ -112,7 +112,7 @@ export default function NewPlanner() {
             recipe: recipeInadex,
           } : undefined}
           array={(recipes) ? recipes : undefined}
-          onSubmit={PlannerPost}
+          onSubmit={plannerPost}
           onFetch={setRecipeId}
 
         />

@@ -29,7 +29,7 @@ export default function RecipeData() {
               {randomRecipe && (
                 <div key={randomRecipe?.id}
                   className="flex flex-col justify-center items-center py-3">
-                  <Image src={getRecipeImageUrl(randomRecipe.image)} alt="recipe_image" width={200} height={200} className="flex justify-center items-center rounded-lg" />
+                  <Image src={getRecipeImageUrl(randomRecipe.recipeImageKey)} alt="recipe_image" width={200} height={200} className="flex justify-center items-center rounded-lg" />
                   <span className="rouded-2xl text-center m-3 font-semibold ">
                     {randomRecipe?.name}
                   </span>

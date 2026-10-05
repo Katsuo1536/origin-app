@@ -30,7 +30,7 @@ export default function Planner() {
     return <div className="mx-auto text-center mt-5">献立を取得できませんでした</div>
   };
 
-  const PlannerUpdate = async (data: Data) => {
+  const plannerUpdate = async (data: Data) => {
     if (!token) return
     try {
 
@@ -60,11 +60,11 @@ export default function Planner() {
       await mutate()
     }
     catch {
-      alert(`${time(new Date(data.date))}の献立を更新に失敗しました。`)
+      alert(`${time(new Date(data.date))}の献立更新に失敗しました。`)
     }
   }
 
-  const PlannerDelete = async (id: string) => {
+  const plannerDelete = async (id: string) => {
     if (!token) return
     try {
 
@@ -96,7 +96,7 @@ export default function Planner() {
     }
   }
 
-  const CreateLists = async (data: Data) => {
+  const createLists = async (data: Data) => {
     if (!token) return
     try {
 
@@ -145,9 +145,9 @@ export default function Planner() {
             date: new Date(planner.date).toLocaleDateString('sv-SE'),
             recipe: planner.recipe,
           } : undefined}
-          onSubmit={PlannerUpdate}
-          onDelete={PlannerDelete}
-          onCreateLists={CreateLists}
+          onSubmit={plannerUpdate}
+          onDelete={plannerDelete}
+          onCreateLists={createLists}
 
         />
 

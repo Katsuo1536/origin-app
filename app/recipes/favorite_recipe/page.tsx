@@ -8,12 +8,9 @@ import type { RecipeArrayDeleteBody } from '@/app/api/recipes/route'
 export type RecipesResponse = {
  id: string;
  name: string;
- image: string;
+ recipeImageKey: string;
  recipeUrl: string;
  favorite: boolean;
- userId: string;
- createdAt: Date;
- updatedAt: Date;
 }[]
 
 
@@ -36,7 +33,7 @@ export default function FavoriteRecipes() {
   };
 
 
-  const ListDeleteAll = async () => {
+  const listDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -66,7 +63,7 @@ export default function FavoriteRecipes() {
   return (
     <RecipesArray
       values={favoriteRecipes ?? undefined}
-      onDeleteAll={ListDeleteAll}
+      onDeleteAll={listDeleteAll}
     />
 
   );

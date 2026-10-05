@@ -8,12 +8,9 @@ import type { RecipeArrayDeleteBody } from '../api/recipes/route';
 export type RecipesResponse = {
  id: string;
  name: string;
- image: string;
+ recipeImageKey: string;
  recipeUrl: string;
  favorite: boolean;
- userId: string;
- createdAt: Date;
- updatedAt: Date;
 }[]
 
 
@@ -34,7 +31,7 @@ export default function Recipes() {
   };
 
 
-  const ListDeleteAll = async () => {
+  const listDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -64,7 +61,7 @@ export default function Recipes() {
   return (
     <RecipesArray
       values={recipes ?? undefined}
-      onDeleteAll={ListDeleteAll}
+      onDeleteAll={listDeleteAll}
     />
 
   );

@@ -7,7 +7,7 @@ export type RecipeResponse = {
   recipe: {
     id: string
     name: string
-    image: string
+    recipeImageKey: string
     recipeUrl: string
     favorite: boolean
     userId: string
@@ -80,7 +80,7 @@ export type RecipeUpdateBody = {
   recipe: {
     id: string
     name: string
-    image: string
+    recipeImageKey: string
     recipeUrl: string
     favorite: boolean
     recipeingredients: {
@@ -120,7 +120,7 @@ export const PUT = async (request: NextRequest,
       where: { id: id },
       data: {
         name: req.recipe.name,
-        image: req.recipe.image,
+        recipeImageKey: req.recipe.recipeImageKey,
         recipeUrl: req.recipe.recipeUrl,
         favorite: req.recipe.favorite,
         userId: data.user.id,
@@ -169,7 +169,7 @@ export type RecipeDeleteBody = {
   recipe: {
     id: string
     name: string
-    image: string
+    recipeImageKey: string
     recipeUrl: string
     favorite: boolean
     userId: string
