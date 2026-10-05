@@ -36,7 +36,7 @@ export default function Planners() {
   };
 
 
-  const PlannersDeleteAll = async () => {
+  const plannersDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -66,7 +66,7 @@ export default function Planners() {
   return (
     <PlannersArray
       values={planners ?? undefined}
-      onDeleteAll={PlannersDeleteAll}
+      onDeleteAll={plannersDeleteAll}
     />
 
   );

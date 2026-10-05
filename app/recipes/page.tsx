@@ -31,7 +31,7 @@ export default function Recipes() {
   };
 
 
-  const ListDeleteAll = async () => {
+  const listDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -61,7 +61,7 @@ export default function Recipes() {
   return (
     <RecipesArray
       values={recipes ?? undefined}
-      onDeleteAll={ListDeleteAll}
+      onDeleteAll={listDeleteAll}
     />
 
   );

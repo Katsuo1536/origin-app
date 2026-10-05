@@ -33,7 +33,7 @@ export default function Budget() {
 
 
 
-  const BudgetPost = async (data: Data) => {
+  const budgetPost = async (data: Data) => {
     if (!token) return
     try {
 
@@ -65,7 +65,7 @@ export default function Budget() {
     }
   }
 
-  const BudgetUpdate = async (data: Data) => {
+  const budgetUpdate = async (data: Data) => {
     if (!token) return
     try {
 
@@ -108,8 +108,8 @@ export default function Budget() {
           values={budget ? {
             balance: budget.balance
           } : undefined}
-          onPost={BudgetPost}
-          onUpdate={BudgetUpdate}
+          onPost={budgetPost}
+          onUpdate={budgetUpdate}
 
         />
 

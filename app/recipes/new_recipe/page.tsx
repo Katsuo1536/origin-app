@@ -8,7 +8,7 @@ import { RecipesResponse } from '@/app/recipes/page';
 import { PlannerPostType } from '@/app/api/planners/new_planner/route';
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { RecipeForm, Data } from '../[id]/_components/RecipeForm';
+import { RecipeForm, Data } from '../_components/RecipeForm';
 import { RecipePostType } from '@/app/api/recipes/new_recipe/route';
 
 export type recipeData = {
@@ -39,7 +39,7 @@ export default function NewRecipe() {
 
   const router = useRouter()
 
-  const RecipePost = async (data: Data) => {
+  const recipePost = async (data: Data) => {
     if (!token) return
     try {
 
@@ -84,7 +84,7 @@ export default function NewRecipe() {
 
         <RecipeForm
           mode='new'
-          onSubmit={RecipePost}
+          onSubmit={recipePost}
         />
 
       </div>

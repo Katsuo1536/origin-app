@@ -32,7 +32,7 @@ export default function Lists() {
   };
 
 
-  const ListDelete = async (id: string) => {
+  const listDelete = async (id: string) => {
     if (!token) return
     try {
 
@@ -62,7 +62,7 @@ export default function Lists() {
     }
   }
 
-  const ListDeleteAll = async () => {
+  const listDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -92,8 +92,8 @@ export default function Lists() {
   return (
     <ListForm
       values={lists ?? undefined}
-      onDelete={ListDelete}
-      onDeleteAll={ListDeleteAll}
+      onDelete={listDelete}
+      onDeleteAll={listDeleteAll}
     />
 
   );

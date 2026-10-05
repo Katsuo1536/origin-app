@@ -33,7 +33,7 @@ export default function FavoriteRecipes() {
   };
 
 
-  const ListDeleteAll = async () => {
+  const listDeleteAll = async () => {
     if (!token) return
     try {
 
@@ -63,7 +63,7 @@ export default function FavoriteRecipes() {
   return (
     <RecipesArray
       values={favoriteRecipes ?? undefined}
-      onDeleteAll={ListDeleteAll}
+      onDeleteAll={listDeleteAll}
     />
 
   );
