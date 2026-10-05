@@ -1,18 +1,16 @@
 import { prisma } from "@/app/_libs/prisma"
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
+import { connect } from "http2";
+import { create } from "domain";
 
 
 export type RecipePostType = {
   recipe: {
-    id: string
     name: string
-    image: string
+    recipeImageKey: string
     recipeUrl: string
     favorite: boolean
-    userId: string
-    createdAt: Date
-    updatedAt: Date
     recipeingredients: {
       id: string
       quantity: string
@@ -25,9 +23,6 @@ export type RecipePostType = {
       id: string
       stepNumber: number
       description: string
-      recipeId: string
-      createdAt: Date
-      updatedAt: Date
     }[]
   }
 }
@@ -50,19 +45,32 @@ export const POST = async (request: NextRequest) => {
     const recipe = await prisma.recipe.create({
       data: {
         name: req.recipe.name,
-        image: req.recipe.image,
+        recipeImageKey: req.recipe.recipeImageKey,
         recipeUrl: req.recipe.recipeUrl,
         favorite: req.recipe.favorite,
         userId: data.user.id,
       }
     })
 
+
     for (const recipeingredient of req.recipe.recipeingredients) {
       await prisma.recipeIngredient.create({
         data: {
           quantity: recipeingredient.quantity,
-          recipeId: recipe.id,
-          ingredientId: recipeingredient.ingredient.id,
+          recipe: {
+            connect: {
+              id: recipe.id
+            }
+          },
+          ingredient: {
+            connectOrCreate: {
+              where: { name: recipeingredient.ingredient.name },
+              create: {
+                name: recipeingredient.ingredient.name,
+                quantity: recipeingredient.quantity
+              }
+            }
+          },
         }
       })
     }
@@ -75,6 +83,7 @@ export const POST = async (request: NextRequest) => {
           recipeId: recipe.id,
         }
       })
+
     }
 
     return NextResponse.json({ recipe }, { status: 200 })

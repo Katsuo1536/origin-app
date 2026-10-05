@@ -7,7 +7,7 @@ export type RecipeArrayResponse = {
   recipes: {
     id: string
     name: string
-    image: string
+    recipeImageKey: string
     recipeUrl: string
     favorite: boolean
     userId: string
