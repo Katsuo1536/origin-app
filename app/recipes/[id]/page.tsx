@@ -6,9 +6,13 @@ import { useFetch } from "@/app/_hooks/useFetch";
 import type { RecipeUpdateBody } from '@/app/api/recipes/[id]/route';
 import { useRouter, useParams } from 'next/navigation';
 import { CreateListsBody } from '@/app/api/lists/new_lists/route';
+import { RecipeConvertBody } from '@/app/api/recipes/[id]/convert/route';
+import { useState } from 'react';
 
 
 export default function Recipe() {
+
+  const [convertValue, setConvertValue] = useState<RecipeConvertBody>();
 
   const { token } = useSupabaseSession()
 
@@ -38,6 +42,7 @@ export default function Recipe() {
           recipeImageKey: data.recipeImageKey,
           recipeUrl: data.recipeUrl,
           favorite: data.favorite,
+          servings: data.servings,
           recipeingredients: data.recipeingredients,
           processes: data.processes,
         }
@@ -139,6 +144,43 @@ export default function Recipe() {
   }
 
 
+  const convertIngredients = async (data: Data) => {
+    if (!token) return
+    try {
+
+      const body: RecipeConvertBody = {
+        recipe: {
+          id: id,
+          name: data.name,
+          servings: data.servings,
+          recipeingredients: data.recipeingredients
+        },
+        baseNumber: recipe.servings
+      }
+
+      const res: Response = await fetch(`/api/recipes/${id}/convert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message)
+      }
+
+      setConvertValue(await res.json())
+
+    }
+    catch {
+      alert('レシピの削除に失敗しました。')
+    }
+  }
+
+
   return (
     <>
 
@@ -152,13 +194,24 @@ export default function Recipe() {
             recipeImageKey: recipe.recipeImageKey,
             recipeUrl: recipe.recipeUrl,
             favorite: recipe.favorite,
+            servings: recipe.servings,
             recipeingredients: recipe.recipeingredients,
             processes: recipe.processes,
           } : undefined}
           onSubmit={recipeUpdate}
           onDelete={recipeDelete}
           onCreateLists={createLists}
-
+          onConvertIngredients={convertIngredients}
+          convert={convertValue ? {
+            recipe: {
+              id: convertValue.recipe.id,
+              name: convertValue.recipe.name,
+              servings: convertValue.recipe.servings,
+              recipeingredients: convertValue.recipe.recipeingredients
+            },
+            baseNumber: recipe.servings
+          }
+            : undefined}
         />
 
       </div>

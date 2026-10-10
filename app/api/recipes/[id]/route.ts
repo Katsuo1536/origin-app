@@ -10,6 +10,7 @@ export type RecipeResponse = {
     recipeImageKey: string
     recipeUrl: string
     favorite: boolean
+    servings: number
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -83,6 +84,7 @@ export type RecipeUpdateBody = {
     recipeImageKey: string
     recipeUrl: string
     favorite: boolean
+    servings: number
     recipeingredients: {
       id: string
       quantity: string
@@ -115,6 +117,7 @@ export const PUT = async (request: NextRequest,
   //フロント側からリクエストの受け取り
   const req: RecipeUpdateBody = await request.json();
 
+
   try {
     const recipe = await prisma.recipe.update({
       where: { id: id },
@@ -123,6 +126,7 @@ export const PUT = async (request: NextRequest,
         recipeImageKey: req.recipe.recipeImageKey,
         recipeUrl: req.recipe.recipeUrl,
         favorite: req.recipe.favorite,
+        servings: req.recipe.servings,
         userId: data.user.id,
       }
     })
@@ -172,6 +176,7 @@ export type RecipeDeleteBody = {
     recipeImageKey: string
     recipeUrl: string
     favorite: boolean
+    servings: number
     userId: string
     createdAt: Date
     updatedAt: Date

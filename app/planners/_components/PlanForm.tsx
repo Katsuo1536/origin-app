@@ -12,9 +12,10 @@ export type Data = {
   date: string
   recipe: {
     name: string
-    image: string
+    recipeImageKey: string
     recipeUrl: string
     favorite: boolean
+    servings: number
     recipeingredients: {
       id: string
       quantity: string
@@ -37,9 +38,10 @@ const defaultValues: Data = {
   date: new Date().toLocaleDateString('sv-SE'),
   recipe: {
     name: '',
-    image: '',
+    recipeImageKey: '',
     recipeUrl: '',
     favorite: false,
+    servings: 1,
     recipeingredients: [],
     processes: [],
   }
@@ -89,6 +91,12 @@ export const PlanForm = ({
     return d
   })
 
+  const editDateOptions = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    return d
+  })
+
 
 
   return (
@@ -105,7 +113,7 @@ export const PlanForm = ({
         ) : (
           <>
             {onFetch && (
-              <select className="cursor-pointer rounded-2xl bg-amber-950 px-2 py-1 text-2xl font-semibold text-white"
+              <select className="cursor-pointer rounded-2xl bg-amber-950 px-2 py-1 text-2xl font-semibold text-white text-center"
                 {...register('recipeId', {
                   onChange: (e) => onFetch(e.target.value)
                 })}
@@ -148,6 +156,7 @@ export const PlanForm = ({
             })}
             disabled={isSubmitting}
           >
+            (mode === 'new' ? (
             {dateOptions.map((d) => {
               const value = d.toLocaleDateString('sv-SE')
               return (
@@ -156,13 +165,32 @@ export const PlanForm = ({
                 </option>
               )
             })}
+            ) : (
+            {editDateOptions.map((d) => {
+              const value = d.toLocaleDateString('sv-SE')
+              return (
+                <option key={value} value={value}>
+                  {time(d)}
+                </option>
+              )
+            })}
+            ))
           </select>
 
 
-          <span className="rounded-2xl bg-green-500 px-2 py-1 text-lg font-semibold text-white">
-            人数を自動変換
-            {/* mastaraからの変換を予定　後にbottonになりそう */}
-          </span>
+          {values?.recipe.servings === undefined ? (
+
+            <span className="rounded-2xl bg-green-500 px-2 py-1 text-lg font-semibold text-white">
+              X人前
+            </span>
+
+          ) : (
+
+            <span className="rounded-2xl bg-green-500 px-2 py-1 text-lg font-semibold text-white">
+              {`${values?.recipe.servings}人前`}
+            </span>
+
+          )}
         </span>
       </div>
 
@@ -174,10 +202,10 @@ export const PlanForm = ({
 
           <section className="flex flex-col justify-center items-center">
 
-            {values?.recipe?.image && (
+            {values?.recipe?.recipeImageKey && (
 
               <div className="flex flex-col gap-4">
-                {values && (<Image src={getRecipeImageUrl(values?.recipe.image)}
+                {values && (<Image src={getRecipeImageUrl(values?.recipe.recipeImageKey)}
                   alt="recipe_image" width={300} height={300}
                   className="w-full rounded-lg object-cover" />
                 )}

@@ -44,7 +44,7 @@ export const PlannersArray = ({
                 {time(elem.date)}
               </span>
               <div className="flex flex-col justify-center items-center">
-                <Image src={getRecipeImageUrl(elem.recipe.image)} alt="recipe_image" width={150} height={150} className="flex justify-center items-center rounded-lg" />
+                <Image src={getRecipeImageUrl(elem.recipe.recipeImageKey)} alt="recipe_image" width={150} height={150} className="flex justify-center items-center rounded-lg" />
                 <span className="rouded-2xl text-center m-3 font-semibold ">
                   {elem.recipe.name}
                 </span>

@@ -13,8 +13,9 @@ export type PlannersResponse = {
   updatedAt: Date
   recipe: {
     name: string
-    image: string
+    recipeImageKey: string
     favorite: boolean
+    servings: number
   }
 }[]
 

@@ -32,6 +32,7 @@ model Recipe {
   recipeImageKey       String   @default("")
   recipeUrl   String    @map("recipe_url")
   favorite    Boolean   @default(false)
+  servings    Int   @default(2)
   userId      String   @db.Uuid  @map("user_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")

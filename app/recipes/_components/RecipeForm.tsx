@@ -6,7 +6,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/app/_libs/supabase";
-
+import type { RecipeConvertBody } from "@/app/api/recipes/[id]/convert/route";
 
 export type Data = {
   id: string
@@ -14,6 +14,7 @@ export type Data = {
   recipeImageKey: string
   recipeUrl: string
   favorite: boolean
+  servings: number
   recipeingredients: {
     id: string
     quantity: string
@@ -35,6 +36,7 @@ const defaultValues: Data = {
   recipeImageKey: '',
   recipeUrl: '',
   favorite: false,
+  servings: 1,
   recipeingredients: [{
     id: '',
     quantity: '',
@@ -56,6 +58,8 @@ type Props = {
   onSubmit: (data: Data) => void
   onDelete?: (id: string) => void
   onCreateLists?: (data: Data) => void
+  onConvertIngredients?: (data: Data) => void
+  convert?: RecipeConvertBody
 };
 
 
@@ -65,6 +69,8 @@ export const RecipeForm = ({
   onSubmit,
   onDelete,
   onCreateLists,
+  onConvertIngredients,
+  convert,
 }: Props
 ) => {
   const {
@@ -73,6 +79,7 @@ export const RecipeForm = ({
     handleSubmit,
     reset,
     setValue,
+    getValues,
     formState: { errors, isSubmitting }
   } = useForm<Data>({
     defaultValues,
@@ -136,6 +143,20 @@ export const RecipeForm = ({
     reset()
   }
 
+  const servingsOptions = Array.from({ length: 10 }, (_, i) => {
+    i = i + 1
+    return i
+  })
+
+  useEffect(() => {
+    if (!convert) return;
+
+    convert.recipe.recipeingredients.forEach((elem, index) => {
+      setValue(`recipeingredients.${index}.quantity`, elem.quantity, { shouldDirty: true });
+    });
+  }, [convert, getValues, setValue]);
+
+
   const new_recipeingredients = useFieldArray({ control, name: 'recipeingredients' })
   const new_processes = useFieldArray({ control, name: 'processes' })
 
@@ -143,7 +164,7 @@ export const RecipeForm = ({
   return (
     <form className="flex w-full flex-col items-center m-10"
       onSubmit={handleSubmit(handleSubmitData)}>
-      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-70">
+      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-80">
 
         <span className="flex items-center gap-10 justify-self-start px-5">
           <label className="px-3 py-2 font-semibold rounded-2xl p-4 cursor-pointer border
@@ -213,10 +234,26 @@ export const RecipeForm = ({
           )}
 
 
-          <span className="rounded-2xl bg-green-500 px-2 py-1 text-md font-semibold text-white">
-            人数を自動変換
-            {/* mastaraからの変換を予定　後にbottonになりそう */}
-          </span>
+          {(onConvertIngredients && values) && (
+            <select className="rounded-2xl bg-green-500 px-3 py-1 text-xl font-bold text-white"
+              {...register('servings',
+                {
+                  valueAsNumber: true,
+                  onChange: (e) => onConvertIngredients({ ...values, servings: Number(e.target.value) })
+                }
+              )}
+              disabled={isSubmitting}
+            >
+              {servingsOptions.map(s => {
+                const value = s
+                return (
+                  <option key={value} value={value}>
+                    {s}人前
+                  </option>
+                )
+              })}
+            </select>
+          )}
         </span>
       </div>
 

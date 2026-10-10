@@ -13,22 +13,23 @@ export type PlannerIndexResponse = {
     updatedAt: Date
     recipe: {
       name: string
-      image: string
+      recipeImageKey: string
       recipeUrl: string
       favorite: boolean
+      servings: number
       recipeingredients: {
-      id: string
-      quantity: string
-      ingredient: {
         id: string
-        name: string
-      }
-    }[]
-    processes: {
-      id: string
-      stepNumber: number
-      description: string
-    }[]
+        quantity: string
+        ingredient: {
+          id: string
+          name: string
+        }
+      }[]
+      processes: {
+        id: string
+        stepNumber: number
+        description: string
+      }[]
     }
   }
 }
@@ -57,9 +58,10 @@ export const GET = async (request: NextRequest,
         recipe: {
           select: {
             name: true,
-            image: true,
+            recipeImageKey: true,
             recipeUrl: true,
             favorite: true,
+            servings: true,
             recipeingredients: {
               select: {
                 id: true,
@@ -72,8 +74,8 @@ export const GET = async (request: NextRequest,
                 }
               }
             },
-            processes:{
-              select:{
+            processes: {
+              select: {
                 id: true,
                 stepNumber: true,
                 description: true,
@@ -124,7 +126,7 @@ export const PUT = async (request: NextRequest,
       where: { id: id },
       data: {
         recipeId: req.planner.recipeId,
-        date: new Date (req.planner.date),
+        date: new Date(req.planner.date),
         userId: data.user.id,
       }
     })
