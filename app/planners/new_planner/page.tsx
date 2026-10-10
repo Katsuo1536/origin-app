@@ -13,9 +13,10 @@ import { useSearchParams } from 'next/navigation';
 export type recipeData = {
   id: string
   name: string
-  image: string
+  recipeImageKey: string
   recipeUrl: string
   favorite: boolean
+  servings: number
   recipeingredients: {
     id: string
     quantity: string

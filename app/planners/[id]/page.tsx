@@ -74,7 +74,7 @@ export default function Planner() {
         }
       }
 
-      const res: Response = await fetch(`/api/recipes/${id}`, {
+      const res: Response = await fetch(`/api/planners/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -88,11 +88,11 @@ export default function Planner() {
         throw new Error(errorData.message)
       }
 
-      alert(`${time(data.date)}の献立を削除しました。`)
-      router.push("/recipes")
+      alert('献立を削除しました。')
+      router.push("/planners")
     }
     catch {
-      alert(`${time(data.date)}の献立の削除に失敗しました。`)
+      alert('献立の削除に失敗しました。')
     }
   }
 

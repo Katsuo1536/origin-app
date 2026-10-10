@@ -11,6 +11,7 @@ export type RecipePostType = {
     recipeImageKey: string
     recipeUrl: string
     favorite: boolean
+    servings: number
     recipeingredients: {
       id: string
       quantity: string
@@ -48,6 +49,7 @@ export const POST = async (request: NextRequest) => {
         recipeImageKey: req.recipe.recipeImageKey,
         recipeUrl: req.recipe.recipeUrl,
         favorite: req.recipe.favorite,
+        servings: req.recipe.servings,
         userId: data.user.id,
       }
     })

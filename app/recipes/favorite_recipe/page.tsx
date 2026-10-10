@@ -6,11 +6,12 @@ import { RecipesArray } from '@/app/recipes/_components/RecipesArray'
 import type { RecipeArrayDeleteBody } from '@/app/api/recipes/route'
 
 export type RecipesResponse = {
- id: string;
- name: string;
- recipeImageKey: string;
- recipeUrl: string;
- favorite: boolean;
+  id: string;
+  name: string;
+  recipeImageKey: string;
+  recipeUrl: string;
+  favorite: boolean;
+  servings: number;
 }[]
 
 
@@ -22,7 +23,7 @@ export default function FavoriteRecipes() {
 
   const recipes: RecipesResponse = data ? data.recipes : [];
 
-  const favoriteRecipes : RecipesResponse = recipes ? recipes.filter(f => f.favorite === true) : [];
+  const favoriteRecipes: RecipesResponse = recipes ? recipes.filter(f => f.favorite === true) : [];
 
 
   if (isLoading) {

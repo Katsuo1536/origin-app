@@ -24,14 +24,14 @@ export const RecipesArray = ({
 
 
         {booleanRecipe ? (
-          <Link href={"/recipes/favorite_recipe"} className="flex justify-center items-center
-       text-white text-xl bg-orange-500 rounded-lg h-5 w-30  py-5">
-            お気に入り
-          </Link>
-        ) : (
           <Link href={"/recipes"} className="flex justify-center items-center
        text-orange-500 text-xl font-bold border-2 border-orange-500 rounded-lg h-5 w-30  py-5">
             もどる
+          </Link>
+        ) : (
+          <Link href={"/recipes/favorite_recipe"} className="flex justify-center items-center
+       text-white text-xl bg-orange-500 rounded-lg h-5 w-30  py-5">
+            お気に入り
           </Link>
         )}
 

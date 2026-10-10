@@ -6,11 +6,12 @@ import { RecipesArray } from './_components/RecipesArray';
 import type { RecipeArrayDeleteBody } from '../api/recipes/route';
 
 export type RecipesResponse = {
- id: string;
- name: string;
- recipeImageKey: string;
- recipeUrl: string;
- favorite: boolean;
+  id: string;
+  name: string;
+  recipeImageKey: string;
+  recipeUrl: string;
+  favorite: boolean;
+  servings: number;
 }[]
 
 

@@ -13,8 +13,9 @@ export type PlannerArrayResponse = {
     updatedAt: Date
     recipe: {
       name: string
-      image: string
+      recipeImageKey: string
       favorite: boolean
+      servings: number
     }
   }[]
 }
@@ -39,7 +40,7 @@ export const GET = async (request: NextRequest) => {
       include: {
         recipe: {
           select: {
-            name: true, image: true, favorite: true
+            name: true, recipeImageKey: true, favorite: true, servings: true
           }
         }
       },

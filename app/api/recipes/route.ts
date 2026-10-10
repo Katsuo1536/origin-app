@@ -10,6 +10,7 @@ export type RecipeArrayResponse = {
     recipeImageKey: string
     recipeUrl: string
     favorite: boolean
+    servings: number
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -50,7 +51,7 @@ export const GET = async (request: NextRequest) => {
 }
 
 export type RecipeArrayDeleteBody = {
-  count : number
+  count: number
 }
 
 export const DELETE = async (request: NextRequest) => {
@@ -70,7 +71,7 @@ export const DELETE = async (request: NextRequest) => {
       }
     })
 
-    return NextResponse.json<RecipeArrayDeleteBody>({count: recipes.count }, { status: 200, })
+    return NextResponse.json<RecipeArrayDeleteBody>({ count: recipes.count }, { status: 200, })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
