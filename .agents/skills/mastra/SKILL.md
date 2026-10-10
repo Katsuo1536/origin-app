@@ -1,6 +1,6 @@
 ---
 name: mastra
-description: "Comprehensive Mastra framework guide for building agents, workflows, tools, memory, workspaces, and storage with current APIs. Use for documentation lookup, API verification, TypeScript setup, common errors, migrations, and `mastra api` CLI tasks: inspect or call resources on local, Mastra platform, Trace Intelligence, or remote servers. For Mastra Factory operations, discover and activate the companion mastra-factory skill."
+description: "現行の API でエージェント、ワークフロー、ツール、メモリ、ワークスペース、ストレージを作るための、Mastra フレームワークの総合ガイド。ドキュメントの調べ方、API の確認、TypeScript の設定、よくあるエラー、移行（マイグレーション）、そして `mastra api` CLI の作業（ローカル、Mastra プラットフォーム、Trace Intelligence、リモートサーバー上のリソースの確認・呼び出し）に使う。Mastra Factory の操作には、対になる mastra-factory スキルを探して有効にする。"
 license: Apache-2.0
 metadata:
   author: Mastra
@@ -8,143 +8,143 @@ metadata:
   repository: https://github.com/mastra-ai/skills
 ---
 
-# Mastra Framework Guide
+# Mastra フレームワークガイド
 
-Build AI applications with Mastra. This skill teaches you how to find current documentation and build agents and workflows.
+Mastra で AI アプリケーションを作ります。このスキルでは、最新のドキュメントの探し方と、エージェントやワークフローの作り方を説明します。
 
-## Critical: Do not trust internal knowledge
+## 重要：自分の知識を信用しない
 
-Everything you know about Mastra is likely outdated or wrong. Never rely on memory. Always verify against current documentation.
+Mastra について知っていることは、古いか間違っている可能性が高いです。記憶に頼らず、必ず最新のドキュメントで確認してください。
 
-Your training data contains obsolete APIs, deprecated patterns, and incorrect usage. Mastra evolves rapidly - APIs change between versions, constructor signatures shift, and patterns get refactored.
+学習データには、使われなくなった API、非推奨のパターン、誤った使い方が含まれています。Mastra は変化が速く、バージョンごとに API が変わり、コンストラクタの引数が変わり、書き方が作り直されます。
 
-## Prerequisites
+## 前提条件
 
-Before writing any Mastra code, check if packages are installed:
+Mastra のコードを書く前に、パッケージがインストールされているか確認してください。
 
 ```bash
 ls node_modules/@mastra/
 ```
 
-- If packages exist: Use embedded docs first (most reliable)
-- If no packages: Install first or use remote docs
+- パッケージがある場合：まず同梱のドキュメントを使う（最も確実）
+- パッケージがない場合：先にインストールするか、リモートのドキュメントを使う
 
-## Resources
+## リソース
 
-### References
+### リファレンス
 
-| User Question                       | First Check                                                      | How To                                         |
-| ----------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------- |
-| Create/install Mastra project     | [`references/create-mastra.md`](references/create-mastra.md)     | Setup guide with CLI and manual steps          |
-| Choose Agent/Workflow/Tool/Memory/Storage | [`references/core-concepts.md`](references/core-concepts.md) | Core concepts and when to use each primitive |
-| How do I use Agent/Workflow/Tool? | [`references/embedded-docs.md`](references/embedded-docs.md)     | Look up in `node_modules/@mastra/*/dist/docs/` |
-| How do I use X? (no packages)     | [`references/remote-docs.md`](references/remote-docs.md)         | Fetch from `https://mastra.ai/llms.txt`        |
-| Choose or validate a model        | [`references/model-selection.md`](references/model-selection.md) | Model format and provider registry lookup      |
-| I'm getting an error...           | [`references/common-errors.md`](references/common-errors.md)     | Common errors and solutions                    |
-| Upgrade from v0.x to v1.x         | [`references/migration-guide.md`](references/migration-guide.md) | Version upgrade workflows                      |
-| Inspect/call server resources via CLI | [`references/mastra-api.md`](references/mastra-api.md)       | `mastra api` CLI for local, Mastra platform, or remote servers |
-| Find exact traces with complex predicates | [`references/trace-query.md`](references/trace-query.md) | Query completed traces by trace fields or related spans, scores, and feedback |
-| Investigate agent health, recurring failures, or improvement opportunities | [`references/trace-intelligence.md`](references/trace-intelligence.md) | Start with aggregate Trace Intelligence themes, then inspect trace/log evidence |
+| ユーザーの質問 | 最初に見るもの | 調べ方 |
+| --- | --- | --- |
+| Mastra のプロジェクトを作成・インストールしたい | [`references/create-mastra.md`](references/create-mastra.md) | CLI と手動の両方のセットアップ手順 |
+| Agent／Workflow／Tool／Memory／Storage のどれを使うか | [`references/core-concepts.md`](references/core-concepts.md) | 基本の考え方と、それぞれをいつ使うか |
+| Agent／Workflow／Tool の使い方 | [`references/embedded-docs.md`](references/embedded-docs.md) | `node_modules/@mastra/*/dist/docs/` で調べる |
+| X の使い方（パッケージなし） | [`references/remote-docs.md`](references/remote-docs.md) | `https://mastra.ai/llms.txt` から取得する |
+| モデルを選ぶ・確認する | [`references/model-selection.md`](references/model-selection.md) | モデルの書き方と、プロバイダー一覧の調べ方 |
+| エラーが出る | [`references/common-errors.md`](references/common-errors.md) | よくあるエラーと解決方法 |
+| v0.x から v1.x にアップグレードしたい | [`references/migration-guide.md`](references/migration-guide.md) | バージョンアップの手順 |
+| CLI でサーバーのリソースを確認・呼び出したい | [`references/mastra-api.md`](references/mastra-api.md) | ローカル、Mastra プラットフォーム、リモートサーバー向けの `mastra api` CLI |
+| 複雑な条件でトレースを正確に探したい | [`references/trace-query.md`](references/trace-query.md) | トレースのフィールドや、関連するスパン・スコア・フィードバックで、完了したトレースを検索する |
+| エージェントの状態、繰り返す失敗、改善点を調べたい | [`references/trace-intelligence.md`](references/trace-intelligence.md) | まず Trace Intelligence の集計テーマから始め、次にトレースやログで根拠を確認する |
 
-### Scripts
+### スクリプト
 
-- `scripts/provider-registry.mjs`: Look up current providers and models available in the model router. Always run this before using a model to verify provider keys and model names.
+- `scripts/provider-registry.mjs`：モデルルーターで使える最新のプロバイダーとモデルを調べます。モデルを使う前には必ずこれを実行して、プロバイダーのキーとモデル名を確認してください。
 
-## Priority order for writing code
+## コードを書くときの優先順位
 
-Never write code without checking current docs first.
+最新のドキュメントを確認せずに、コードを書かないでください。
 
-1. Embedded docs first (if packages installed)
+1. 1番目は同梱のドキュメント（パッケージがインストール済みの場合）
 
-   Look up current docs in `node_modules` for a package. This matches the exact installed version and is the most reliable source of truth. See [`references/embedded-docs.md`](references/embedded-docs.md).
+   パッケージの最新ドキュメントを `node_modules` の中で調べます。インストールされているバージョンと完全に一致するので、最も確実な情報源です。[`references/embedded-docs.md`](references/embedded-docs.md) を参照してください。
 
-2. Source code second (if packages installed)
+2. 2番目はソースコード（パッケージがインストール済みの場合）
 
-   If embedded docs don't cover the question, inspect the installed source and type definitions. This is the source of truth when docs are missing or unclear. See [`references/embedded-docs.md`](references/embedded-docs.md).
+   同梱のドキュメントで分からない場合は、インストールされているソースコードと型定義を確認します。ドキュメントがない、または分かりにくいときは、これが正解の情報源になります。[`references/embedded-docs.md`](references/embedded-docs.md) を参照してください。
 
-3. Remote docs third (if packages not installed)
+3. 3番目はリモートのドキュメント（パッケージが未インストールの場合）
 
-   Use the latest published docs when packages are not installed or when exploring new features. Remote docs may be ahead of the user's installed version. See [`references/remote-docs.md`](references/remote-docs.md).
+   パッケージがインストールされていない場合や、新機能を調べる場合は、公開されている最新のドキュメントを使います。リモートのドキュメントは、ユーザーがインストールしているバージョンより新しいことがあります。[`references/remote-docs.md`](references/remote-docs.md) を参照してください。
 
-## Core concepts
+## 基本の考え方
 
-Use [`references/core-concepts.md`](references/core-concepts.md) when choosing between agents, workflows, tools, memory, and storage.
+エージェント、ワークフロー、ツール、メモリ、ストレージのどれを使うか迷ったら、[`references/core-concepts.md`](references/core-concepts.md) を使ってください。
 
-- Agent: Use for open-ended tasks that make decisions and use tools.
-- Workflow: Use for defined multi-step processes.
+- Agent：判断をしながらツールを使う、決まった手順のない作業に使う。
+- Workflow：手順が決まっている、複数ステップの処理に使う。
 
 ## Mastra Studio
 
-Studio is the interactive UI for building, testing, and managing agents, workflows, and tools. Use Studio when advising a human to inspect or debug visually.
+Studio は、エージェント、ワークフロー、ツールを作成・テスト・管理するための対話的な画面です。人に画面で確認やデバッグをしてもらうよう案内するときに使います。
 
-Inside a Mastra project, run:
+Mastra のプロジェクト内で、次を実行します。
 
 ```bash
 npm run dev
 ```
 
-Then open `http://localhost:4111` in a browser to show Mastra Studio to your human user.
+そのあと、ブラウザで `http://localhost:4111` を開き、ユーザーに Mastra Studio を見てもらいます。
 
 ## Mastra API CLI
 
-Use `mastra api` to inspect or call resources on local dev servers, Mastra platform deployments, or remote Mastra endpoints. It is useful for agent-readable state, execution, traces, logs, scores, threads, and workflow operations. See [`references/mastra-api.md`](references/mastra-api.md) for usage patterns.
+`mastra api` は、ローカルの開発サーバー、Mastra プラットフォームのデプロイ、リモートの Mastra エンドポイント上のリソースを、確認したり呼び出したりするのに使います。エージェントが読める形での状態の取得、実行、トレース、ログ、スコア、スレッド、ワークフローの操作に便利です。使い方のパターンは [`references/mastra-api.md`](references/mastra-api.md) を参照してください。
 
-For exact trace selection that needs recursive predicates or conditions over related spans, scores, or feedback, read [`references/trace-query.md`](references/trace-query.md). Before using `mastra api trace query`, confirm that the installed CLI exposes the command. Use `--schema` for the target's request/response shape and structural constraints, and use the canonical documentation found through [`references/remote-docs.md`](references/remote-docs.md) for supported fields, operators, and semantics. Preserve opaque pagination cursors and fetch trace or span details only after selecting candidates.
+再帰的な条件や、関連するスパン・スコア・フィードバックに対する条件で、トレースを正確に選びたい場合は、[`references/trace-query.md`](references/trace-query.md) を読んでください。`mastra api trace query` を使う前に、インストール済みの CLI にそのコマンドがあるか確認してください。接続先のリクエスト・レスポンスの形や構造上の制約は `--schema` で、対応しているフィールド・演算子・意味は [`references/remote-docs.md`](references/remote-docs.md) から見つかる正式なドキュメントで確認してください。意味の分からないページ送りのカーソルはそのまま使い、トレースやスパンの詳細は、候補を絞り込んでから取得してください。
 
 ## Mastra Factory
 
-For Factory projects, work items, queue health, decisions, session history, memory inspection, or authorized operations, activate the **`mastra-factory`** skill. Factory is an operational control plane, not a reason to scaffold or deploy a new Mastra app.
+Factory のプロジェクト、作業項目、キューのヘルス、判断、セッションの履歴、メモリの確認、許可された操作には、**`mastra-factory`** スキルを有効にしてください。Factory は運用管理のための仕組みであり、新しい Mastra アプリを作ったりデプロイしたりする理由にはなりません。
 
-If the skill is missing, offer to install it from this repository:
+スキルがない場合は、このリポジトリからのインストールを提案してください。
 
 ```bash
 npx skills add mastra-ai/skills --skill mastra-factory
 ```
 
-Choose the user's intended agent and scope interactively. For global installation, target a supported agent explicitly with `--agent <agent> -g`; PromptScript does not support global installs. Verify installation and referenced files for the intended agent even if another agent target fails.
+ユーザーが使いたいエージェントとスコープを、対話形式で選んでください。グローバルにインストールする場合は、`--agent <agent> -g` で対応しているエージェントを明示してください。PromptScript はグローバルインストールに対応していません。別のエージェントへのインストールが失敗しても、対象のエージェントについて、インストールと参照ファイルを確認してください。
 
-The Factory skill covers CLI checks, `mastra auth whoami` / authorized `mastra auth login`, and connecting via the user's actual instance URL from any directory. A deployed repository or `.mastra-project.json` is not required with `--url`. Never guess a shared Factory host or project IDs. Its connection and session-inspection references cover deployment-specific authentication, project discovery, threads, and observational memory limitations.
+Factory スキルでは、CLI の確認、`mastra auth whoami` と許可を得たうえでの `mastra auth login`、そしてどのディレクトリからでもユーザーの実際のインスタンス URL で接続する方法を扱っています。`--url` を使えば、デプロイ済みのリポジトリや `.mastra-project.json` は必要ありません。共有の Factory ホストやプロジェクト ID を推測しないでください。接続とセッション確認のリファレンスでは、デプロイ固有の認証、プロジェクトの探し方、スレッド、観測メモリの制限について説明しています。
 
 ## Trace Intelligence
 
-Trace Intelligence (private beta on the Mastra platform) clusters completed agent traces into recurring themes across four trace signals: goal, outcome, behavior, and sentiment. Use it first for aggregate agent-health questions: what users ask for, where outcomes fail or get blocked, which behaviors recur, how sentiment shifts, and where the agent can improve. Then use `mastra api trace`, `log`, `metric`, and `score` commands for concrete execution evidence from specific traces. Query Trace Intelligence with `mastra api learning` CLI commands, or over HTTP via the local dev server proxy or the platform endpoint. See [`references/trace-intelligence.md`](references/trace-intelligence.md) for the investigation workflow, CLI commands, and route reference.
+Trace Intelligence（Mastra プラットフォームのプライベートベータ）は、完了したエージェントのトレースを、4つのシグナル（目的、結果、振る舞い、感情）ごとに、繰り返し現れるテーマとしてまとめる機能です。エージェントの状態を全体として知りたいとき、たとえば「ユーザーが何を求めているか」「どこで結果が失敗・ブロックしているか」「どんな振る舞いが繰り返されているか」「感情がどう変化しているか」「エージェントのどこを改善できるか」を知りたいときは、まずこれを使ってください。そのあと、`mastra api trace`、`log`、`metric`、`score` のコマンドで、具体的なトレースから実行の根拠を確認します。Trace Intelligence には、`mastra api learning` の CLI コマンド、またはローカル開発サーバーのプロキシやプラットフォームのエンドポイント経由の HTTP で問い合わせます。調査の流れ、CLI コマンド、ルートの一覧は [`references/trace-intelligence.md`](references/trace-intelligence.md) を参照してください。
 
-## Critical requirements
+## 必須の要件
 
-### TypeScript config
+### TypeScript の設定
 
-Mastra requires ES2022 modules. CommonJS will fail. See [`references/create-mastra.md`](references/create-mastra.md) for setup and [`references/common-errors.md`](references/common-errors.md) for troubleshooting.
+Mastra には ES2022 モジュールが必要です。CommonJS では失敗します。セットアップは [`references/create-mastra.md`](references/create-mastra.md)、トラブルシューティングは [`references/common-errors.md`](references/common-errors.md) を参照してください。
 
-### Model format
+### モデルの書き方
 
-Always use `"provider/model-name"` when defining models using Mastra's model router.
+Mastra のモデルルーターでモデルを指定するときは、必ず `"provider/model-name"` の形式を使ってください。
 
-When the user asks to use a model or provider, always run `scripts/provider-registry.mjs` first to verify the provider key and model name are valid. Do not guess model names from memory as they change frequently. See [`references/model-selection.md`](references/model-selection.md).
+ユーザーがモデルやプロバイダーを使いたいと言ったら、必ず先に `scripts/provider-registry.mjs` を実行して、プロバイダーのキーとモデル名が正しいか確認してください。モデル名は頻繁に変わるので、記憶から推測しないでください。[`references/model-selection.md`](references/model-selection.md) を参照してください。
 
-## When you see errors
+## エラーが出たとき
 
-Type errors often mean your knowledge is outdated.
+型エラーは、自分の知識が古いことを示している場合がよくあります。
 
-Common signs of outdated knowledge:
+知識が古いことを示す、よくあるサイン：
 
 - `Property X does not exist on type Y`
 - `Cannot find module`
-- `Type mismatch` errors
-- Constructor parameter errors
+- 型の不一致（`Type mismatch`）のエラー
+- コンストラクタの引数のエラー
 
-What to do:
+対応方法：
 
-1. Check [`references/common-errors.md`](references/common-errors.md)
-2. Verify current API in embedded docs
-3. Don't assume the error is a user mistake - it might be your outdated knowledge
+1. [`references/common-errors.md`](references/common-errors.md) を確認する
+2. 同梱のドキュメントで現在の API を確認する
+3. エラーをユーザーのミスだと決めつけない。自分の知識が古いせいかもしれない
 
-## Development workflow
+## 開発の流れ
 
-Always verify before writing code:
+コードを書く前に、必ず確認してください。
 
-1. Check whether Mastra packages are installed
-2. Look up current API
-   - If installed: Use embedded docs [`references/embedded-docs.md`](references/embedded-docs.md)
-   - If not: Use remote docs [`references/remote-docs.md`](references/remote-docs.md)
-3. Write code based on current docs
-4. Test with the project scripts or Studio when available
+1. Mastra のパッケージがインストールされているか確認する
+2. 現在の API を調べる
+   - インストール済みの場合：同梱のドキュメント [`references/embedded-docs.md`](references/embedded-docs.md) を使う
+   - 未インストールの場合：リモートのドキュメント [`references/remote-docs.md`](references/remote-docs.md) を使う
+3. 最新のドキュメントをもとにコードを書く
+4. プロジェクトのスクリプトや、使える場合は Studio でテストする

@@ -1,42 +1,42 @@
-# Trace Intelligence Reference
+# Trace Intelligence リファレンス
 
-How to query Trace Intelligence (private beta) from the Mastra platform. Trace Intelligence analyzes completed agent traces and groups them into recurring themes across four trace signals: `goal`, `outcome`, `behavior`, and `sentiment`.
+Mastra プラットフォームの Trace Intelligence（プライベートベータ）に問い合わせる方法です。Trace Intelligence は、完了したエージェントのトレースを分析し、4つのトレースシグナル（`goal`、`outcome`、`behavior`、`sentiment`）ごとに、繰り返し現れるテーマにまとめます。
 
-Use this reference when the user asks to investigate agent health, find recurring failures or behavior issues, identify ways to improve an agent, understand what users ask for, inspect recurring goal/outcome/behavior/sentiment themes, or query Trace Intelligence data programmatically.
+このリファレンスは、ユーザーから次のような依頼があったときに使います。エージェントの状態を調べたい、繰り返し起きる失敗や振る舞いの問題を見つけたい、エージェントの改善点を知りたい、ユーザーが何を求めているかを理解したい、goal／outcome／behavior／sentiment の繰り返しテーマを確認したい、Trace Intelligence のデータをプログラムから取得したい。
 
-## Concepts
+## 基本の考え方
 
-- **Trace signal**: one-sentence description generated per completed trace, per dimension (`goal`, `outcome`, `behavior`, `sentiment`).
-- **Theme**: durable cluster of similar trace signals for one dimension, with a label and description. Theme IDs are stable across snapshots for one signal.
-- **Snapshot**: a moving analysis window over recent traces. Identified by an opaque `snapshotId`.
-- **Noise**: traces in a snapshot that did not cluster into any theme. Window-local, no durable identity.
+- **トレースシグナル**：完了したトレース1件ごと、観点（`goal`、`outcome`、`behavior`、`sentiment`）ごとに生成される、1文の説明。
+- **テーマ**：1つの観点について、似たトレースシグナルをまとめた、継続的なグループ。ラベルと説明が付いている。テーマ ID は、同じシグナルであればスナップショットをまたいでも変わらない。
+- **スナップショット**：最近のトレースを対象に、移動しながら分析する期間の区切り。意味の分からない（opaque）`snapshotId` で識別される。
+- **ノイズ**：スナップショットの中で、どのテーマにもまとめられなかったトレース。その期間だけのもので、継続的な識別子はない。
 
-## Prerequisites
+## 前提条件
 
-- The project uses Mastra platform Observability and has completed traces.
-- The project is enrolled in the Trace Intelligence private beta. Non-enrolled projects get `403` from direct project reads.
+- プロジェクトが Mastra プラットフォームのオブザーバビリティを使っていて、完了したトレースがあること。
+- プロジェクトが Trace Intelligence のプライベートベータに登録されていること。登録されていないプロジェクトは、プロジェクトを直接読みにいくと `403` が返ります。
 
-Analysis is asynchronous: a project generally needs 100+ completed traces before themes exist. Empty responses usually mean not enough analyzed data yet, not an error.
+分析は非同期で行われます。テーマができるまでには、基本的に100件以上の完了したトレースが必要です。レスポンスが空なのは、多くの場合エラーではなく、分析済みのデータがまだ足りないという意味です。
 
-## Access paths
+## アクセス方法
 
-All Trace Intelligence routes are read-only `GET` requests under `/api/learning/`.
+Trace Intelligence のルートはすべて、`/api/learning/` の下にある読み取り専用の `GET` リクエストです。
 
-1. **`mastra api learning` CLI** (preferred): use the same credential model as hosted observability commands. No `--url` or `--header` is required if `MASTRA_PLATFORM_ACCESS_TOKEN` and `MASTRA_PROJECT_ID` are set, or if `.mastra-project.json` is present. The CLI also resolves `X-Mastra-Organization-Id` from `MASTRA_ORGANIZATION_ID` or `.mastra-project.json`.
+1. **`mastra api learning` CLI**（おすすめ）：ホスト型のオブザーバビリティのコマンドと同じ認証の仕組みを使います。`MASTRA_PLATFORM_ACCESS_TOKEN` と `MASTRA_PROJECT_ID` が設定されているか、`.mastra-project.json` があれば、`--url` や `--header` は不要です。CLI は、`X-Mastra-Organization-Id` も `MASTRA_ORGANIZATION_ID` か `.mastra-project.json` から自動で設定します。
 
 ```bash
 mastra api learning entities '{"entityType":"agent"}'
 ```
 
-Pass `--url` and `--header` only when overriding the hosted Trace Intelligence target or credentials.
+`--url` と `--header` は、ホスト型の Trace Intelligence の接続先や認証情報を上書きするときだけ指定してください。
 
-2. **Local dev server proxy**: `mastra dev` proxies `GET http://localhost:4111/api/learning/*` to the platform using its normal platform credentials. Loopback only.
+2. **ローカル開発サーバーのプロキシ**：`mastra dev` は、`GET http://localhost:4111/api/learning/*` を、通常のプラットフォームの認証情報を使ってプラットフォームへ中継します。ループバック（自分のマシン）からのアクセスだけに対応しています。
 
 ```bash
 curl -fsS "http://localhost:4111/api/learning/entities?entityType=agent" | jq
 ```
 
-3. **Direct platform endpoint** (no CLI or dev server needed): call `https://output.signals.mastra.ai` with explicit auth, project, and organization headers.
+3. **プラットフォームのエンドポイントを直接呼ぶ**（CLI も開発サーバーも不要）：認証、プロジェクト、組織のヘッダーを明示して、`https://output.signals.mastra.ai` を呼びます。
 
 ```bash
 BASE="https://output.signals.mastra.ai"
@@ -49,13 +49,13 @@ AUTH=(
 curl -fsS "${AUTH[@]}" "$BASE/api/learning/entities?entityType=agent" | jq
 ```
 
-The curl examples below use `$BASE` and `"${AUTH[@]}"`; for the local proxy, replace `$BASE` with `http://localhost:4111` and drop the headers.
+以降の curl の例では、`$BASE` と `"${AUTH[@]}"` を使っています。ローカルのプロキシを使う場合は、`$BASE` を `http://localhost:4111` に置き換え、ヘッダーを外してください。
 
-## CLI commands
+## CLI コマンド
 
-Every route has a CLI command. Positional args carry `entityId`/`themeId`; the JSON input carries the query params from the [route summary](#route-summary). Pass `--schema` to any command to print its input schema, and `--pretty` for readable output.
+すべてのルートに対応する CLI コマンドがあります。位置引数で `entityId`／`themeId` を渡し、JSON 入力で [ルートの一覧](#ルートの一覧) にあるクエリパラメータを渡します。どのコマンドでも、`--schema` を付けると入力スキーマが、`--pretty` を付けると読みやすい形で出力されます。
 
-| Command | Route |
+| コマンド | ルート |
 | --- | --- |
 | `mastra api learning entities '{"entityType":"agent"}'` | `/api/learning/entities` |
 | `mastra api learning snapshots <entityId> <input>` | `.../theme-snapshots` |
@@ -68,76 +68,76 @@ Every route has a CLI command. Positional args carry `entityId`/`themeId`; the J
 | `mastra api learning noise get <entityId> <input>` | `.../noise` |
 | `mastra api learning noise examples <entityId> <input>` | `.../noise/examples` |
 
-Same workflow as the curl steps below:
+下の curl の手順と同じ流れを、CLI で書くとこうなります。
 
 ```bash
-# 1. Discover entities and their available signals
+# 1. エンティティと、使えるシグナルを調べる
 mastra api learning entities '{"entityType":"agent"}'
 
-# 2. List snapshots (signalNames is ordered, comma-separated)
+# 2. スナップショットを一覧する（signalNames は順序付きのカンマ区切り）
 mastra api learning snapshots my-agent \
   '{"entityType":"agent","signalNames":"goal,outcome,behavior,sentiment","limit":10}'
 
-# 3. Themes for one signal in one snapshot (snapshotId from step 2)
+# 3. 1つのスナップショットにおける、1つのシグナルのテーマ（snapshotId は手順2から）
 mastra api learning theme list my-agent \
   '{"entityType":"agent","signalName":"goal","snapshotId":"<snapshotId>"}'
 
-# 4. Drill into one theme (numeric themeId from step 3)
+# 4. 1つのテーマを掘り下げる（数値の themeId は手順3から）
 mastra api learning theme examples my-agent 42 \
   '{"entityType":"agent","signalName":"goal","snapshotId":"<snapshotId>","limit":10}'
 mastra api learning theme history my-agent 42 \
   '{"entityType":"agent","signalName":"goal"}'
 ```
 
-## Investigation workflow
+## 調査の流れ
 
-For broad agent-health or improvement questions, start with Trace Intelligence to find recurring patterns, then use trace/log/metric/score APIs for concrete evidence from specific runs. For a specific failed run or error, start with `mastra api trace` or `mastra api log`, then use Trace Intelligence to check whether the issue is recurring.
+エージェントの状態や改善点についての全体的な質問では、まず Trace Intelligence で繰り返し現れるパターンを見つけ、そのあと trace／log／metric／score の API で、特定の実行から具体的な根拠を確認します。特定の失敗した実行やエラーについての質問では、まず `mastra api trace` か `mastra api log` から始め、そのあと Trace Intelligence で、その問題が繰り返し起きているかを確認します。
 
-Follow this order for aggregate Trace Intelligence analysis. Later calls need values returned by earlier calls.
+Trace Intelligence で全体を分析するときは、次の順番に従ってください。後の呼び出しには、前の呼び出しで返ってきた値が必要です。
 
-### 1. Discover entities
+### 1. エンティティを調べる
 
-Lists entities (agents) that have theme output, with which signals are available:
+テーマの出力があるエンティティ（エージェント）と、それぞれで使えるシグナルを一覧します。
 
 ```bash
 curl -fsS "${AUTH[@]}" "$BASE/api/learning/entities?entityType=agent" \
   | jq '.entities[] | {entityId, availableSignals, latestWindow}'
 ```
 
-Only request `signalNames` that appear in `availableSignals` in later calls.
+以降の呼び出しでは、`availableSignals` に含まれている `signalNames` だけを指定してください。
 
-### 2. List snapshots
+### 2. スナップショットを一覧する
 
-`signalNames` is an ordered, comma-separated list (1-4 unique values). A snapshot is returned only when every requested signal has usable output for the window:
+`signalNames` は、順序付きのカンマ区切りのリスト（重複なしで1〜4個）です。指定したすべてのシグナルについて、その期間に使える出力がある場合だけ、スナップショットが返されます。
 
 ```bash
-ENTITY="my-agent" # TODO: entityId from step 1
+ENTITY="my-agent" # TODO: 手順1の entityId
 curl -fsS "${AUTH[@]}" \
   "$BASE/api/learning/entities/$ENTITY/theme-snapshots?entityType=agent&signalNames=goal,outcome,behavior,sentiment&limit=10" \
   | jq '.snapshots[] | {snapshotId, ordinal, total, startedAt, endedAt, traceCount}'
 ```
 
-Optional `from`/`to` (ISO timestamps with offset) bound the snapshot cutoffs; `cursor` paginates newest-first via `nextCursor`.
+任意の `from`／`to`（タイムゾーンのオフセット付き ISO タイムスタンプ）で、スナップショットの区切りの範囲を絞れます。`cursor` を使うと、`nextCursor` で新しい順にページ送りできます。
 
-### 3. Read themes or the cross-signal flow
+### 3. テーマ、またはシグナル間の流れを読む
 
-Use each trace signal for a different diagnostic angle:
+トレースシグナルごとに、違う角度から診断します。
 
-- `goal`: what users are trying to do.
-- `outcome`: what completes, fails, gets blocked, or remains unresolved.
-- `behavior`: how the agent behaves, including tool use, loops, refusals, recovery, or drift.
-- `sentiment`: how user emotion changes across interactions.
+- `goal`：ユーザーが何をしようとしているか。
+- `outcome`：何が完了し、何が失敗・ブロック・未解決のままか。
+- `behavior`：エージェントがどう振る舞っているか（ツールの使い方、ループ、拒否、立て直し、ずれなど）。
+- `sentiment`：やり取りの中で、ユーザーの感情がどう変わるか。
 
-Themes for one signal in one snapshot:
+1つのスナップショットにおける、1つのシグナルのテーマ：
 
 ```bash
-SNAPSHOT="..." # TODO: snapshotId from step 2
+SNAPSHOT="..." # TODO: 手順2の snapshotId
 curl -fsS "${AUTH[@]}" \
   "$BASE/api/learning/entities/$ENTITY/themes?entityType=agent&signalName=goal&snapshotId=$SNAPSHOT" \
   | jq '{themes: [.themes[] | {themeId, label, state, traceCount, coverage, trend}], noise}'
 ```
 
-Cross-signal flow (Sankey-style stages and links; counts are distinct traces):
+シグナル間の流れ（サンキー図のような段階とつながり。件数は重複を除いたトレース数）：
 
 ```bash
 curl -fsS "${AUTH[@]}" \
@@ -145,14 +145,14 @@ curl -fsS "${AUTH[@]}" \
   | jq '{stages: [.stages[] | {signalName, nodes: [.nodes[] | {label, kind, traceCount, stageShare}]}], links}'
 ```
 
-### 4. Drill into one theme
+### 4. 1つのテーマを掘り下げる
 
-Use examples to move from aggregate themes to concrete traces. After identifying a suspicious theme, inspect its examples, then use the returned `traceId` with `mastra api trace`, logs, metrics, or scores when you need execution-level evidence.
+全体のテーマから具体的なトレースへ進むには、例（examples）を使います。気になるテーマが見つかったら、その例を確認し、実行レベルの根拠が必要なときは、返ってきた `traceId` を `mastra api trace`、ログ、メトリクス、スコアで使ってください。
 
-Detail, examples (raw trace signal texts), and history:
+詳細、例（トレースシグナルの元のテキスト）、履歴：
 
 ```bash
-THEME="42" # TODO: numeric themeId from step 3
+THEME="42" # TODO: 手順3の数値の themeId
 curl -fsS "${AUTH[@]}" \
   "$BASE/api/learning/entities/$ENTITY/themes/$THEME?entityType=agent&signalName=goal&snapshotId=$SNAPSHOT" | jq '.theme'
 
@@ -165,18 +165,18 @@ curl -fsS "${AUTH[@]}" \
   | jq '{points: [.points[] | {state, traceCount, coverage}], relationships}'
 ```
 
-History does not take `snapshotId`; it returns the theme's lifecycle (`birth`, `continue`, `split`, `merge`, `death`, `resurrection`) across snapshots, plus split/merge relationships.
+履歴は `snapshotId` を受け付けません。スナップショットをまたいだテーマのライフサイクル（`birth`：誕生、`continue`：継続、`split`：分裂、`merge`：統合、`death`：消滅、`resurrection`：復活）と、分裂・統合の関係を返します。
 
-### 5. Noise and per-trace paths
+### 5. ノイズとトレースごとの経路
 
-Noise bucket and its examples (same query shape as themes, using `/noise` and `/noise/examples`):
+ノイズのグループとその例（テーマと同じクエリの形で、`/noise` と `/noise/examples` を使う）：
 
 ```bash
 curl -fsS "${AUTH[@]}" \
   "$BASE/api/learning/entities/$ENTITY/noise?entityType=agent&signalName=goal&snapshotId=$SNAPSHOT" | jq '.noise'
 ```
 
-Per-trace assignments across the ordered signals (trace-level companion to `theme-flow`; paginate with `limit`/`offset` until `nextOffset` is absent):
+順序付きのシグナルをまたいだ、トレースごとの割り当て（`theme-flow` のトレース単位版。`nextOffset` がなくなるまで `limit`／`offset` でページ送りする）：
 
 ```bash
 curl -fsS "${AUTH[@]}" \
@@ -184,11 +184,11 @@ curl -fsS "${AUTH[@]}" \
   | jq '{themes, paths: .paths[:5]}'
 ```
 
-`paths[].assignments` maps each signal to a theme key (resolved in the `themes` dictionary) or `"noise"`. Use this to join themes back to concrete `traceId` values, then inspect those traces with `mastra api trace` (see [`mastra-api.md`](mastra-api.md)).
+`paths[].assignments` は、各シグナルをテーマのキー（`themes` の辞書で解決できる）か `"noise"` に対応づけます。これを使ってテーマを具体的な `traceId` に結びつけ、そのトレースを `mastra api trace` で確認してください（[`mastra-api.md`](mastra-api.md) を参照）。
 
-## Route summary
+## ルートの一覧
 
-| Route | Required query params | Optional |
+| ルート | 必須のクエリパラメータ | 任意 |
 | --- | --- | --- |
 | `GET /api/learning/entities` | `entityType` | `limit` |
 | `GET .../:entityId/theme-snapshots` | `entityType`, `signalNames` | `limit`, `cursor`, `from`, `to` |
@@ -201,20 +201,20 @@ curl -fsS "${AUTH[@]}" \
 | `GET .../:entityId/noise` | `entityType`, `signalName`, `snapshotId` | — |
 | `GET .../:entityId/noise/examples` | `entityType`, `signalName`, `snapshotId` | `limit`, `offset` |
 
-`:themeId` is numeric. Flow/paths/snapshots take plural ordered `signalNames`; theme/noise routes take singular `signalName`.
+`:themeId` は数値です。flow／paths／snapshots は複数形の順序付き `signalNames` を、theme／noise のルートは単数形の `signalName` を受け付けます。
 
-## Rules and caveats
+## ルールと注意点
 
-- **`snapshotId` is opaque.** Send it back unchanged, with the same entity and signal selection it came from. It is rejected for a different project, entity, or signal set. Never construct or reuse snapshot IDs across scopes.
-- **Counts are distinct traces**, not assignment rows. `coverage`, `stageShare`, `sourceShare`, `targetShare` are fractions of the deduplicated counts.
-- **`other` nodes in `theme-flow`** are lower-volume themes collapsed per stage. They have no `themeId` and cannot be drilled into; raise `themeLimitPerStage` to expand them.
-- **Noise is window-local.** It has no durable ID, label, or trend, and differs between snapshots.
-- **Results are AI-generated summaries.** Verify conclusions against theme examples and the underlying traces before acting on them.
+- **`snapshotId` は意味の分からない値として扱う。** 受け取ったときと同じエンティティとシグナルの組み合わせで、そのまま送り返してください。別のプロジェクト、エンティティ、シグナルの組み合わせでは拒否されます。スナップショット ID を自分で作ったり、範囲をまたいで使い回したりしないでください。
+- **件数は重複を除いたトレース数**であって、割り当ての行数ではありません。`coverage`、`stageShare`、`sourceShare`、`targetShare` は、重複を除いた件数に対する割合です。
+- **`theme-flow` の `other` ノード**は、件数の少ないテーマを段階ごとにまとめたものです。`themeId` がないので掘り下げられません。展開したい場合は `themeLimitPerStage` を大きくしてください。
+- **ノイズはその期間だけのもの。** 継続的な ID、ラベル、傾向はなく、スナップショットごとに異なります。
+- **結果は AI が生成した要約です。** 行動に移す前に、テーマの例と元のトレースで結論を確認してください。
 
-## Errors
+## エラー
 
-- `401`: bad or missing bearer token. Check `MASTRA_PLATFORM_ACCESS_TOKEN`.
-- `403` mentioning `X-Mastra-Organization-Id`: the organization header is missing. Set `MASTRA_ORGANIZATION_ID` (direct curl) or run from a directory containing `.mastra-project.json` (CLI).
-- `403`: project not enrolled in the private beta, or the local proxy was called from a non-loopback host.
-- `503` from the local proxy: `MASTRA_PLATFORM_ACCESS_TOKEN` / `MASTRA_PROJECT_ID` missing from the dev server environment.
-- Empty `entities` or `snapshots`: not enough analyzed traces yet, or the requested `signalNames` are not all available. Re-check `availableSignals` from the entities call.
+- `401`：Bearer トークンが間違っているか、ありません。`MASTRA_PLATFORM_ACCESS_TOKEN` を確認してください。
+- `X-Mastra-Organization-Id` に触れている `403`：組織のヘッダーがありません。直接 curl する場合は `MASTRA_ORGANIZATION_ID` を設定し、CLI の場合は `.mastra-project.json` があるディレクトリから実行してください。
+- `403`：プロジェクトがプライベートベータに登録されていないか、ローカルのプロキシをループバック以外のホストから呼んでいます。
+- ローカルのプロキシからの `503`：開発サーバーの環境に `MASTRA_PLATFORM_ACCESS_TOKEN`／`MASTRA_PROJECT_ID` が設定されていません。
+- `entities` や `snapshots` が空：分析済みのトレースがまだ足りないか、指定した `signalNames` がすべては使えません。エンティティの呼び出しで返ってきた `availableSignals` を確認し直してください。

@@ -1,136 +1,136 @@
-# Mastra API CLI Reference
+# Mastra API CLI リファレンス
 
-How to use the `mastra api` CLI to interact with Mastra servers. Prefer fast, focused commands and compact JSON projections. Treat the installed CLI and server schema as the source of truth when discovery is needed.
+`mastra api` CLI を使って Mastra サーバーとやり取りする方法です。速くて対象を絞ったコマンドと、コンパクトな JSON の抜き出しを優先してください。調べる必要があるときは、インストール済みの CLI とサーバーのスキーマを正解の情報源として扱ってください。
 
-Use this reference when the user asks to inspect or call agents, workflows, tools, MCP servers, memory threads, traces, logs, metrics, scores, datasets, experiments, or to debug/test `mastra api` commands.
+このリファレンスは、ユーザーからエージェント、ワークフロー、ツール、MCP サーバー、メモリのスレッド、トレース、ログ、メトリクス、スコア、データセット、実験の確認や呼び出しを頼まれたとき、または `mastra api` コマンドのデバッグやテストを頼まれたときに使います。
 
-## Setup
+## セットアップ
 
-The CLI can interact with any reachable Mastra server:
+CLI は、到達できる Mastra サーバーであれば、どれとでもやり取りできます。
 
-- Local dev server: `http://localhost:4111` from `npm run dev`
-- Mastra platform deployment: Use the deployment URL
-- Remote/self-hosted server: Use the server URL
-- Hosted Mastra Platform Observability: `https://observability.mastra.ai` (auto-targeted by `trace`, `log`, `score`, and `metric` commands)
+- ローカルの開発サーバー：`npm run dev` で起動した `http://localhost:4111`
+- Mastra プラットフォームのデプロイ：デプロイの URL を使う
+- リモート／セルフホストのサーバー：サーバーの URL を使う
+- ホスト型の Mastra プラットフォームのオブザーバビリティ：`https://observability.mastra.ai`（`trace`、`log`、`score`、`metric` のコマンドで自動的に接続先になる）
 
-For local servers, `mastra api` defaults to `http://localhost:4111`:
+ローカルサーバーの場合、`mastra api` のデフォルトの接続先は `http://localhost:4111` です。
 
 ```bash
 npx mastra api agent list
 ```
 
-For Mastra platform or remote servers, pass `--url`. For the sake of brevity in examples, `$MASTRA_URL` is used as a placeholder for the actual server URL which you need to set yourself:
+Mastra プラットフォームやリモートサーバーの場合は、`--url` を指定します。例を簡潔にするため、実際のサーバー URL の代わりに `$MASTRA_URL` を使っています。値は自分で設定してください。
 
 ```bash
 npx mastra api --url $MASTRA_URL agent list
 ```
 
-For Factory operations, activate the `mastra-factory` skill first. Use the user's actual Factory instance URL (not the platform API/dashboard URL). Explicit `--url` works from an empty directory. Recognized hosted Factory domains use saved `mastra auth login` credentials; check `mastra auth whoami` and offer login if needed. Custom/self-hosted deployments may use different authentication. Factory discovery uses bundled leaf contracts and root-level `/web/*` routes, not the runtime schema probe below.
+Factory の操作では、まず `mastra-factory` スキルを有効にしてください。プラットフォームの API やダッシュボードの URL ではなく、ユーザーの実際の Factory インスタンスの URL を使います。`--url` を明示すれば、空のディレクトリからでも動きます。認識されているホスト型の Factory のドメインでは、`mastra auth login` で保存された認証情報が使われます。`mastra auth whoami` で確認し、必要ならログインを提案してください。独自ドメインやセルフホストのデプロイでは、認証方式が異なる場合があります。Factory の確認では、下にあるランタイムのスキーマ確認ではなく、CLI に同梱された末端コマンドの仕様と、ルート直下の `/web/*` のルートを使います。
 
-For an unauthenticated local runtime server, verify the server once with a cheap check before resource calls:
+認証なしのローカルのランタイムサーバーでは、リソースを呼び出す前に、軽いチェックでサーバーを一度確認してください。
 
 ```bash
 MASTRA_URL="${MASTRA_URL:-http://localhost:4111}"
 curl -fsS "$MASTRA_URL/api/system/api-schema" >/dev/null
 ```
 
-If `$MASTRA_URL` is not reachable, ask for the correct deployment URL and set `--url` accordingly. For authenticated targets, use a supported read-only CLI call instead of treating an unauthenticated schema-probe failure as unreachability. Let the CLI use saved login on recognized platform hosts; for custom servers, have the user configure the deployment's approved authentication mechanism outside chat. Never request secret values in chat or inspect saved credential files.
+`$MASTRA_URL` に到達できない場合は、正しいデプロイの URL を聞き、それに合わせて `--url` を設定してください。認証が必要な接続先では、認証なしのスキーマ確認が失敗しても「到達できない」とはみなさず、対応している読み取り専用の CLI 呼び出しを使ってください。認識されているプラットフォームのホストでは、保存されたログインを CLI に使わせてください。独自のサーバーでは、そのデプロイで認められている認証の仕組みを、チャットの外でユーザーに設定してもらってください。チャットでシークレットの値を聞いたり、保存された認証情報のファイルを確認したりしないでください。
 
-For authenticated servers, pass repeatable headers:
+認証が必要なサーバーでは、ヘッダーを（何度でも）指定して渡します。
 
 ```bash
 npx mastra api --url "$MASTRA_URL" --header "Authorization: Bearer $TOKEN" agent list
 ```
 
-### Target resolution
+### 接続先の決まり方
 
-Runtime commands (`agent`, `workflow`, `tool`, `mcp`, `thread`, `memory`, `dataset`, `experiment`) resolve the target in this order:
+ランタイムのコマンド（`agent`、`workflow`、`tool`、`mcp`、`thread`、`memory`、`dataset`、`experiment`）は、次の順番で接続先を決めます。
 
-1. `--url <url>` for an explicit remote or self-hosted server.
-2. `http://localhost:4111` for a local `mastra dev` server.
-3. `.mastra-project.json` for a Mastra platform project.
+1. `--url <url>`：リモートやセルフホストのサーバーを明示した場合
+2. `http://localhost:4111`：ローカルの `mastra dev` サーバー
+3. `.mastra-project.json`：Mastra プラットフォームのプロジェクト
 
-Observability commands (`trace`, `log`, `score`, `metric`) target `https://observability.mastra.ai` by default instead of a project deployment URL. The CLI resolves credentials in this order:
+オブザーバビリティのコマンド（`trace`、`log`、`score`、`metric`）は、プロジェクトのデプロイ URL ではなく、デフォルトで `https://observability.mastra.ai` に接続します。CLI は、次の順番で認証情報を決めます。
 
-1. Explicit `Authorization` and `X-Mastra-Project-Id` headers passed with `--header`.
-2. `MASTRA_PLATFORM_ACCESS_TOKEN` and `MASTRA_PROJECT_ID` from the environment.
-3. Project metadata from `.mastra-project.json` for the project ID.
-4. The Mastra CLI login token as an auth fallback.
+1. `--header` で渡した `Authorization` と `X-Mastra-Project-Id` のヘッダー
+2. 環境変数の `MASTRA_PLATFORM_ACCESS_TOKEN` と `MASTRA_PROJECT_ID`
+3. プロジェクト ID については、`.mastra-project.json` のプロジェクト情報
+4. 認証の最後の手段として、Mastra CLI のログイントークン
 
-For observability calls, no `--url` or `--header` is required if `MASTRA_PLATFORM_ACCESS_TOKEN` and `MASTRA_PROJECT_ID` are set, or if `.mastra-project.json` is present:
+オブザーバビリティの呼び出しでは、`MASTRA_PLATFORM_ACCESS_TOKEN` と `MASTRA_PROJECT_ID` が設定されているか、`.mastra-project.json` があれば、`--url` や `--header` は不要です。
 
 ```bash
 npx mastra api trace list '{"page":0,"perPage":10}'
 npx mastra api metric names
 ```
 
-Pass `--url` and `--header` only when overriding the hosted observability target or credentials.
+`--url` と `--header` は、ホスト型のオブザーバビリティの接続先や認証情報を上書きするときだけ指定してください。
 
-## Decision flow
+## 判断の流れ
 
-1. Clear read-only request (`list X`, `latest X`, `get X`, `summarize recent X`): infer the resource and use the fast path first.
-2. Mutating request (`create`, `update`, `delete`, `run`, `resume`, `execute`), unclear resource/action, failed fast path, or exact syntax requested: use narrow CLI discovery.
-3. JSON input uncertain: use command-specific `--schema`.
-4. Route behavior confusing: inspect `/api/system/api-schema`.
+1. はっきりした読み取り専用の依頼（「X の一覧」「最新の X」「X を取得」「最近の X をまとめて」）：リソースを推測し、まず「速い方法」を使う。
+2. 変更を伴う依頼（`create`、`update`、`delete`、`run`、`resume`、`execute`）、リソースや操作がはっきりしない、速い方法が失敗した、正確な書き方を求められた：対象を絞った CLI の確認を使う。
+3. JSON の入力が分からない：そのコマンドの `--schema` を使う。
+4. ルートの動きが分かりにくい：`/api/system/api-schema` を確認する。
 
-Start with these command groups when present; verify with `mastra api --help` if the group fails.
+次のコマンドグループがあれば、ここから始めてください。グループの呼び出しが失敗したら、`mastra api --help` で確認してください。
 
 ```text
 agent workflow tool mcp thread memory trace log metric score dataset experiment
 ```
 
-## Fast path for read-only requests
+## 読み取り専用の依頼での「速い方法」
 
-Use conventional `list`/`get` commands first. Keep pages small and pipe through `jq` immediately.
+まずは一般的な `list`／`get` コマンドを使います。ページは小さくし、すぐに `jq` に渡してください。
 
-Latest item:
+最新の1件：
 
 ```bash
 npx mastra api <resource> list '{"page":0,"perPage":1}' \
   | jq '.data[0]'
 ```
 
-Recent items:
+最近の項目：
 
 ```bash
 npx mastra api <resource> list '{"page":0,"perPage":10}' \
   | jq '.data[]'
 ```
 
-When the shape is known, project only the fields needed for the task:
+形が分かっている場合は、作業に必要なフィールドだけを抜き出します。
 
 ```bash
 npx mastra api <resource> list '{"page":0,"perPage":10}' \
   | jq '.data[] | {id, name, createdAt, status}'
 ```
 
-Get details:
+詳細を取得する：
 
 ```bash
 npx mastra api <resource> get <id> \
   | jq '.data'
 ```
 
-When the shape is known, project only the fields needed for the task:
+形が分かっている場合は、作業に必要なフィールドだけを抜き出します。
 
 ```bash
 npx mastra api <resource> get <id> \
   | jq '.data | {id, name, createdAt, status}'
 ```
 
-If a resource does not support the conventional shape, fall back to narrow `--help` for that resource/action.
+リソースが一般的な形に対応していない場合は、そのリソース・操作に絞った `--help` に切り替えてください。
 
-## Output control
+## 出力の絞り方
 
-- Do not use unfiltered `--pretty` during exploration.
-- Always project list/get output with `jq` before reading details.
-- Use `perPage:1` for latest and `perPage:10` or less for recent lists.
-- If output is truncated or noisy, rerun with a narrower `jq` projection. Do not increase terminal output just to see more raw JSON.
-- Fetch full JSON only when the user asks for raw output or compact projections are insufficient.
+- 調べている段階で、フィルタなしの `--pretty` を使わない。
+- list／get の出力は、詳細を読む前に必ず `jq` で抜き出す。
+- 最新なら `perPage:1`、最近の一覧なら `perPage:10` 以下にする。
+- 出力が途中で切れる、またはうるさい場合は、`jq` の抜き出しを絞って実行し直す。生の JSON をもっと見るために、ターミナルの出力を増やさない。
+- JSON 全体を取得するのは、ユーザーが生の出力を求めた場合か、コンパクトな抜き出しでは足りない場合だけにする。
 
-## Fallback discovery
+## 確認方法（速い方法がだめなとき）
 
-Use the narrowest discovery command that can answer the question. Example for traces:
+質問に答えられる、最も対象を絞った確認コマンドを使ってください。トレースの例：
 
 ```bash
 npx mastra api trace --help
@@ -140,30 +140,30 @@ npx mastra api trace query --help
 npx mastra api trace query --schema
 ```
 
-Use `trace query` instead of `trace list` when selection requires recursive predicates, metadata filters, or conditions over related spans, scores, or feedback. First use `trace query --help` to confirm that the installed CLI exposes the command. The inline JSON query is required, and its cursor-bearing response stays nested under `data`. Read [`trace-query.md`](trace-query.md) for availability checks, the division between CLI schema discovery and canonical documentation, query construction, and pagination.
+再帰的な条件、メタデータでの絞り込み、関連するスパン・スコア・フィードバックへの条件で選ぶ必要がある場合は、`trace list` ではなく `trace query` を使います。まず `trace query --help` で、インストール済みの CLI にこのコマンドがあるか確認してください。インラインの JSON クエリは必須で、カーソルを含むレスポンスは `data` の下に入れ子になったままです。使えるかどうかの確認、CLI のスキーマ確認と正式なドキュメントの使い分け、クエリの組み立て方、ページ送りについては、[`trace-query.md`](trace-query.md) を読んでください。
 
-Use top-level help only when the resource is unknown:
+トップレベルのヘルプは、リソースが分からない場合だけ使ってください。
 
 ```bash
 npx mastra api --help
 ```
 
-Read `--schema` output as the contract:
+`--schema` の出力は、仕様として読んでください。
 
-- `command`: usage string
-- `examples`: known-good examples
-- `positionals`: required path/identity arguments
-- `input.required`: whether JSON input is required
-- `input.schema`: accepted CLI JSON input, including query/body fields
-- `schemas`: raw server route schemas for deeper debugging
+- `command`：使い方の文字列
+- `examples`：動作が確認された例
+- `positionals`：必須のパスや識別子の引数
+- `input.required`：JSON の入力が必須かどうか
+- `input.schema`：CLI が受け付ける JSON 入力（クエリとボディのフィールドを含む）
+- `schemas`：さらに詳しくデバッグするための、サーバーのルートの生のスキーマ
 
-## JSON and output contract
+## JSON と出力の仕様
 
-`mastra api` accepts at most one inline JSON object as input. Do not use stdin or files unless the user explicitly asks.
+`mastra api` が受け付ける入力は、インラインの JSON オブジェクト最大1つです。ユーザーが明示的に頼まない限り、標準入力やファイルは使わないでください。
 
-For non-GET routes, the CLI splits the one JSON object into query parameters and request body according to the server route schema.
+GET 以外のルートでは、CLI がサーバーのルートのスキーマに従って、1つの JSON オブジェクトをクエリパラメータとリクエストボディに振り分けます。
 
-Output envelopes:
+出力の形：
 
 ```json
 { "data": {} }
@@ -171,38 +171,38 @@ Output envelopes:
 { "error": { "code": "...", "message": "...", "details": {} } }
 ```
 
-## Error handling
+## エラーへの対応
 
-- `INVALID_JSON`: fix shell quoting; input must be one JSON object.
-- `MISSING_INPUT`: run the same command with `--schema` and supply required JSON.
-- `MISSING_ARGUMENT`: provide the positional shown by `--help` / `--schema`.
-- `HTTP_ERROR`: inspect `error.details`, then compare against `--schema` or route schema.
-- `REQUEST_TIMEOUT`: retry with larger `--timeout`, especially for workflow execution.
-- `SERVER_UNREACHABLE`: verify the URL and the server check. If localhost is not running, ask whether the user wants to use a Mastra platform deployment or another remote server URL.
+- `INVALID_JSON`：シェルのクォートを直す。入力は JSON オブジェクト1つでなければならない。
+- `MISSING_INPUT`：同じコマンドを `--schema` 付きで実行し、必要な JSON を渡す。
+- `MISSING_ARGUMENT`：`--help`／`--schema` に表示される位置引数を渡す。
+- `HTTP_ERROR`：`error.details` を確認し、`--schema` やルートのスキーマと見比べる。
+- `REQUEST_TIMEOUT`：`--timeout` を大きくして再試行する。特にワークフローの実行で起きやすい。
+- `SERVER_UNREACHABLE`：URL とサーバーのチェックを確認する。localhost が起動していない場合は、Mastra プラットフォームのデプロイか、別のリモートサーバーの URL を使いたいか、ユーザーに確認する。
 
-## Route-level debugging
+## ルート単位でのデバッグ
 
-If CLI behavior seems wrong, inspect the route-derived schema manifest instead of guessing.
+CLI の動きがおかしいと感じたら、推測せずに、ルートから生成されたスキーマのマニフェストを確認してください。
 
-Find routes by path:
+パスでルートを探す：
 
 ```bash
 curl -fsS "$MASTRA_URL/api/system/api-schema" \
   | jq '.routes[] | select(.path | contains("/memory"))'
 ```
 
-Inspect one route:
+1つのルートを確認する：
 
 ```bash
 curl -fsS "$MASTRA_URL/api/system/api-schema" \
   | jq '.routes[] | select(.method == "POST" and .path == "/tools/:toolId/execute") | {pathParamSchema, queryParamSchema, bodySchema, responseShape}'
 ```
 
-## Known notes
+## 知っておくとよいこと
 
-- Tool and MCP tool execution accept raw tool input; explicit `{ "data": ... }` also works.
-- Workflow resume only works for suspended workflow runs.
-- Working memory update requires the agent's memory to have working memory enabled.
-- Empty lists may simply mean the server has no matching stored data yet.
-- `trace list` and `trace get` return lightweight payloads by default (no span input, output, attributes, or metadata). Pass `--verbose` to fetch full span records, or use `trace span <traceId> <spanId>` to fetch one specific span in full.
-- `trace query` requires inline JSON, queries completed traces, and preserves its opaque cursor at `data.page.next`. Pass that value unchanged as `page.after` with the same query shape.
+- ツールと MCP ツールの実行は、ツールの入力をそのまま受け付けます。`{ "data": ... }` と明示しても動きます。
+- ワークフローの再開（resume）は、一時停止中のワークフローの実行にだけ使えます。
+- ワーキングメモリの更新には、エージェントのメモリでワーキングメモリが有効になっている必要があります。
+- 一覧が空でも、サーバーにまだ該当するデータが保存されていないだけ、ということがあります。
+- `trace list` と `trace get` は、デフォルトでは軽量なデータを返します（スパンの入力、出力、属性、メタデータは含まれない）。スパンの記録を全部取得するには `--verbose` を付けるか、`trace span <traceId> <spanId>` で特定のスパンを詳細まで取得してください。
+- `trace query` はインラインの JSON が必須で、完了したトレースを検索し、意味の分からないカーソルを `data.page.next` に保持します。その値は書き換えずに、同じ形のクエリの `page.after` に渡してください。

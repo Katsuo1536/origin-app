@@ -1,10 +1,10 @@
-# Inspect work, sessions, and memory
+# 作業・セッション・メモリを確認する
 
-Read [connection.md](connection.md) first. These recipes assume `FACTORY_URL` is the user's verified target and `PROJECT_ID` came from that target's Factory project list. Preserve the target and any deployment-specific auth/prefix options on every call. Never substitute a platform deployment ID for `PROJECT_ID`.
+まず [connection.md](connection.md) を読んでください。ここでの手順は、`FACTORY_URL` がユーザーの確認済みの接続先であり、`PROJECT_ID` がその接続先の Factory プロジェクト一覧から取得したものであることを前提にしています。接続先と、デプロイ固有の認証・プレフィックスのオプションは、すべての呼び出しで付けたままにしてください。`PROJECT_ID` の代わりに、プラットフォームのデプロイ ID を使わないでください。
 
-## Find work related to the user
+## ユーザーに関係する作業を探す
 
-For platform authentication, use `mastra auth whoami` to identify the current user ID without reading credentials. For other auth providers, establish the actual Factory user identity with the user; don't assume a platform user ID applies. Set `USER_ID` to that verified identity.
+プラットフォームの認証を使っている場合は、`mastra auth whoami` で、認証情報を読まずに現在のユーザー ID を確認してください。それ以外の認証プロバイダーの場合は、実際の Factory 上のユーザーが誰なのかをユーザーと一緒に確認してください。プラットフォームのユーザー ID がそのまま使えるとは考えないでください。確認したユーザーを `USER_ID` に設定します。
 
 ```bash
 mastra api --url "$FACTORY_URL" factory work-item list "$PROJECT_ID" \
@@ -16,15 +16,15 @@ mastra api --url "$FACTORY_URL" factory work-item list "$PROJECT_ID" \
     }'
 ```
 
-This finds creator/starter relationships, not every assignment, mention, or contribution. Say what was matched. Confirm the actual envelope and pagination before claiming complete coverage; use leaf schema to discover server-side filters rather than guessing them.
+これで見つかるのは「作成した」「開始した」という関係だけで、すべての割り当て、メンション、関与が見つかるわけではありません。何で一致したのかを説明してください。漏れなく確認できたと言う前に、実際のレスポンスの形とページ送りを確認してください。サーバー側のフィルタは推測せず、末端コマンドのスキーマで確認してください。
 
-A stage such as `execute` or `review` is not proof a model is running. Correlate `runningSessionIds`, session bindings, current decisions, recent messages, timestamps, and health findings. A stale running-session entry is not proof of recent progress. `board: null` can represent a Slack/chat item rather than a card on the work board; report it separately and don't automatically restart it as pipeline work.
+`execute` や `review` といったステージにあるからといって、モデルが実行中だとは限りません。`runningSessionIds`、セッションの紐づけ、現在の判断、最近のメッセージ、タイムスタンプ、ヘルスの指摘を突き合わせてください。実行中のセッション一覧に古い項目が残っていても、最近進んでいる証拠にはなりません。`board: null` は、作業ボード上のカードではなく、Slack やチャットの項目を表していることがあります。別扱いで報告し、パイプラインの作業として自動で再開しないでください。
 
-## Follow a work item into its thread
+## 作業項目からスレッドをたどる
 
-1. Select the item and inspect its returned `sessions` entries. Roles can share a thread: deduplicate thread IDs.
-2. Use the returned `threadId`, not a work-item ID or an invented session/thread convention. Set `THREAD_ID` to that value.
-3. Discover the installed runtime commands. Factory does not currently have a `read-session` leaf; use `thread` and `memory` at the same target.
+1. 項目を選び、返ってきた `sessions` の各エントリを確認します。複数の役割が同じスレッドを共有していることがあるので、スレッド ID の重複を取り除いてください。
+2. 作業項目の ID や、自分で考えたセッション／スレッドの命名規則ではなく、返ってきた `threadId` を使います。その値を `THREAD_ID` に設定します。
+3. インストール済みのランタイムのコマンドを確認します。Factory には現在 `read-session` というコマンドはありません。同じ接続先で `thread` と `memory` を使ってください。
 
 ```bash
 mastra api --url "$FACTORY_URL" thread --help
@@ -37,11 +37,11 @@ mastra api --url "$FACTORY_URL" thread messages "$THREAD_ID" '{"page":0,"perPage
   | jq '{page, messages: [.data[] | {id, role, createdAt, parts: .content.parts}]}'
 ```
 
-Use `thread list` with schema-supported filters when no thread binding is available; don't enumerate unrelated users' memory. Runtime `--schema` discovery can require a reachable, authenticated target even though Factory contracts are bundled. Follow `.page.hasMore`, incrementing `page` from zero; select ordering supported by the schema if looking for the newest messages. Limit displayed text/parts and stop once the question is answered. Report the pages/time range inspected and any gaps.
+スレッドの紐づけが分からない場合は、スキーマが対応しているフィルタを付けて `thread list` を使ってください。関係のないユーザーのメモリを一覧しないでください。Factory の仕様は CLI に同梱されていますが、ランタイムの `--schema` の確認には、到達可能で認証済みの接続先が必要な場合があります。`.page.hasMore` を見ながら、`page` を0から順に増やしてください。最新のメッセージを探す場合は、スキーマが対応している並び順を選んでください。表示するテキストやパーツは絞り、質問に答えられた時点でやめてください。確認したページや期間、確認できていない部分を報告してください。
 
-### Open a session in the Factory UI
+### Factory の画面でセッションを開く
 
-The hosted Factory UI serves a session at `/factories/<factory-project-id>/workspaces/<sessionId>/threads/<threadId>` on the same origin as `$FACTORY_URL`. Build the URL from the item's returned `sessions` values and hand it to the user's browser (`open` on macOS, `xdg-open` on Linux):
+ホスト型の Factory の画面では、`$FACTORY_URL` と同じオリジンの `/factories/<factory-project-id>/workspaces/<sessionId>/threads/<threadId>` でセッションが表示されます。項目から返ってきた `sessions` の値で URL を組み立て、ユーザーのブラウザで開いてください（macOS は `open`、Linux は `xdg-open`）。
 
 ```bash
 mastra api --url "$FACTORY_URL" factory work-item list "$PROJECT_ID" \
@@ -50,16 +50,16 @@ mastra api --url "$FACTORY_URL" factory work-item list "$PROJECT_ID" \
       | .sessions | to_entries[]
       | "\($base)/factories/\($project)/workspaces/\(.value.sessionId)/threads/\(.value.threadId)"' \
   | sort -u
-# then: open "<url>"   (macOS)  /  xdg-open "<url>"  (Linux)
+# そのあと: open "<url>"（macOS） / xdg-open "<url>"（Linux）
 ```
 
-Unauthenticated fetches of that URL return 401; the user's browser login is what renders it. Do not scrape the page in place of the API.
+その URL を認証なしで取得すると 401 が返ります。画面が表示されるのは、ユーザーのブラウザでログインしているからです。API の代わりにページをスクレイピングしないでください。
 
-Read `content.parts` for text, tool calls/results, signals, and OM events. A transcript can contain tool calls without stored results. Separate user intent, attempted actions, observed results, agent claims, and independently verified outcomes. “Tests passed” in assistant text is weaker evidence than a test result. “Implemented” does not prove committed, pushed, or merged: report those states as unknown without repository/PR evidence.
+テキスト、ツールの呼び出しと結果、シグナル、OM のイベントは `content.parts` から読み取ってください。やり取りの記録には、結果が保存されていないツール呼び出しが含まれていることがあります。ユーザーの意図、試みた操作、観測された結果、エージェントの主張、独立して確認できた結果を分けて扱ってください。アシスタントの文章にある「テストは通りました」は、テストの実行結果よりも弱い根拠です。「実装しました」は、コミット・プッシュ・マージ済みであることの証明にはなりません。リポジトリや PR の根拠がなければ、それらの状態は「不明」として報告してください。
 
-## Observational memory (OM)
+## 観測メモリ（OM）
 
-Discover commands before assuming support:
+対応していると決めつける前に、コマンドを確認してください。
 
 ```bash
 mastra api --url "$FACTORY_URL" memory --help
@@ -69,7 +69,7 @@ mastra api --url "$FACTORY_URL" agent list \
   | jq '.data[] | {id, name}'
 ```
 
-Set `AGENT_ID` to the session's actual memory-owning agent, confirmed from deployment/session metadata (ask if ambiguous). Do not assume a universal agent ID. Set `RESOURCE_ID` from the thread's returned `resourceId`; resource, thread, session, and project IDs are not generally interchangeable.
+`AGENT_ID` には、デプロイやセッションのメタデータで確認した、そのセッションのメモリを実際に持っているエージェントを設定してください（あいまいな場合は確認してください）。どこでも使える共通のエージェント ID があるとは考えないでください。`RESOURCE_ID` には、スレッドから返ってきた `resourceId` を設定してください。リソース、スレッド、セッション、プロジェクトの ID は、基本的に互いに置き換えられません。
 
 ```bash
 mastra api --url "$FACTORY_URL" memory status \
@@ -78,11 +78,11 @@ mastra api --url "$FACTORY_URL" memory status \
   | jq '.data.observationalMemory'
 ```
 
-Status can expose `enabled`, `hasRecord`, `lastObservedAt`, `observationTokenCount`, and observing/reflecting flags. It is not the observation text. A missing status block is not proof of an empty memory: verify the agent and resource first. A record with zero observation tokens is not evidence that observation succeeded.
+status では、`enabled`、`hasRecord`、`lastObservedAt`、`observationTokenCount`、観測中・振り返り中のフラグが分かることがあります。これは観測の本文ではありません。status のブロックがなくても、メモリが空だとは限りません。まずエージェントとリソースを確認してください。観測トークン数が0の記録は、観測が成功した根拠にはなりません。
 
-In the verified CLI surface (Mastra 1.30.0), `memory` exposes `search`, `current`, and `status`, not a dedicated OM-content command. The server's authenticated `GET /memory/observational-memory` returns `{record, history}` (under the runtime API prefix), but route metadata alone does not make it a CLI command. Do not extract saved tokens or invent a passthrough command to call it. If authoritative current OM is needed, use a supported authenticated UI/client or report the CLI limitation. Do not call the buffer-status POST as a substitute for a read.
+動作確認済みの CLI（Mastra 1.30.0）では、`memory` にあるのは `search`、`current`、`status` で、OM の中身を読む専用のコマンドはありません。サーバーの認証付き `GET /memory/observational-memory`（ランタイム API のプレフィックス配下）は `{record, history}` を返しますが、ルートのメタデータがあるからといって CLI のコマンドになるわけではありません。保存されたトークンを取り出したり、これを呼ぶための中継コマンドを作ったりしないでください。正式な現在の OM が必要な場合は、対応している認証付きの画面やクライアントを使うか、CLI の制約として報告してください。読み取りの代わりに、バッファ状態の POST を呼ばないでください。
 
-Historical observation text can also be present in stored message parts. This is a version-dependent diagnostic fallback, not a reconstruction of the authoritative current record:
+過去の観測の本文は、保存されたメッセージのパーツに含まれていることもあります。これはバージョンに依存する診断用の代替手段であり、正式な現在の記録を再現するものではありません。
 
 ```bash
 mastra api --url "$FACTORY_URL" thread messages "$THREAD_ID" '{"page":0,"perPage":10}' \
@@ -91,32 +91,32 @@ mastra api --url "$FACTORY_URL" thread messages "$THREAD_ID" '{"page":0,"perPage
       {type, data: (.data | {cycleId, observations, error, tokensAttempted})}]}'
 ```
 
-- `data-om-activation`, `data-om-buffering-end`, or observation-end events may carry `data.observations`.
-- Buffered observations are not necessarily activated. Events can overlap or repeat; don't sum them as the current token count or concatenate them into a claimed current memory.
-- Failure markers can expose provider/auth errors and failed cycles. Correlate by `cycleId` so one failure reported twice isn't counted as two attempts.
-- Start-only events do not prove a hard kill; persistence may be partial. Likewise an OM error near a stopped run is evidence, not proof of causation.
-- `remembered`/pinned-knowledge signals are distinct from the full OM record. Missing markers don't prove that OM never ran.
+- `data-om-activation`、`data-om-buffering-end`、観測終了のイベントには、`data.observations` が含まれていることがあります。
+- バッファされた観測が、有効化されているとは限りません。イベントは重なったり繰り返されたりするので、合計して現在のトークン数としたり、つなげて現在のメモリだと主張したりしないでください。
+- 失敗のマーカーから、プロバイダーや認証のエラー、失敗したサイクルが分かることがあります。1つの失敗が2回報告されて2回の試行と数えられないよう、`cycleId` で突き合わせてください。
+- 開始のイベントだけがあっても、強制終了された証拠にはなりません。保存が途中までのこともあります。同じように、停止した実行の近くに OM のエラーがあっても、それは根拠の1つであって、原因の証明ではありません。
+- `remembered`（ピン留めされた知識）のシグナルは、OM の記録全体とは別物です。マーカーがなくても、OM が一度も動かなかったとは限りません。
 
-## Interpret supervisor findings before suggesting repairs
+## 修正を提案する前に、スーパーバイザーの指摘を解釈する
 
-A **seat** is an active run binding assigning an agent role to a work item, not a paid-user license. Stage-to-role mapping depends on the board and deployment; use returned evidence rather than deriving the role from a stage label.
+**シート（seat）** とは、エージェントの役割を作業項目に割り当てる、有効な実行の紐づけのことです。有料ユーザーのライセンスではありません。ステージと役割の対応はボードやデプロイによって異なります。ステージの名前から役割を推測せず、返ってきた根拠を使ってください。
 
-| Finding | Meaning / next inspection |
+| 指摘 | 意味／次に確認すること |
 | --- | --- |
-| `seat-missing` | Working-stage item has no active binding and no in-flight decision. Check whether work is already complete, intentionally parked, or awaiting a real restart. It is not itself proof of a crash and need not have an age threshold. |
-| `seat-orphaned` | Active binding references a missing or terminal item. Inspect binding/item state before revocation. |
-| `start-stalled` | A pending start failed or exceeded the supervisor's stall threshold. Inspect its failure and session before restarting. |
-| `decision-stuck` | Pending/retry decision has waited too long, or a lease has expired. Inspect status, attempts, and errors before retry. |
-| `held-waiting` | Work is waiting for human acceptance. Check acceptance and triage state rather than launching an agent. |
-| `label-drift` | External labels disagree with acceptance state. Inspect synchronization state. |
+| `seat-missing` | 作業中のステージにある項目に、有効な紐づけも進行中の判断もない。作業がすでに終わっているのか、意図的に保留されているのか、本当に再開を待っているのかを確認する。それだけではクラッシュの証拠にはならず、経過時間のしきい値があるとも限らない。 |
+| `seat-orphaned` | 有効な紐づけが、存在しない項目か終了済みの項目を参照している。取り消す前に、紐づけと項目の状態を確認する。 |
+| `start-stalled` | 保留中の開始が失敗したか、スーパーバイザーの停滞しきい値を超えた。再開する前に、失敗の内容とセッションを確認する。 |
+| `decision-stuck` | 保留中・再試行中の判断が長く待たされているか、リースの期限が切れている。再試行する前に、状態、試行回数、エラーを確認する。 |
+| `held-waiting` | 作業が人による承認を待っている。エージェントを起動するのではなく、承認とトリアージの状態を確認する。 |
+| `label-drift` | 外部のラベルが承認の状態と一致していない。同期の状態を確認する。 |
 
-Report only findings actually returned by the deployment. Proposals awaiting approval are not the same as a failed dispatch. The `health thresholds` command describes queue-age buckets; it is not the configuration of supervisor decision/start/lease timeouts. Use supervisor evidence for those findings, not a queue-aging cutoff.
+デプロイが実際に返した指摘だけを報告してください。承認待ちの提案は、実行の失敗とは別物です。`health thresholds` コマンドが示すのはキューの滞留時間の区分で、スーパーバイザーの判断・開始・リースのタイムアウトの設定ではありません。それらの指摘には、キューの滞留時間の基準ではなく、スーパーバイザーの根拠を使ってください。
 
-A suggested repair is not authorization. Apply the supervisor reference's mutation protocol and durable-session requirements; a completed task may need reconciliation rather than rerunning expensive work. Never use the supervisor session as a replacement work session.
+修正の提案は、許可ではありません。スーパーバイザーのリファレンスにある変更の手順と、正式なセッションの要件に従ってください。完了済みのタスクは、コストの高い作業をやり直すより、状態を整合させる方が適切な場合があります。スーパーバイザーのセッションを、作業用のセッションの代わりに使わないでください。
 
-## Pagination and compatibility failures
+## ページ送りと互換性の問題
 
-- Attention collections may cap requested `limit` (a cap of 50 was observed). Follow returned `hasMore` and `nextCursor` using `before`, preserving the opaque cursor exactly. Never manufacture or decode/rebuild a cursor.
-- Some deployed versions rejected schema-advertised attention `kind` filters with HTTP 400 `invalid_attention_kind`. If encountered, omit that filter, use supported `search`/`view` filters, and filter returned items locally. Don't generalize one deployment's failure to every version.
-- If pagination yields an empty page with contradictory continuation state, repeats a cursor, or returns malformed JSON, stop and report partial coverage. Preserve the error for diagnosis; don't silently drop broken pages or claim no matching work exists.
-- Narrow projections before raising page sizes. Don't pipe raw JSON through `head` and then try to parse the truncated result.
+- 要対応項目の一覧では、指定した `limit` に上限がかかることがあります（上限50が確認されています）。返ってきた `hasMore` と `nextCursor` を見ながら、`before` を使って次を取得し、意味の分からないカーソル値はそのまま渡してください。カーソルを自分で作ったり、デコードして組み立て直したりしないでください。
+- 一部のデプロイ済みバージョンでは、スキーマに載っている要対応項目の `kind` フィルタが、HTTP 400 `invalid_attention_kind` で拒否されました。この場合は、そのフィルタを外し、対応している `search`／`view` のフィルタを使い、返ってきた項目を手元で絞り込んでください。1つのデプロイでの失敗を、すべてのバージョンに当てはめないでください。
+- ページ送りで、続きがあるはずなのに空のページが返る、同じカーソルが繰り返される、壊れた JSON が返る、といった矛盾が起きたら、そこで止めて、一部しか確認できていないことを報告してください。診断のためにエラーは残し、壊れたページを黙って捨てたり、該当する作業がないと言い切ったりしないでください。
+- ページサイズを大きくする前に、抜き出しを絞ってください。生の JSON を `head` に通して途中で切ってから、それを解析しようとしないでください。

@@ -1,6 +1,6 @@
 ---
 name: mastra-factory
-description: "Operate and supervise Mastra Factory through `mastra api factory`. Use for first-time Factory connection and login, status or queue summaries, project and work-item inspection, thread history and memory, metrics, health, decisions, attention, supervisor sessions, and user-authorized autonomous or interactive Factory operations on hosted, local, remote, or self-hosted servers."
+description: "`mastra api factory` を使って Mastra Factory を運用・監督する。Factory への初回接続とログイン、状態やキューのまとめ、プロジェクトと作業項目の確認、スレッドの履歴とメモリ、メトリクス、ヘルス、判断（decision）、要対応項目（attention）、スーパーバイザーのセッション、そしてホスト型・ローカル・リモート・セルフホストのサーバー上で、ユーザーが許可した自律的または対話的な Factory の操作に使う。"
 license: Apache-2.0
 metadata:
   author: Mastra
@@ -8,40 +8,40 @@ metadata:
   repository: https://github.com/mastra-ai/skills
 ---
 
-# Mastra Factory Supervisor
+# Mastra Factory スーパーバイザー
 
-Use `mastra api factory` as the operational control plane for Factory.
+`mastra api factory` は、Factory の運用を管理する「コントロールプレーン」として使います。
 
-## First use: connect before inspecting
+## 初回：確認する前に接続する
 
-Read [`references/connection.md`](references/connection.md). Check CLI availability, establish the user's actual Factory URL, and for platform-hosted deployments run `mastra auth whoami`. If logged out, offer `mastra auth login` rather than silently starting browser login. Local/self-hosted authentication may differ.
+[`references/connection.md`](references/connection.md) を読んでください。CLI が使えるかを確認し、ユーザーの実際の Factory の URL を確定させ、プラットフォームでホストされているデプロイの場合は `mastra auth whoami` を実行してください。ログインしていなければ、黙ってブラウザのログインを始めるのではなく、`mastra auth login` の実行を提案してください。ローカルやセルフホストでは、認証方式が異なる場合があります。
 
-An explicit `mastra api --url "$FACTORY_URL" factory project list` works from an empty directory; no deployed repository or `.mastra-project.json` is required. Never assume a shared host, organization, project name, or ID. Preserve the explicit target on subsequent commands.
+`mastra api --url "$FACTORY_URL" factory project list` のように接続先を明示すれば、空のディレクトリからでも動きます。デプロイ済みのリポジトリや `.mastra-project.json` は必要ありません。共有のホスト、組織、プロジェクト名、ID を決めつけないでください。以降のコマンドでも、明示した接続先を付けたままにしてください。
 
-## Default behavior
+## 基本の動き
 
-For status, inspection, diagnosis, queue review, or recommendation requests:
+状態確認、調査、診断、キューの確認、提案の依頼では、次のように動きます。
 
-1. Stay read-only.
-2. Select the sole or explicitly named project; report choices when ambiguous.
-3. Inspect project state, work items, metrics, thresholds, decisions, attention, and supervisor health/session.
-4. Correlate stages, revisions, sessions, decisions, and health findings.
-5. Report active/queued work, blocked or unhealthy items, running sessions, pending decisions, human attention, and one recommended next action.
-6. Execute a recommendation only when the current request or a previously granted operating scope authorizes it.
+1. 読み取り専用のままにする。
+2. プロジェクトが1つだけならそれを、ユーザーが名前を挙げたならそれを選ぶ。あいまいな場合は選択肢を報告する。
+3. プロジェクトの状態、作業項目、メトリクス、しきい値、判断、要対応項目、スーパーバイザーのヘルスとセッションを確認する。
+4. ステージ、リビジョン、セッション、判断、ヘルスの指摘を突き合わせる。
+5. 進行中・待機中の作業、ブロック中や不健全な項目、実行中のセッション、保留中の判断、人による対応が必要な項目、そしておすすめの次の行動を1つ報告する。
+6. 提案した行動は、今回の依頼か、以前に与えられた運用範囲で許可されている場合だけ実行する。
 
-## Required reference
+## 必ず読むリファレンス
 
-Read [`references/factory-supervisor.md`](references/factory-supervisor.md) before running Factory commands for output control, contracts, the read-only workflow, mutation protocol, governance constraints, durable-session limitations, and error handling.
+Factory のコマンドを実行する前に、[`references/factory-supervisor.md`](references/factory-supervisor.md) を読んでください。出力の絞り方、仕様、読み取り専用の手順、変更の手順、ガバナンス上の制約、正式なセッションに関する制限、エラー対応が書かれています。
 
-For “my work,” actual execution progress, thread messages, memory, or health interpretation, also read [`references/session-inspection.md`](references/session-inspection.md). Distinguish card stages from running agents, historical messages from current memory, and agent claims from verified repository outcomes.
+「自分の作業」、実際の実行の進み具合、スレッドのメッセージ、メモリ、ヘルスの解釈については、[`references/session-inspection.md`](references/session-inspection.md) もあわせて読んでください。カードのステージと実行中のエージェント、過去のメッセージと現在のメモリ、エージェントの主張とリポジトリで確認できた結果を区別してください。
 
-## Safety boundary
+## 安全の境界
 
-- Never read or reveal `.env`, bearer tokens, saved login contents, or platform/provider credentials.
-- Never invent IDs, stages, revisions, request IDs, or sessions.
-- Establish the user's operating scope before mutating. Authorization may cover one action or grant standing autonomy over named projects, resources, action types, or objectives.
-- Within a clear delegated scope, act without asking for confirmation before every mutation. Ask only when an action is ambiguous, outside scope, or materially more destructive than the granted authority.
-- Fetch current state before a write, make the smallest in-scope change, then refetch and report IDs, revisions, and final state.
-- Use transitions—not metadata updates—for stage changes, with the current revision and a fresh UUID request ID.
-- Never use private HTTP routes to bypass unsupported CLI operations.
-- If `work-item start` lacks a supported durable user session, report the block; never substitute the supervisor session or invent a session UUID.
+- `.env`、Bearer トークン、保存されたログイン内容、プラットフォームやプロバイダーの認証情報を、読んだり明かしたりしない。
+- ID、ステージ、リビジョン、リクエスト ID、セッションを作り上げない。
+- 変更する前に、ユーザーの運用範囲を確認する。許可は1つの操作だけの場合もあれば、指定されたプロジェクト・リソース・操作の種類・目的について、継続的な自律を認める場合もある。
+- 委任された範囲がはっきりしていれば、変更のたびに確認を取らずに実行する。確認を取るのは、操作があいまいな場合、範囲外の場合、与えられた権限より明らかに破壊的な場合だけにする。
+- 書き込みの前に現在の状態を取得し、範囲内で最小の変更を行い、そのあともう一度取得して、ID、リビジョン、最終的な状態を報告する。
+- ステージの変更には、メタデータの更新ではなく遷移（transition）を使い、現在のリビジョンと新しく生成した UUID のリクエスト ID を付ける。
+- CLI が対応していない操作を、非公開の HTTP ルートを使って回避しない。
+- `work-item start` に使える正式なユーザーセッションがない場合は、ブロックされていることを報告する。スーパーバイザーのセッションで代用したり、セッションの UUID を作り上げたりしない。

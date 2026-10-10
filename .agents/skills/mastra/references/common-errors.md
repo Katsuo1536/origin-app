@@ -1,37 +1,37 @@
-# Common errors and troubleshooting
+# よくあるエラーとトラブルシューティング
 
-Comprehensive guide to common Mastra errors and their solutions.
+Mastra でよく出るエラーと、その解決方法をまとめた総合ガイドです。
 
-## Quickstart
+## まず試すこと
 
-In a lot of cases, debugging errors can be greatly simplified by first checking the behavior in Mastra Studio. This allows you to interactively test agents and workflows, inspect logs, and see real-time error messages.
+多くの場合、最初に Mastra Studio で動きを確認すると、エラーの調査がずっと楽になります。Studio では、エージェントやワークフローを対話的にテストし、ログを確認し、エラーメッセージをリアルタイムで見られます。
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:4111` in your browser to access Mastra Studio.
+ブラウザで `http://localhost:4111` を開くと、Mastra Studio が使えます。
 
-## Build and configuration errors
+## ビルドと設定のエラー
 
-### "Cannot find module" or import errors
+### 「Cannot find module」や import のエラー
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Error: Cannot find module '@mastra/core'
 SyntaxError: Cannot use import statement outside a module
 ```
 
-**Causes**:
+**原因**：
 
-- CommonJS configuration in `tsconfig.json`
-- Missing `"type": "module"` in `package.json`
-- Incorrect module resolution
+- `tsconfig.json` が CommonJS の設定になっている
+- `package.json` に `"type": "module"` がない
+- モジュールの解決方法が正しくない
 
-**Solutions**:
+**解決方法**：
 
-1. Update `tsconfig.json`:
+1. `tsconfig.json` を更新する：
 
    ```json
    {
@@ -43,7 +43,7 @@ SyntaxError: Cannot use import statement outside a module
    }
    ```
 
-2. Add to `package.json`:
+2. `package.json` に追加する：
 
    ```json
    {
@@ -51,72 +51,72 @@ SyntaxError: Cannot use import statement outside a module
    }
    ```
 
-3. Ensure imports use `.js` extensions for local files (if needed by your bundler)
+3. ローカルファイルの import に `.js` の拡張子が付いているか確認する（バンドラーが必要とする場合）
 
-### "Property X does not exist on type Y"
+### 「Property X does not exist on type Y」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Property 'tools' does not exist on type 'Agent'
 Property 'memory' does not exist on type 'AgentConfig'
 ```
 
-**Causes**:
+**原因**：
 
-- Outdated API usage (Mastra is actively developed)
-- Incorrect import or type
-- Version mismatch between docs and installed package
+- 古い API の使い方をしている（Mastra は活発に開発されている）
+- import や型が正しくない
+- ドキュメントとインストール済みのパッケージのバージョンが合っていない
 
-**Solutions**:
+**解決方法**：
 
-1. Check embedded docs (see `embedded-docs.md`) to check current API
-2. Check `node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json` for current exports
-3. Verify package versions: `npm list @mastra/core`
-4. Update dependencies: `npm update @mastra/core`
+1. 同梱のドキュメント（`embedded-docs.md` を参照）で、現在の API を確認する
+2. `node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json` で、現在のエクスポートを確認する
+3. パッケージのバージョンを確認する：`npm list @mastra/core`
+4. 依存パッケージを更新する：`npm update @mastra/core`
 
-## Agent errors
+## エージェントのエラー
 
-### Agent not using assigned tools
+### エージェントが割り当てたツールを使わない
 
-**Symptoms**:
+**症状**：
 
-- Agent responds "I don't have access to that tool"
-- Tools never get called despite being relevant
+- エージェントが「そのツールにはアクセスできません」と答える
+- 関係のある場面なのに、ツールが一度も呼ばれない
 
-**Causes**:
+**原因**：
 
-- Tools not registered in Mastra instance
-- Tools not passed to Agent constructor
-- Tool IDs don't match
+- ツールが Mastra 本体に登録されていない
+- ツールが Agent のコンストラクタに渡されていない
+- ツールの ID が一致していない
 
-**Solutions**:
+**解決方法**：
 
-**Correct pattern**:
+**正しい書き方**：
 
 ```typescript
-// 1. Create tool
+// 1. ツールを作る
 const weatherTool = createTool({
   id: "get-weather",
-  // ... tool config
+  // ... ツールの設定
 });
 
-// 2. Register in Mastra instance
+// 2. Mastra 本体に登録する
 const mastra = new Mastra({
   tools: {
-    weatherTool, // or 'weatherTool': weatherTool
+    weatherTool, // または 'weatherTool': weatherTool
   },
 });
 
-// 3. Assign to agent
+// 3. エージェントに割り当てる
 const agent = new Agent({
   id: "weather-agent",
-  tools: { weatherTool }, // Reference the tool
-  // ... other config
+  tools: { weatherTool }, // ツールを参照する
+  // ... その他の設定
 });
 ```
 
-**Alternative pattern (direct assignment)**:
+**別の書き方（直接割り当てる）**：
 
 ```typescript
 const agent = new Agent({
@@ -127,68 +127,68 @@ const agent = new Agent({
 });
 ```
 
-### Agent memory not persisting
+### エージェントのメモリが保存されない
 
-**Symptoms**:
+**症状**：
 
-- Agent doesn't remember previous messages
-- Conversation history is lost between calls
+- エージェントが前のメッセージを覚えていない
+- 呼び出しのたびに会話の履歴が消える
 
-**Causes**:
+**原因**：
 
-- No storage backend configured
-- Missing or inconsistent `threadId`
-- Memory not assigned to agent
+- ストレージ（保存先）が設定されていない
+- `threadId` がない、または毎回違う
+- メモリがエージェントに割り当てられていない
 
-**Solutions**:
+**解決方法**：
 
 ```typescript
-// 1. Configure storage
+// 1. ストレージを設定する
 const storage = new PostgresStore({
   connectionString: process.env.DATABASE_URL,
 });
 
-// 2. Create memory with storage
+// 2. ストレージを指定してメモリを作る
 const memory = new Memory({
   id: "chat-memory",
   storage,
   options: {
-    lastMessages: 10, // How many messages to retrieve
+    lastMessages: 10, // 取り出すメッセージの件数
   },
 });
 
-// 3. Assign memory to agent
+// 3. メモリをエージェントに割り当てる
 const agent = new Agent({
   id: "chat-agent",
   memory,
 });
 
-// 4. Use consistent threadId
+// 4. 同じ threadId を使い続ける
 await agent.generate("Hello", {
-  threadId: "user-123-conversation", // Same threadId for entire conversation
+  threadId: "user-123-conversation", // 1つの会話の間は同じ threadId
   resourceId: "user-123",
 });
 ```
 
-## Workflow errors
+## ワークフローのエラー
 
-### "Cannot read property 'then' of undefined"
+### 「Cannot read property 'then' of undefined」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 TypeError: Cannot read property 'then' of undefined
 Workflow execution fails immediately
 ```
 
-**Causes**:
+**原因**：
 
-- Forgot to call `.commit()` on workflow
-- Step returns undefined
+- ワークフローで `.commit()` を呼び忘れている
+- ステップが undefined を返している
 
-**Solutions**:
+**解決方法**：
 
-**Correct pattern**:
+**正しい書き方**：
 
 ```typescript
 const workflow = createWorkflow({
@@ -198,154 +198,154 @@ const workflow = createWorkflow({
 })
   .then(step1)
   .then(step2)
-  .commit(); // REQUIRED!
+  .commit(); // 必須！
 
-// Then execute
+// そのあと実行する
 const run = await workflow.createRun();
 const result = await run.start({ inputData: { data: "test" } });
 ```
 
-### Workflow state not updating
+### ワークフローの状態が更新されない
 
-**Symptoms**:
+**症状**：
 
-- State changes don't persist across steps
-- `getStepResult()` returns undefined
+- ステップをまたいで、状態の変更が残らない
+- `getStepResult()` が undefined を返す
 
-**Causes**:
+**原因**：
 
-- Not using `setState` to update state
-- Accessing state before step completes
+- 状態の更新に `setState` を使っていない
+- ステップが終わる前に状態を読んでいる
 
-**Solutions**:
+**解決方法**：
 
 ```typescript
 const step1 = createStep({
   id: "step1",
   execute: async ({ state, setState }) => {
-    // Update state
+    // 状態を更新する
     await setState({ ...state, counter: (state.counter || 0) + 1 });
     return { result: "done" };
   },
 });
 
-// Access state in subsequent steps
+// 後のステップで状態を読む
 const step2 = createStep({
   id: "step2",
   execute: async ({ state }) => {
-    console.log(state.counter); // Access updated state
+    console.log(state.counter); // 更新された状態を読む
     return { result: "complete" };
   },
 });
 ```
 
-## Memory errors
+## メモリのエラー
 
-### "Storage is required for Memory"
+### 「Storage is required for Memory」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Error: Storage is required for Memory
 Memory instantiation fails
 ```
 
-**Causes**:
+**原因**：
 
-- Memory created without storage backend
+- ストレージを指定せずにメモリを作っている
 
-**Solutions**:
+**解決方法**：
 
 ```typescript
-// Always provide storage when creating Memory
+// メモリを作るときは、必ずストレージを渡す
 const memory = new Memory({
   id: "my-memory",
-  storage: postgresStore, // REQUIRED
+  storage: postgresStore, // 必須
   options: {
     lastMessages: 10,
   },
 });
 ```
 
-### Semantic recall not working
+### 意味による呼び出し（セマンティックリコール）が動かない
 
-**Symptoms**:
+**症状**：
 
-- Memory doesn't retrieve semantically similar messages
-- Only recent messages are returned
+- 意味の近いメッセージをメモリが取り出してくれない
+- 最近のメッセージしか返ってこない
 
-**Causes**:
+**原因**：
 
-- No vector store configured
-- No embedder configured
-- `semanticRecall` not enabled
+- ベクトルストアが設定されていない
+- 埋め込み（embedder）が設定されていない
+- `semanticRecall` が有効になっていない
 
-**Solutions**:
+**解決方法**：
 
 ```typescript
 const memory = new Memory({
   id: "semantic-memory",
   storage: postgresStore,
-  vector: chromaVectorStore, // REQUIRED for semantic recall
-  embedder: openaiEmbedder, // REQUIRED for semantic recall
+  vector: chromaVectorStore, // セマンティックリコールに必須
+  embedder: openaiEmbedder, // セマンティックリコールに必須
   options: {
     lastMessages: 10,
-    semanticRecall: true, // REQUIRED
+    semanticRecall: true, // 必須
   },
 });
 ```
 
-## Tool errors
+## ツールのエラー
 
-### "Tool validation failed"
+### 「Tool validation failed」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Error: Input validation failed for tool 'my-tool'
 ZodError: Expected string, received number
 ```
 
-**Causes**:
+**原因**：
 
-- Input doesn't match inputSchema
-- Missing required fields
-- Type mismatch
+- 入力が inputSchema と一致していない
+- 必須のフィールドが足りない
+- 型が一致していない
 
-**Solutions**:
+**解決方法**：
 
 ```typescript
 const tool = createTool({
   id: "my-tool",
   inputSchema: z.object({
     name: z.string(),
-    age: z.number().optional(), // Make optional fields explicit
+    age: z.number().optional(), // 任意のフィールドは明示する
   }),
   execute: async (input) => {
-    // input is validated and typed
+    // input はバリデーション済みで、型も付いている
     return { result: `Hello ${input.name}` };
   },
 });
 
-// Correct usage
-await tool.execute({ name: "Alice" }); // Works
-await tool.execute({ name: "Bob", age: 30 }); // Works
-await tool.execute({ age: 30 }); // ERROR: name is required
+// 正しい使い方
+await tool.execute({ name: "Alice" }); // 動く
+await tool.execute({ name: "Bob", age: 30 }); // 動く
+await tool.execute({ age: 30 }); // エラー：name は必須
 ```
 
-### Tool suspension not resuming
+### ツールの一時停止から再開しない
 
-**Symptoms**:
+**症状**：
 
-- Tool suspends but never resumes
-- resumeData is undefined
+- ツールが一時停止したまま、再開しない
+- resumeData が undefined になる
 
-**Causes**:
+**原因**：
 
-- Not calling workflow.resume() or agent.generate() with resumeData
-- Incorrect resumeSchema
+- resumeData を付けて workflow.resume() や agent.generate() を呼んでいない
+- resumeSchema が正しくない
 
-**Solutions**:
+**解決方法**：
 
 ```typescript
 const approvalTool = createTool({
@@ -356,43 +356,43 @@ const approvalTool = createTool({
   resumeSchema: z.object({ approved: z.boolean() }),
   execute: async (input, context) => {
     if (!context.resumeData) {
-      // First call - suspend
+      // 1回目の呼び出し - 一時停止する
       const requestId = generateId();
       context.suspend({ requestId });
-      return; // Execution pauses here
+      return; // ここで実行が止まる
     }
 
-    // Resumed - use resumeData
+    // 再開された - resumeData を使う
     return { approved: context.resumeData.approved };
   },
 });
 
-// Resume the workflow/agent
+// ワークフロー／エージェントを再開する
 await run.resume({
   resumeData: { approved: true },
 });
 ```
 
-## Storage errors
+## ストレージのエラー
 
-### "Connection refused" or "Database does not exist"
+### 「Connection refused」や「Database does not exist」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Error: connect ECONNREFUSED 127.0.0.1:5432
 Error: database "mastra" does not exist
 ```
 
-**Causes**:
+**原因**：
 
-- Database not running
-- Incorrect connection string
-- Database not created
+- データベースが起動していない
+- 接続文字列が正しくない
+- データベースが作成されていない
 
-**Solutions**:
+**解決方法**：
 
-1. Start database (Postgres example):
+1. データベースを起動する（Postgres の例）：
 
 ```bash
 docker run -d \
@@ -403,41 +403,41 @@ docker run -d \
   postgres:16
 ```
 
-2. Verify connection string:
+2. 接続文字列を確認する：
 
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/mastra
 ```
 
-3. Initialize storage:
+3. ストレージを初期化する：
 
 ```typescript
 const storage = new PostgresStore({
   connectionString: process.env.DATABASE_URL,
 });
-await storage.init(); // Creates tables if needed
+await storage.init(); // 必要ならテーブルを作成する
 ```
 
-## Environment variable errors
+## 環境変数のエラー
 
-### "API key not found"
+### 「API key not found」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Error: OPENAI_API_KEY environment variable is not set
 401 Unauthorized
 ```
 
-**Causes**:
+**原因**：
 
-- Missing .env file
-- Environment variables not loaded
-- Incorrect variable name
+- .env ファイルがない
+- 環境変数が読み込まれていない
+- 変数名が間違っている
 
-**Solutions**:
+**解決方法**：
 
-1. Create .env file:
+1. .env ファイルを作る：
 
 ```env
 OPENAI_API_KEY=sk-...
@@ -445,13 +445,13 @@ ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_GENERATIVE_AI_API_KEY=...
 ```
 
-2. Load environment variables (for Node.js):
+2. 環境変数を読み込む（Node.js の場合）：
 
 ```typescript
-import "dotenv/config"; // At top of entry file
+import "dotenv/config"; // 入口のファイルの先頭に書く
 ```
 
-3. Verify variable is loaded:
+3. 変数が読み込まれているか確認する：
 
 ```typescript
 if (!process.env.OPENAI_API_KEY) {
@@ -459,62 +459,62 @@ if (!process.env.OPENAI_API_KEY) {
 }
 ```
 
-## Model errors
+## モデルのエラー
 
-### "Model not found" or "Invalid model"
+### 「Model not found」や「Invalid model」
 
-**Symptoms**:
+**症状**：
 
 ```bash
 Error: Model 'gpt-4' not found
 Error: Invalid model format
 ```
 
-**Causes**:
+**原因**：
 
-- Incorrect model format (should be `provider/model`)
-- Unsupported model
-- Missing provider API key
+- モデルの書き方が正しくない（`provider/model` の形式にする必要がある）
+- 対応していないモデル
+- プロバイダーの API キーがない
 
-**Solutions**:
+**解決方法**：
 
-**Correct model format**:
+**正しいモデルの書き方**：
 
 ```typescript
 const agent = new Agent({
-  model: "openai/gpt-5.4", // ✅ Correct
-  // NOT: model: 'gpt-5.4'       // ❌ Missing provider
+  model: "openai/gpt-5.4", // ✅ 正しい
+  // ダメな例: model: 'gpt-5.4'       // ❌ プロバイダーがない
 });
 ```
 
-**Common models**:
+**よく使うモデル**：
 
-- OpenAI: `openai/gpt-5.4`, `openai/gpt-5-mini`
-- Anthropic: `anthropic/claude-sonnet-4-5`, `anthropic/claude-haiku-4-5`, `anthropic/claude-opus-4-6`
-- Google: `google/gemini-2.5-pro`, `google/gemini-2.5-flash`
+- OpenAI：`openai/gpt-5.4`、`openai/gpt-5-mini`
+- Anthropic：`anthropic/claude-sonnet-4-5`、`anthropic/claude-haiku-4-5`、`anthropic/claude-opus-4-6`
+- Google：`google/gemini-2.5-pro`、`google/gemini-2.5-flash`
 
-**Use embedded docs to verify**:
+**同梱のドキュメントで確認する**：
 
 ```bash
-# Check supported models
+# 対応しているモデルを確認する
 ls node_modules/@mastra/core/dist/docs/
-# See embedded-docs.md for lookup instructions
+# 調べ方は embedded-docs.md を参照
 ```
 
-## Debugging tips
+## デバッグのコツ
 
-### Enable verbose logging
+### 詳しいログを出す
 
 ```typescript
 const mastra = new Mastra({
   logger: new PinoLogger({
     name: "mastra",
-    level: "debug", // or 'trace' for even more detail
+    level: "debug", // さらに詳しくするなら 'trace'
   }),
 });
 ```
 
-### Check package versions
+### パッケージのバージョンを確認する
 
 ```bash
 npm list @mastra/core
@@ -522,16 +522,16 @@ npm list @mastra/memory
 npm list @mastra/rag
 ```
 
-### Validate TypeScript config
+### TypeScript の設定を確認する
 
 ```bash
 npx tsc --showConfig
-# Verify target: ES2022, module: ES2022
+# target: ES2022、module: ES2022 になっているか確認する
 ```
 
-## Getting help
+## 困ったときは
 
-1. **Check embedded docs**: Check embedded docs (see `embedded-docs.md`)
-2. **Search documentation**: [mastra.ai/docs](https://mastra.ai/docs)
-3. **Check version compatibility**: Ensure all @mastra packages are same version
-4. **File an issue**: [github.com/mastra-ai/mastra](https://github.com/mastra-ai/mastra)
+1. **同梱のドキュメントを確認する**：同梱のドキュメントを確認する（`embedded-docs.md` を参照）
+2. **ドキュメントを検索する**：[mastra.ai/docs](https://mastra.ai/docs)
+3. **バージョンの互換性を確認する**：@mastra のパッケージがすべて同じバージョンになっているか確認する
+4. **Issue を立てる**：[github.com/mastra-ai/mastra](https://github.com/mastra-ai/mastra)

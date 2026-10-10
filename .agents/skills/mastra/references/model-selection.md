@@ -1,24 +1,24 @@
-# Model Selection Reference
+# モデル選択リファレンス
 
-Use this reference when choosing or validating Mastra model strings.
+Mastra のモデル指定の文字列を選んだり、正しいか確認したりするときに使うリファレンスです。
 
-## Model format
+## モデルの書き方
 
-Always use `"provider/model-name"` when defining models with Mastra's model router.
+Mastra のモデルルーターでモデルを指定するときは、必ず `"provider/model-name"` の形式を使ってください。
 
-## Verify provider keys and model names
+## プロバイダーのキーとモデル名を確認する
 
-Use the provider registry script to look up available providers and models:
+使えるプロバイダーとモデルは、プロバイダー一覧のスクリプトで調べます。
 
 ```bash
-# List all available providers
+# 使えるプロバイダーをすべて表示する
 node scripts/provider-registry.mjs --list
 
-# List all models for a specific provider, sorted newest first
+# 特定のプロバイダーのモデルを、新しい順にすべて表示する
 node scripts/provider-registry.mjs --provider openai
 node scripts/provider-registry.mjs --provider anthropic
 ```
 
-When the user asks to use a model or provider, run the script first to verify the provider key and model name are valid. Do not guess model names from memory because they change frequently.
+ユーザーがモデルやプロバイダーを使いたいと言ったら、まずこのスクリプトを実行して、プロバイダーのキーとモデル名が正しいか確認してください。モデル名は頻繁に変わるので、記憶から推測しないでください。
 
-If you need examples in a new-project scaffold, see [`create-mastra.md`](create-mastra.md), then verify the chosen model with the provider registry script.
+新しいプロジェクトのひな形で使う例が必要な場合は、[`create-mastra.md`](create-mastra.md) を見てから、選んだモデルをプロバイダー一覧のスクリプトで確認してください。

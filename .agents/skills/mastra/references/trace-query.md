@@ -1,37 +1,37 @@
-# Advanced Trace Query Reference
+# 高度なトレース検索リファレンス
 
-Use `mastra api trace query` when a normal trace list cannot express the required filters: recursive boolean predicates, related span, score, or feedback conditions, metadata filters, ordering, or opaque cursor pagination.
+通常のトレース一覧では表現できない絞り込みが必要なときは、`mastra api trace query` を使います。たとえば、再帰的な論理条件、関連するスパン・スコア・フィードバックへの条件、メタデータでの絞り込み、並び順の指定、意味の分からない（opaque）カーソルによるページ送りなどです。
 
-For broad questions about recurring agent behavior or health, start with [`trace-intelligence.md`](trace-intelligence.md). Use advanced trace queries when the user needs exact traces matching explicit conditions, then inspect the returned traces for evidence.
+エージェントの繰り返し起きる振る舞いや状態について、全体的な質問をされた場合は、[`trace-intelligence.md`](trace-intelligence.md) から始めてください。高度なトレース検索は、ユーザーが明確な条件に一致するトレースを正確に必要としているときに使い、そのあと返ってきたトレースで根拠を確認します。
 
-## Command contract
+## コマンドの仕様
 
-The command sends `POST /api/observability/traces/query`. It uses the same target and credentials as other observability commands and targets `https://observability.mastra.ai` by default.
+このコマンドは `POST /api/observability/traces/query` を送ります。他のオブザーバビリティ系のコマンドと同じ接続先と認証情報を使い、デフォルトの接続先は `https://observability.mastra.ai` です。
 
-The inline JSON input is required. Before recommending the command, confirm that the installed CLI exposes it:
+インラインの JSON 入力は必須です。このコマンドを勧める前に、インストール済みの CLI にこのコマンドがあるか確認してください。
 
 ```bash
 npx mastra api trace query --help
 ```
 
-After confirming availability, inspect the target server's current contract:
+使えることを確認したら、接続先サーバーの現在の仕様を確認します。
 
 ```bash
 npx mastra api trace query --schema
 ```
 
-Use `--schema` to confirm that the target supports the route and to inspect the current request and response shape and structural constraints. Predicate paths are generic strings in the schema, so it does not provide the context-specific field/operator matrix. If you need more information, read the [reference docs online](https://mastra.ai/reference/observability/tracing/trace-query). Do not infer unsupported predicates from storage columns or older documentation. The server remains the ultimate validation authority.
+`--schema` では、接続先がこのルートに対応しているかを確認し、現在のリクエスト・レスポンスの形と構造上の制約を見ます。スキーマの中では条件のパスはただの文字列として定義されているので、文脈ごとにどのフィールドでどの演算子が使えるかの対応表は分かりません。もっと情報が必要な場合は、[オンラインのリファレンス](https://mastra.ai/reference/observability/tracing/trace-query) を読んでください。ストレージのカラムや古いドキュメントから、対応していない条件を推測しないでください。最終的に正しいかどうかを判断するのはサーバーです。
 
-## Query workflow
+## 検索の流れ
 
-1. Run `trace query --help` and verify that the installed CLI exposes the command.
-1. Run `trace query --schema` against the intended target to inspect the route contract and structural constraints.
-1. Build the smallest query that answers the question. `timeRange` is required; `from` is inclusive and `to` is exclusive.
-1. Keep `page.limit` small while exploring and project lightweight results with `jq`.
-1. If `data.page.next` is non-null, repeat the identical query with that value in `page.after`.
-1. Use `trace get` or `trace span` to inspect evidence for selected trace IDs.
+1. `trace query --help` を実行し、インストール済みの CLI にこのコマンドがあるか確認する。
+1. 対象の接続先に `trace query --schema` を実行し、ルートの仕様と構造上の制約を確認する。
+1. 質問に答えられる最小のクエリを組み立てる。`timeRange` は必須で、`from` はその時刻を含み、`to` はその時刻を含まない。
+1. 探している段階では `page.limit` を小さくし、`jq` で軽い結果だけを抜き出す。
+1. `data.page.next` が null でなければ、まったく同じクエリの `page.after` にその値を入れて繰り返す。
+1. 選んだトレース ID の根拠は、`trace get` や `trace span` で確認する。
 
-Query a time range:
+期間を指定して検索する：
 
 ```bash
 npx mastra api trace query \
@@ -39,7 +39,7 @@ npx mastra api trace query \
   | jq '{traces: [.data.traces[] | {traceId, entityName, status, startedAt}], next: .data.page.next}'
 ```
 
-Find traces containing a failed tool call. Conditions inside one `spans.some` clause must match the same span:
+失敗したツール呼び出しを含むトレースを探す。1つの `spans.some` の中の条件は、すべて同じスパンに一致する必要があります。
 
 ```bash
 npx mastra api trace query \
@@ -47,7 +47,7 @@ npx mastra api trace query \
   | jq '{traces: .data.traces, next: .data.page.next}'
 ```
 
-Find traces with a low score from one scorer. Conditions inside one `scores.some` clause must match the same score record:
+特定のスコアラーで低いスコアが付いたトレースを探す。1つの `scores.some` の中の条件は、すべて同じスコアの記録に一致する必要があります。
 
 ```bash
 npx mastra api trace query \
@@ -55,9 +55,9 @@ npx mastra api trace query \
   | jq '{traces: .data.traces, next: .data.page.next}'
 ```
 
-## Pagination
+## ページ送り
 
-The query response remains nested under `data` so the pagination cursor is preserved:
+ページ送りのカーソルが失われないよう、検索のレスポンスは `data` の下に入れ子になったままです。
 
 ```json
 {
@@ -68,31 +68,31 @@ The query response remains nested under `data` so the pagination cursor is prese
 }
 ```
 
-Pass a non-null cursor back without decoding or modifying it:
+null でないカーソルは、デコードしたり書き換えたりせず、そのまま渡し返してください。
 
 ```bash
 npx mastra api trace query \
   '{"timeRange":{"from":"2026-08-01T00:00:00.000Z","to":"2026-08-08T00:00:00.000Z"},"page":{"limit":25,"after":"<page.next>"}}'
 ```
 
-A cursor is bound to the accepted query and ordering. Do not change the time range, predicates, or ordering between pages. A mismatched cursor returns `409`; a malformed cursor returns `400`.
+カーソルは、受け付けられたクエリと並び順に結びついています。ページの途中で、期間、条件、並び順を変えないでください。合わないカーソルを渡すと `409`、壊れたカーソルを渡すと `400` が返ります。
 
-## Predicate semantics
+## 条件の意味
 
-- Compose predicates with `and`, `or`, and `not`.
-- Use `some` when one related record must satisfy the complete nested predicate.
-- Use `none` when no related record may satisfy the complete nested predicate. Traces with no related records also match `none`.
-- Related span, score, and feedback clauses correlate records by trace. Conditions in separate related clauses do not imply that they refer to one shared related record.
-- String comparisons are exact and case-sensitive unless the canonical documentation states otherwise.
-- The root `timeRange` filters the selected root span's start time; it does not independently constrain related-record timestamps.
-- Query results are lightweight and do not embed matching spans, scores, or feedback. Fetch trace or span details after selecting candidates.
+- 条件は `and`、`or`、`not` で組み合わせます。
+- 関連する記録のうち1件が、入れ子の条件全体を満たす必要がある場合は `some` を使います。
+- 関連する記録のどれも、入れ子の条件全体を満たしてはいけない場合は `none` を使います。関連する記録が1件もないトレースも `none` に一致します。
+- 関連するスパン・スコア・フィードバックの条件は、トレース単位で記録を結びつけます。別々の関連条件に書いた条件が、同じ1つの関連記録を指しているとは限りません。
+- 文字列の比較は、正式なドキュメントに別の記載がない限り、完全一致で大文字・小文字を区別します。
+- ルートの `timeRange` が絞り込むのは、選ばれたルートスパンの開始時刻です。関連する記録のタイムスタンプを個別に制限するものではありません。
+- 検索結果は軽量で、一致したスパン、スコア、フィードバックは含まれていません。候補を選んだあとで、トレースやスパンの詳細を取得してください。
 
-## Choosing the trace command
+## トレース系コマンドの使い分け
 
-- `trace list`: browse recent traces with simple list filters.
-- `trace query`: select completed traces using complex, explicit predicates.
-- `trace get <traceId>`: inspect one selected trace.
-- `trace span <traceId> <spanId>`: fetch one span in full.
-- Trace Intelligence: discover aggregate recurring themes before drilling into individual traces.
+- `trace list`：簡単な一覧の絞り込みで、最近のトレースを見る。
+- `trace query`：複雑で明確な条件で、完了したトレースを選ぶ。
+- `trace get <traceId>`：選んだ1つのトレースを確認する。
+- `trace span <traceId> <spanId>`：1つのスパンを詳細まで取得する。
+- Trace Intelligence：個別のトレースを掘り下げる前に、全体で繰り返し現れるテーマを見つける。
 
-Advanced queries only return completed traces. The configured observability store must support the query API. If the server rejects a query that follows the current structural schema and canonical documentation as unsupported, report that limitation rather than falling back to an inaccurate client-side approximation.
+高度な検索で返ってくるのは、完了したトレースだけです。設定されているオブザーバビリティのストレージが、検索 API に対応している必要があります。現在の構造スキーマと正式なドキュメントに従ったクエリを、サーバーが「未対応」として拒否した場合は、その制限を報告してください。不正確な手元での近似処理に切り替えないでください。

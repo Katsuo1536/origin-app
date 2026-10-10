@@ -1,32 +1,32 @@
-# Create Mastra Reference
+# Mastra プロジェクト作成リファレンス
 
-Complete guide for creating new Mastra projects. Includes both quickstart CLI method and detailed manual installation.
+新しい Mastra プロジェクトを作るための完全なガイドです。CLI ですぐに作る方法と、手動で詳しくインストールする方法の両方を載せています。
 
-**Official documentation: [mastra.ai/docs](https://mastra.ai/docs)**
+**公式ドキュメント：[mastra.ai/docs](https://mastra.ai/docs)**
 
-## Get started
+## はじめに
 
-Ask: **"How would you like to create your Mastra project?"**
+次のように聞いてください：**「Mastra のプロジェクトをどの方法で作りますか？」**
 
-1. **Quick Setup**: Copy and run: `npm create mastra@latest`
-2. **Guided Setup**: I walk you through each step, you approve commands
-3. **Automatic Setup**: I create everything, just give me your API key
+1. **クイックセットアップ**：`npm create mastra@latest` をコピーして実行する
+2. **ガイド付きセットアップ**：1ステップずつ案内し、コマンドはユーザーが承認する
+3. **自動セットアップ**：API キーさえもらえれば、すべて作成する
 
-> **For AI agents:** The CLI is interactive. Use **Automatic Setup** to create files using the steps in "Automatic Setup / Manual Installation" below.
+> **AI エージェント向け：** CLI は対話形式です。下の「自動セットアップ／手動インストール」の手順で、**自動セットアップ** を使ってファイルを作成してください。
 
-## Prerequisites
+## 前提条件
 
-- An API key from a supported model provider (OpenAI, Anthropic, Google, etc.)
+- 対応しているモデルプロバイダー（OpenAI、Anthropic、Google など）の API キー
 
-## Quick Setup (user runs CLI)
+## クイックセットアップ（ユーザーが CLI を実行する）
 
-Create a new Mastra project with one command:
+1つのコマンドで新しい Mastra プロジェクトを作成します。
 
 ```bash
 npm create mastra@latest
 ```
 
-**Other package managers:**
+**他のパッケージマネージャーの場合：**
 
 ```bash
 pnpm create mastra@latest
@@ -34,51 +34,51 @@ yarn create mastra@latest
 bun create mastra@latest
 ```
 
-## CLI flags
+## CLI のフラグ
 
-**Create an empty project:**
+**空のプロジェクトを作成する：**
 
 ```bash
 npm create mastra@latest my-project --empty
 ```
 
-`--empty` and `--template` are separate creation modes. The `--llm` (`-l`) and `--llm-api-key` options apply only to the default starter.
+`--empty` と `--template` は、別々の作成モードです。`--llm`（`-l`）と `--llm-api-key` のオプションは、デフォルトのスターターにだけ使えます。
 
-**Skip the example agent:**
+**サンプルのエージェントを作らない：**
 
 ```bash
 npm create mastra@latest --no-example
 ```
 
-**Use a specific template:**
+**特定のテンプレートを使う：**
 
 ```bash
 npm create mastra@latest --template <template-name>
 ```
 
-## Automatic setup / manual installation
+## 自動セットアップ／手動インストール
 
-**Use this for automatic setup** (AI creates all files) or when you prefer manual control.
+**自動セットアップ**（AI がすべてのファイルを作成する）の場合や、手動で細かく管理したい場合は、こちらを使ってください。
 
-Follow these steps to create a complete Mastra project:
+次の手順で、完全な Mastra プロジェクトを作成します。
 
-### Step 1: Create project directory
+### ステップ1：プロジェクトのディレクトリを作る
 
 ```bash
 mkdir my-first-agent && cd my-first-agent
 npm init -y
 ```
 
-### Step 2: Install dependencies
+### ステップ2：依存パッケージをインストールする
 
 ```bash
 npm install -D typescript @types/node mastra@latest
 npm install @mastra/core@latest zod@^4
 ```
 
-### Step 3: Configure package scripts
+### ステップ3：package.json のスクリプトを設定する
 
-Add to `package.json`:
+`package.json` に次を追加します。
 
 ```json
 {
@@ -89,9 +89,9 @@ Add to `package.json`:
 }
 ```
 
-### Step 4: Configure TypeScript
+### ステップ4：TypeScript を設定する
 
-Create `tsconfig.json`:
+`tsconfig.json` を作成します。
 
 ```json
 {
@@ -110,21 +110,21 @@ Create `tsconfig.json`:
 }
 ```
 
-**Important:** Mastra requires `"module": "ES2022"` and `"moduleResolution": "bundler"`. CommonJS will cause errors.
+**重要：** Mastra には `"module": "ES2022"` と `"moduleResolution": "bundler"` が必要です。CommonJS だとエラーになります。
 
-### Step 5: Create environment file
+### ステップ5：環境変数のファイルを作る
 
-Create `.env` with your API key:
+API キーを書いた `.env` を作成します。
 
 ```env
 GOOGLE_GENERATIVE_AI_API_KEY=<your-api-key>
 ```
 
-Or use `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.
+`OPENAI_API_KEY` や `ANTHROPIC_API_KEY` なども使えます。
 
-### Step 6: Create weather tool
+### ステップ6：天気のツールを作る
 
-Create `src/mastra/tools/weather-tool.ts`:
+`src/mastra/tools/weather-tool.ts` を作成します。
 
 ```typescript
 import { createTool } from "@mastra/core/tools";
@@ -145,9 +145,9 @@ export const weatherTool = createTool({
 });
 ```
 
-### Step 7: Create weather agent
+### ステップ7：天気のエージェントを作る
 
-Create `src/mastra/agents/weather-agent.ts`:
+`src/mastra/agents/weather-agent.ts` を作成します。
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
@@ -173,15 +173,17 @@ export const weatherAgent = new Agent({
 });
 ```
 
-**Note:** Model format is `"provider/model-name"`. Examples:
+（instructions の訳：あなたは正確な天気の情報を提供する、親切な天気アシスタントです。主な役割は、ユーザーが特定の場所の天気の詳細を知る手助けをすることです。回答するときは、場所の指定がなければ必ず場所を聞く／場所の名前が英語でなければ翻訳する／「New York, NY」のように複数の部分がある場所は、最も関係のある部分（例：「New York」）を使う／湿度、風の状況、降水量など関連する詳細を含める／回答は簡潔に、でも役に立つ内容にする。現在の天気のデータを取得するには weatherTool を使う。）
+
+**メモ：** モデルの書き方は `"provider/model-name"` です。例：
 
 - `"google/gemini-2.5-pro"`
 - `"openai/gpt-5.4"`
 - `"anthropic/claude-sonnet-4-5"`
 
-### Step 8: Create mastra entry point
+### ステップ8：Mastra の入口ファイルを作る
 
-Create `src/mastra/index.ts`:
+`src/mastra/index.ts` を作成します。
 
 ```typescript
 import { Mastra } from "@mastra/core";
@@ -192,39 +194,39 @@ export const mastra = new Mastra({
 });
 ```
 
-### Step 9: Launch Mastra Studio
+### ステップ9：Mastra Studio を起動する
 
-Launch the development server:
+開発サーバーを起動します。
 
 ```bash
 npm run dev
 ```
 
-Access Studio at `http://localhost:4111` to test your agent.
+`http://localhost:4111` で Studio を開いて、エージェントをテストします。
 
-## Next steps
+## 次のステップ
 
-After creating your project with `create mastra`:
+`create mastra` でプロジェクトを作ったら：
 
-- **Customize the example agent** in `src/mastra/agents/weather-agent.ts`
-- **Add new agents** - see [Agents documentation](https://mastra.ai/docs/agents/overview)
-- **Create workflows** - see [Workflows documentation](https://mastra.ai/docs/workflows/overview)
-- **Add more tools** to extend agent capabilities
-- **Integrate into your app** - see framework guides at [mastra.ai/docs](https://mastra.ai/docs)
+- `src/mastra/agents/weather-agent.ts` の **サンプルのエージェントをカスタマイズする**
+- **新しいエージェントを追加する** - [Agents のドキュメント](https://mastra.ai/docs/agents/overview) を参照
+- **ワークフローを作る** - [Workflows のドキュメント](https://mastra.ai/docs/workflows/overview) を参照
+- エージェントの機能を広げるために **ツールを追加する**
+- **自分のアプリに組み込む** - [mastra.ai/docs](https://mastra.ai/docs) のフレームワーク別ガイドを参照
 
-## Troubleshooting
+## トラブルシューティング
 
-| Issue              | Solution                                                                             |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| API key not found  | Make sure your `.env` file has the correct key                                       |
-| Studio won't start | Check that port 4111 is available                                                    |
-| CommonJS errors    | Ensure `tsconfig.json` uses `"module": "ES2022"` and `"moduleResolution": "bundler"` |
-| Command not found  | Ensure you're using Node.js 20+                                                      |
+| 問題 | 解決方法 |
+| --- | --- |
+| API キーが見つからない | `.env` ファイルに正しいキーが書かれているか確認する |
+| Studio が起動しない | ポート 4111 が空いているか確認する |
+| CommonJS のエラー | `tsconfig.json` で `"module": "ES2022"` と `"moduleResolution": "bundler"` を使っているか確認する |
+| コマンドが見つからない | Node.js 20 以上を使っているか確認する |
 
-## Resources
+## リソース
 
-- [Docs](https://mastra.ai/docs)
-- [Installation](https://mastra.ai/docs/getting-started/installation)
+- [ドキュメント](https://mastra.ai/docs)
+- [インストール](https://mastra.ai/docs/getting-started/installation)
 - [Agents](https://mastra.ai/docs/agents/overview)
 - [Workflows](https://mastra.ai/docs/workflows/overview)
 - [GitHub](https://github.com/mastra-ai/mastra)

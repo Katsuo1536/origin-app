@@ -1,153 +1,153 @@
-# Remote Docs Reference
+# リモートドキュメント リファレンス
 
-How to look up current documentation from https://mastra.ai when local packages aren't available or you need conceptual guidance.
+ローカルにパッケージがない場合や、考え方の説明が必要な場合に、https://mastra.ai から最新のドキュメントを調べる方法です。
 
-**Use this when:**
+**次のような場合に使います。**
 
-- Mastra packages aren't installed locally
-- You need conceptual explanations or guides
-- You want the latest documentation (may be ahead of installed version)
+- Mastra のパッケージがローカルにインストールされていない
+- 考え方の説明やガイドが必要
+- 最新のドキュメントを見たい（インストール済みのバージョンより新しいことがある）
 
-## Documentation site structure
+## ドキュメントサイトの構成
 
-Mastra docs are organized at **https://mastra.ai**:
+Mastra のドキュメントは **https://mastra.ai** にまとまっています。
 
-- **Docs**: Core documentation covering concepts, features, and implementation details
-- **Models**: Mastra provides a unified interface for working with LLMs across multiple providers
-- **Guides**: Step-by-step tutorials for building specific applications
-- **Reference**: API reference documentation
+- **Docs**：考え方、機能、実装の詳細を扱う中心的なドキュメント
+- **Models**：複数のプロバイダーの LLM を、共通のインターフェースで扱うための情報
+- **Guides**：特定のアプリケーションを作るための、手順を追ったチュートリアル
+- **Reference**：API リファレンス
 
-## Finding relevant documentation
+## 必要なドキュメントを探す
 
-### Method 1: Use llms.txt (Recommended)
+### 方法1：llms.txt を使う（おすすめ）
 
-The main llms.txt file provides an agent-friendly overview of all documentation: https://mastra.ai/llms.txt
+メインの llms.txt では、ドキュメント全体の概要が、エージェントに読みやすい形でまとまっています：https://mastra.ai/llms.txt
 
-This returns a structured markdown document with:
+ここから、次の内容を含む構造化された Markdown が返ってきます。
 
-- Documentation organization and hierarchy
-- All available topics and sections
-- Direct links to relevant documentation
-- Agent-optimized content structure
+- ドキュメントの構成と階層
+- 用意されているすべてのトピックとセクション
+- 関連するドキュメントへの直接リンク
+- エージェント向けに最適化された内容の構成
 
-**Use this first** to understand what documentation is available and where to find specific topics.
+どんなドキュメントがあり、どこに何が書かれているかを知るために、**まずこれを使ってください**。
 
-### Method 2: Direct URL patterns
+### 方法2：URL のパターンから直接たどる
 
-Documentation follows predictable URL patterns:
+ドキュメントの URL は、決まったパターンになっています。
 
-- Overview pages: `https://mastra.ai/docs/{topic}/overview`
-- API reference: `https://mastra.ai/reference/{topic}/`
-- Guides: `https://mastra.ai/guides/{topic}/`
+- 概要ページ：`https://mastra.ai/docs/{topic}/overview`
+- API リファレンス：`https://mastra.ai/reference/{topic}/`
+- ガイド：`https://mastra.ai/guides/{topic}/`
 
-**Examples:**
+**例：**
 
 - `https://mastra.ai/docs/agents/overview`
 - `https://mastra.ai/docs/workflows/overview`
 - `https://mastra.ai/reference/workflows/workflow-methods/`
 
-## Agent-friendly documentation
+## エージェントに読みやすいドキュメント
 
-**Critical feature**: Send the `text-markdown` request header or add `.md` to any documentation URL to get clean, agent-friendly markdown.
+**重要な機能**：リクエストヘッダーに `text-markdown` を付けるか、ドキュメントの URL の末尾に `.md` を付けると、余計なものがない、エージェントに読みやすい Markdown が返ってきます。
 
-### Standard URL:
+### 通常の URL：
 
 ```
 https://mastra.ai/reference/workflows/workflow-methods/then
 ```
 
-### Agent-friendly URL (Markdown):
+### エージェントに読みやすい URL（Markdown）：
 
 ```
 https://mastra.ai/reference/workflows/workflow-methods/then.md
 ```
 
-The `.md` version:
+`.md` 版の特徴：
 
-- Removes navigation, headers, footers
-- Returns pure markdown content
-- Optimized for LLM consumption
-- Includes all code examples and explanations
+- ナビゲーション、ヘッダー、フッターが取り除かれている
+- 純粋な Markdown の内容だけが返る
+- LLM が読むのに最適化されている
+- コード例と説明はすべて含まれている
 
-## Lookup Workflow
+## 調べるときの流れ
 
-### 1. Check the main documentation index
+### 1. メインのドキュメント索引を確認する
 
-**Start here** to understand what's available:
+何があるかを知るために、**ここから始めます**。
 
 ```
 https://mastra.ai/llms.txt
 ```
 
-This provides:
+ここで分かること：
 
-- Complete documentation structure
-- Available topics and sections
-- Links to relevant documentation pages
+- ドキュメント全体の構成
+- 用意されているトピックとセクション
+- 関連するドキュメントページへのリンク
 
-### 2. Find relevant documentation
+### 2. 必要なドキュメントを見つける
 
-**Option A: Use information from llms.txt**
-The main llms.txt will guide you to the right section.
+**方法A：llms.txt の情報を使う**
+メインの llms.txt が、正しいセクションへ案内してくれます。
 
-**Option B: Construct URL directly**
+**方法B：URL を直接組み立てる**
 
 ```
 https://mastra.ai/docs/{topic}/overview
 https://mastra.ai/reference/{topic}/
 ```
 
-### 3. Fetch agent-friendly version
+### 3. エージェントに読みやすい版を取得する
 
-Add `.md` to the end of any documentation URL:
+ドキュメントの URL の末尾に `.md` を付けます。
 
 ```
 https://mastra.ai/reference/workflows/workflow-methods/then.md
 ```
 
-### 4. Extract relevant information
+### 4. 必要な情報を取り出す
 
-The markdown will include:
+Markdown には、次の内容が含まれています。
 
-- Function signatures
-- Parameter descriptions
-- Return types
-- Usage examples
-- Best practices
+- 関数のシグネチャ（引数と戻り値の形）
+- 引数の説明
+- 戻り値の型
+- 使い方の例
+- おすすめの使い方
 
-## Common documentation paths
+## よく使うドキュメントのパス
 
-### Agents
+### Agents（エージェント）
 
-- Overview: `https://mastra.ai/docs/agents/overview`
-- Creating agents: `https://mastra.ai/docs/agents/overview`
-- Agent tools: `https://mastra.ai/docs/agents/tools`
-- Memory: `https://mastra.ai/docs/memory/overview`
+- 概要：`https://mastra.ai/docs/agents/overview`
+- エージェントの作成：`https://mastra.ai/docs/agents/overview`
+- エージェントのツール：`https://mastra.ai/docs/agents/tools`
+- メモリ：`https://mastra.ai/docs/memory/overview`
 
-### Workflows
+### Workflows（ワークフロー）
 
-- Overview: `https://mastra.ai/docs/workflows/overview`
-- Creating workflows: `https://mastra.ai/docs/workflows/overview`
-- Workflow methods: `https://mastra.ai/reference/workflows/workflow-methods/`
+- 概要：`https://mastra.ai/docs/workflows/overview`
+- ワークフローの作成：`https://mastra.ai/docs/workflows/overview`
+- ワークフローのメソッド：`https://mastra.ai/reference/workflows/workflow-methods/`
 
-### Tools
+### Tools（ツール）
 
-- Overview: `https://mastra.ai/docs/tools/overview`
-- Creating tools: `https://mastra.ai/docs/agents/tools`
+- 概要：`https://mastra.ai/docs/tools/overview`
+- ツールの作成：`https://mastra.ai/docs/agents/tools`
 
-### Memory
+### Memory（メモリ）
 
-- Overview: `https://mastra.ai/docs/memory/overview`
-- Configuration: `https://mastra.ai/docs/memory/overview`
+- 概要：`https://mastra.ai/docs/memory/overview`
+- 設定：`https://mastra.ai/docs/memory/overview`
 
 ### RAG
 
-- Overview: `https://mastra.ai/docs/rag/overview`
-- Vector stores: `https://mastra.ai/reference/rag/vector-databases`
+- 概要：`https://mastra.ai/docs/rag/overview`
+- ベクトルストア：`https://mastra.ai/reference/rag/vector-databases`
 
-## Example: Looking up workflow .then() method
+## 例：ワークフローの .then() メソッドを調べる
 
-### 1. Check main documentation index
+### 1. メインのドキュメント索引を確認する
 
 ```
 WebFetch({
@@ -156,15 +156,15 @@ WebFetch({
 })
 ```
 
-This will point you to the workflows reference section.
+これで、ワークフローのリファレンスのセクションが案内されます。
 
-### 2. Fetch specific method documentation
+### 2. 特定のメソッドのドキュメントを取得する
 
 ```
 https://mastra.ai/reference/workflows/workflow-methods/then.md
 ```
 
-### 3. Use WebFetch tool
+### 3. WebFetch ツールを使う
 
 ```
 WebFetch({
@@ -173,21 +173,21 @@ WebFetch({
 })
 ```
 
-## When to use remote vs embedded docs
+## リモートと同梱ドキュメントの使い分け
 
-| Situation                  | Use                                                 |
-| -------------------------- | --------------------------------------------------- |
-| Packages installed locally | **Embedded docs** (guaranteed version match)        |
-| Packages not installed     | **Remote docs**                                     |
-| Need conceptual guides     | **Remote docs**                                     |
-| Need exact API signatures  | **Embedded docs** (if available)                    |
-| Exploring new features     | **Remote docs** (may be ahead of installed version) |
-| Need working examples      | **Both** (embedded for types, remote for guides)    |
+| 状況 | 使うもの |
+| --- | --- |
+| パッケージがローカルにインストール済み | **同梱のドキュメント**（バージョンが必ず一致する） |
+| パッケージが未インストール | **リモートのドキュメント** |
+| 考え方のガイドが必要 | **リモートのドキュメント** |
+| 正確な API のシグネチャが必要 | **同梱のドキュメント**（ある場合） |
+| 新機能を調べる | **リモートのドキュメント**（インストール済みのバージョンより新しいことがある） |
+| 動くサンプルが必要 | **両方**（型は同梱、ガイドはリモート） |
 
-## Best practices
+## おすすめの使い方
 
-1. **Always use .md** for fetching documentation
-2. **Check sitemap.xml** when unsure about URL structure
-3. **Prefer embedded docs** when packages are installed (version accuracy)
-4. **Use remote docs** for conceptual understanding and guides
-5. **Combine both** for comprehensive understanding
+1. ドキュメントを取得するときは、**必ず .md を使う**
+2. URL の構成が分からないときは、**sitemap.xml を確認する**
+3. パッケージがインストール済みなら、**同梱のドキュメントを優先する**（バージョンが正確）
+4. 考え方の理解やガイドには、**リモートのドキュメントを使う**
+5. 全体を理解するには、**両方を組み合わせる**

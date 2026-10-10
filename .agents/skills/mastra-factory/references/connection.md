@@ -1,8 +1,8 @@
-# Connect to a Factory
+# Factory に接続する
 
-Start here on first activation or whenever the target, login, or CLI is uncertain. A fresh, empty directory is sufficient: connecting does not require source code, a deployment, or a project config file.
+初めて使うとき、または接続先・ログイン状態・CLI に不安があるときは、ここから始めてください。空の新しいディレクトリで十分です。接続するのに、ソースコード、デプロイ済みの環境、プロジェクトの設定ファイルは必要ありません。
 
-## 1. Check the CLI
+## 1. CLI を確認する
 
 ```bash
 mastra --version
@@ -10,80 +10,80 @@ mastra api --help
 mastra api factory --help
 ```
 
-Confirm `factory` is actually listed; some older CLIs print parent help for an unknown command. If the repository has a local CLI, use `./node_modules/.bin/mastra` instead. Do not upgrade the project's dependencies just to inspect a remote Factory.
+`factory` が実際に一覧に表示されているか確認してください。古い CLI では、存在しないコマンドを指定すると、親コマンドのヘルプが表示されることがあります。リポジトリにローカルの CLI がある場合は、`mastra` の代わりに `./node_modules/.bin/mastra` を使ってください。リモートの Factory を確認するだけのために、プロジェクトの依存パッケージをアップグレードしないでください。
 
-If no compatible CLI is available, this temporary invocation was verified with Mastra 1.30.0:
+互換性のある CLI がない場合は、次の一時的な実行方法が Mastra 1.30.0 で動作確認されています。
 
 ```bash
 npm exec --yes --package=mastra@1.30.0 --package=@mastra/core@latest --package=typescript@latest -- mastra api factory --help
 ```
 
-Substitute the same `npm exec ... -- mastra` prefix for `mastra` below. The extra packages address missing `@mastra/core` and `typescript` dependencies encountered with a bare `npx mastra`. This is a tested fallback, not a minimum-version guarantee; check help/schema again when versions change. If npm reports engine incompatibility, use a Node version supported by the selected packages.
+以降のコマンドの `mastra` は、この `npm exec ... -- mastra` に置き換えてください。追加しているパッケージは、`npx mastra` だけで実行したときに `@mastra/core` と `typescript` が足りなくなる問題への対処です。これは動作確認済みの代替手段であって、最低バージョンを保証するものではありません。バージョンが変わったら、ヘルプやスキーマを改めて確認してください。npm が engine の非互換を報告した場合は、選んだパッケージが対応している Node のバージョンを使ってください。
 
-## 2. Establish the target and authentication
+## 2. 接続先と認証を確認する
 
-Ask for the user's Factory instance URL if it isn't already known. Obtain it from their deployment details, the Factory UI's origin, or their deployment administrator; do not derive it from a project name or reuse another user's host. Use the server base URL, not a board-page URL, the platform dashboard/API URL, or a URL ending in `/api`.
+ユーザーの Factory インスタンスの URL がまだ分からなければ、ユーザーに聞いてください。URL は、デプロイの詳細情報、Factory の画面のオリジン、またはデプロイの管理者から入手します。プロジェクト名から推測したり、他のユーザーのホストを使い回したりしないでください。使うのはサーバーのベース URL です。ボード画面の URL、プラットフォームのダッシュボードや API の URL、`/api` で終わる URL は使いません。
 
-For a platform-hosted Factory, check the existing login:
+プラットフォームでホストされている Factory の場合は、今のログイン状態を確認します。
 
 ```bash
 mastra auth whoami
 ```
 
-If logged out, offer to run `mastra auth login` and wait for authorization unless the user already requested login. Run it, let the user complete browser authentication, then rerun `whoami`. The command is **`mastra auth login`**, not `mastra login`. Saved login is user-level and works across directories; do not read the credential file.
+ログインしていなければ、`mastra auth login` の実行を提案し、ユーザーの許可を待ちます（ユーザーがすでにログインを頼んでいる場合を除く）。実行したら、ユーザーにブラウザでの認証を完了してもらい、もう一度 `whoami` を実行します。コマンドは **`mastra auth login`** です。`mastra login` ではありません。保存されたログイン情報はユーザー単位で、どのディレクトリからでも使えます。認証情報のファイルは読まないでください。
 
-For HTTPS hosts recognized by the CLI (`*.factory.mastra.cloud` and `*.factory.staging.mastra.cloud`), explicit `--url` automatically uses the saved login. Factory requests also use the selected organization. Inspect `mastra auth orgs --help` and, with the user's authorization, `mastra auth orgs switch` if the organization is wrong. `MASTRA_ORG_ID` can override organization selection; don't silently change it.
+CLI が認識している HTTPS のホスト（`*.factory.mastra.cloud` と `*.factory.staging.mastra.cloud`）では、`--url` を明示すると、保存されたログイン情報が自動で使われます。Factory へのリクエストでは、選択中の組織も使われます。組織が違う場合は、`mastra auth orgs --help` を確認し、ユーザーの許可を得てから `mastra auth orgs switch` を実行してください。`MASTRA_ORG_ID` で組織の選択を上書きできますが、黙って変更しないでください。
 
-For local, custom-domain, or self-hosted deployments, platform login is not necessarily applicable. Confirm the deployment's authentication requirements. The CLI does not automatically send saved platform credentials to arbitrary hosts. Use the deployment's approved environment/header mechanism if required; never ask the user to paste secrets into chat, read saved credentials, or send a platform token to an unverified host. An unauthenticated `curl` returning 401 does not prove a logged-in CLI request will fail.
+ローカル、独自ドメイン、セルフホストの環境では、プラットフォームのログインが使えるとは限りません。そのデプロイの認証方式を確認してください。CLI は、保存されたプラットフォームの認証情報を任意のホストへ自動で送ることはしません。必要な場合は、そのデプロイで認められている環境変数やヘッダーの仕組みを使ってください。ユーザーにシークレットをチャットへ貼り付けてもらったり、保存された認証情報を読んだり、確認できていないホストにプラットフォームのトークンを送ったりしないでください。認証なしの `curl` が 401 を返しても、ログイン済みの CLI からのリクエストが失敗するとは限りません。
 
-## 3. Connect and discover projects
+## 3. 接続してプロジェクトを探す
 
-Set `FACTORY_URL` to the actual instance URL supplied or verified above. This shell variable is just a convenience, not an auto-read CLI environment variable.
+上で受け取った、または確認した実際のインスタンス URL を `FACTORY_URL` に設定します。このシェル変数は入力を楽にするためのもので、CLI が自動で読み込む環境変数ではありません。
 
 ```bash
 mastra api --url "$FACTORY_URL" factory project list '{"page":0,"perPage":10}' \
   | jq '{page, projects: [.data[] | {id, name}]}'
 ```
 
-Follow `page.hasMore` before concluding a named project is absent. Select the sole project or match the user's named project; ask when multiple choices remain plausible. Keep `--url "$FACTORY_URL"` on **every** subsequent command, including thread/memory calls and their schema discovery. A successful call does not persist a target.
+指定された名前のプロジェクトが「ない」と判断する前に、`page.hasMore` を見て次のページも確認してください。プロジェクトが1つだけならそれを選び、ユーザーが名前を挙げたならそれに一致するものを選びます。候補が複数残る場合は、ユーザーに確認してください。以降のコマンドには、スレッドやメモリの呼び出しとそのスキーマ確認も含めて、**すべて** `--url "$FACTORY_URL"` を付けてください。一度成功しても、接続先は保存されません。
 
-An empty project list is not proof there are no projects: confirm the URL, organization, access, and pagination. A 401/403 calls for checking login and access, not inventing IDs or retrying with credentials borrowed from another project.
+プロジェクトの一覧が空でも、プロジェクトがないとは限りません。URL、組織、アクセス権、ページ送りを確認してください。401 や 403 が返ってきた場合は、ログインとアクセス権を確認してください。ID を推測で作ったり、別のプロジェクトの認証情報を借りて再試行したりしないでください。
 
-## Alternative: automatic target resolution
+## 別の方法：接続先の自動解決
 
-If the working directory is a repository that has already been deployed with `mastra deploy`, it contains a `.mastra-project.json` link file and plain `mastra api factory ...` works with no `--url` at all:
+作業ディレクトリが、すでに `mastra deploy` でデプロイ済みのリポジトリであれば、`.mastra-project.json` というリンクファイルがあります。この場合は、`--url` なしの `mastra api factory ...` で動きます。
 
 ```bash
-# from inside a deployed project's repo
+# デプロイ済みプロジェクトのリポジトリ内で実行
 mastra api factory project list '{"page":0,"perPage":10}' | jq '.data[] | {id, name}'
 ```
 
-Without `--url`, Factory/runtime commands probe `http://localhost:4111` first, then read `.mastra-project.json` in the working directory to resolve the platform deployment. A reachable local server can therefore win over a linked deployment. Prefer an explicit URL for unambiguous remote inspection.
+`--url` を付けないと、Factory やランタイムのコマンドは、まず `http://localhost:4111` を確認し、次に作業ディレクトリの `.mastra-project.json` を読んで、プラットフォーム上のデプロイを特定します。そのため、ローカルサーバーが起動していると、リンク先のデプロイより優先されることがあります。リモートを確実に確認したい場合は、URL を明示する方がよいです。
 
-The link file is normally written by deployment commands after project selection; login and read-only API calls do not create it. Do not deploy, copy another repository's config, or hand-author a link file just to connect. `MASTRA_PROJECT_ID` / `MASTRA_ORGANIZATION_ID` are not substitutes for a Factory target; their service-target handling applies to observability/learning, not Factory URL lookup.
+リンクファイルは通常、プロジェクトを選んだあとにデプロイ系のコマンドが書き出します。ログインや読み取り専用の API 呼び出しでは作られません。接続するためだけに、デプロイしたり、他のリポジトリの設定をコピーしたり、リンクファイルを手で作ったりしないでください。`MASTRA_PROJECT_ID` と `MASTRA_ORGANIZATION_ID` は、Factory の接続先の代わりにはなりません。これらはオブザーバビリティや学習用のサービス接続先に使われるもので、Factory の URL の特定には使われません。
 
-Distinguish these identifiers:
+次の2つの ID は区別してください。
 
-- **Platform deployment project**: the host identity referenced by `.mastra-project.json`.
-- **Factory project**: an organization-scoped logical project returned by `factory project list` on the selected deployment.
+- **プラットフォームのデプロイプロジェクト**：`.mastra-project.json` が参照しているホストの識別子
+- **Factory プロジェクト**：選択したデプロイ上で `factory project list` が返す、組織単位の論理的なプロジェクト
 
-Names, IDs, organizations, and project counts are deployment-specific. Never assume either namespace's IDs can be used in the other, or that a deployment name appears in the Factory list.
+名前、ID、組織、プロジェクトの数は、デプロイごとに異なります。一方の ID をもう一方で使えると考えたり、デプロイ名が Factory の一覧に出てくると考えたりしないでください。
 
-Factory commands use origin-level `/web/*` routes, bypassing `--server-api-prefix`. Thread/memory commands use the runtime API prefix (normally `/api`); for a customized server prefix, discover it from the deployment rather than adding `/api` to `FACTORY_URL`.
+Factory のコマンドはオリジン直下の `/web/*` のルートを使うので、`--server-api-prefix` の影響を受けません。スレッドやメモリのコマンドは、ランタイム API のプレフィックス（通常は `/api`）を使います。サーバーのプレフィックスをカスタマイズしている場合は、`FACTORY_URL` に `/api` を足すのではなく、デプロイからプレフィックスを確認してください。
 
-## Installing or repairing the skill
+## スキルのインストール・修復
 
-Prefer the repository source so references are installed with the skill:
+参照ファイルもスキルと一緒にインストールされるよう、リポジトリのソースから入れることをおすすめします。
 
 ```bash
 npx skills add mastra-ai/skills --skill mastra-factory
 ```
 
-Use the interactive selection to choose scope and agent. For a supported global target, an explicit example is:
+対話形式の選択で、スコープとエージェントを選んでください。対応しているグローバル環境に入れる場合の明示的な例は次のとおりです。
 
 ```bash
 npx skills add mastra-ai/skills --skill mastra-factory --agent claude-code -g -y
 npx skills list -g --agent claude-code
 ```
 
-Replace `claude-code` with the user's actual supported agent; don't install for an unrelated agent. Check `npx skills --help` for current options. PromptScript does not support global installation: select project scope for that agent (omit `-g`), or target a different intended agent that supports global scope. A multi-agent install can partially succeed while reporting a PromptScript failure. Project-scope PromptScript installs have been observed to report "copied" while `npx skills list` shows the skill as "not linked", so a successful copy is not proof of integration. Verify the intended agent's installation, the SKILL.md and its referenced files, and activation in that agent rather than trusting the aggregate install message.
+`claude-code` は、ユーザーが実際に使っている対応エージェントに置き換えてください。関係のないエージェントには入れないでください。最新のオプションは `npx skills --help` で確認してください。PromptScript はグローバルインストールに対応していません。PromptScript には `-g` を外してプロジェクトスコープで入れるか、グローバルに対応した別のエージェントを選んでください。複数のエージェントにまとめて入れると、PromptScript だけ失敗したと表示されながら、一部は成功していることがあります。PromptScript をプロジェクトスコープで入れた場合、「copied」と表示されても `npx skills list` では「not linked」になっていた例があります。つまり、コピーに成功しても、エージェントに組み込まれた証明にはなりません。全体のインストールメッセージを信用せず、対象のエージェントへのインストール、SKILL.md と参照ファイル、そのエージェントでスキルが有効になっているかを確認してください。

@@ -1,17 +1,17 @@
-# Core Concepts Reference
+# 基本の考え方 リファレンス
 
-Use this reference when deciding which Mastra primitive to use or when explaining the high-level shape of a Mastra application.
+Mastra のどの基本要素を使うか決めるとき、または Mastra アプリケーションの全体像を説明するときに使うリファレンスです。
 
-## Agents vs workflows
+## Agent と Workflow の違い
 
-Agent: Autonomous, makes decisions, uses tools.
-Use for open-ended tasks such as support, research, analysis, and tool-using assistants.
+Agent：自律的に動き、判断を下し、ツールを使う。
+サポート、調査、分析、ツールを使うアシスタントなど、決まった手順のない作業に使う。
 
-Workflow: Structured sequence of steps.
-Use for defined processes such as pipelines, approvals, ETL, multi-step business logic, and resumable processes.
+Workflow：ステップが決まった順番で並んだもの。
+パイプライン、承認フロー、ETL（データの抽出・変換・格納）、複数ステップの業務ロジック、途中から再開できる処理など、手順が決まっている処理に使う。
 
-## Key components
+## 主な構成要素
 
-- Tools: Extend agent capabilities through APIs, databases, external services, and deterministic functions.
-- Memory: Maintain context through message history, working memory, semantic recall, and observational memory.
-- Storage: Persist data with providers such as Postgres, LibSQL, and MongoDB.
+- Tools（ツール）：API、データベース、外部サービス、決まった結果を返す関数を通じて、エージェントにできることを増やす。
+- Memory（メモリ）：メッセージの履歴、ワーキングメモリ、意味による呼び出し（セマンティックリコール）、観測メモリを使って、文脈を保つ。
+- Storage（ストレージ）：Postgres、LibSQL、MongoDB などのプロバイダーで、データを保存する。

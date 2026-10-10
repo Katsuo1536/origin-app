@@ -120,7 +120,10 @@ export const PUT = async (request: NextRequest,
 
   try {
     const recipe = await prisma.recipe.update({
-      where: { id: id },
+      where: {
+        id: id,
+        userId: data.user.id
+      },
       data: {
         name: req.recipe.name,
         recipeImageKey: req.recipe.recipeImageKey,

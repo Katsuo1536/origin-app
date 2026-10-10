@@ -1,180 +1,180 @@
-# Migration Guide
+# 移行（マイグレーション）ガイド
 
-Guide for upgrading Mastra versions using official documentation and current API verification.
+公式ドキュメントと現在の API の確認を使って、Mastra のバージョンをアップグレードするためのガイドです。
 
-## Migration strategy
+## 移行の進め方
 
-For version upgrades, follow this process:
+バージョンアップでは、次の流れで進めます。
 
-### 1. Check official migration docs
+### 1. 公式の移行ドキュメントを確認する
 
-**Always start with the official migration documentation:** `https://mastra.ai/llms.txt`
+**必ず公式の移行ドキュメントから始めてください：** `https://mastra.ai/llms.txt`
 
-Look for the **Migrations** or **Guides** section, which will have:
+**Migrations** か **Guides** のセクションを探してください。次の内容が載っています。
 
-- Breaking changes for each version
-- Automated migration tools
-- Step-by-step upgrade instructions
+- バージョンごとの破壊的変更（これまでのコードが動かなくなる変更）
+- 自動移行ツール
+- 手順を追ったアップグレード方法
 
-**Example sections to look for:**
+**探すセクションの例：**
 
 - `/guides/migrations/upgrade-to-v1/`
 - `/guides/migrations/upgrade-to-v2/`
-- Breaking changes lists
+- 破壊的変更の一覧
 
-### 2. Use embedded docs for current APIs
+### 2. 同梱のドキュメントで現在の API を確認する
 
-After identifying breaking changes, verify the new APIs:
+破壊的変更が分かったら、新しい API を確認します。
 
-**Check your installed version:**
+**インストールされているバージョンを確認する：**
 
 ```bash
 cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"ApiName"'
 cat node_modules/@mastra/core/dist/[path-from-source-map]
 ```
 
-See [`embedded-docs.md`](embedded-docs.md) for detailed lookup instructions.
+詳しい調べ方は [`embedded-docs.md`](embedded-docs.md) を参照してください。
 
-### 3. Use remote docs for latest info
+### 3. リモートのドキュメントで最新の情報を確認する
 
-If packages aren't updated yet, check what APIs will look like: `https://mastra.ai/reference/[topic]`
+まだパッケージを更新していない場合は、API がどうなるかを確認します：`https://mastra.ai/reference/[topic]`
 
-See [`remote-docs.md`](remote-docs.md) for detailed lookup instructions.
+詳しい調べ方は [`remote-docs.md`](remote-docs.md) を参照してください。
 
-## Quick migration workflow
+## 移行の簡単な流れ
 
 ```bash
-# 1. Check current version
+# 1. 現在のバージョンを確認する
 npm list @mastra/core
 
-# 2. Fetch migration guide from official docs
-# Use WebFetch: https://mastra.ai/llms.txt
-# Find relevant migration section
+# 2. 公式ドキュメントから移行ガイドを取得する
+# WebFetch を使う: https://mastra.ai/llms.txt
+# 該当する移行のセクションを探す
 
-# 3. Update dependencies
+# 3. 依存パッケージを更新する
 npm install @mastra/core@latest @mastra/memory@latest @mastra/rag@latest mastra@latest
 
-# 4. Run automated migration (if available)
-npx @mastra/codemod@latest v1  # or whatever version
+# 4. 自動移行を実行する（ある場合）
+npx @mastra/codemod@latest v1  # または該当するバージョン
 
-# 5. Check embedded docs for new APIs
+# 5. 同梱のドキュメントで新しい API を確認する
 cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json
 
-# 6. Fix breaking changes using embedded docs lookup
-# See embedded-docs.md for how to look up each API
+# 6. 同梱のドキュメントで調べながら、破壊的変更を修正する
+# 各 API の調べ方は embedded-docs.md を参照
 
-# 7. Test
+# 7. テストする
 npm run dev
 npm test
 ```
 
-## Common migration patterns
+## よくある移行のパターン
 
-### Finding what changed
+### 何が変わったかを調べる
 
-**Check official migration docs:** `https://mastra.ai/guides/migrations/upgrade-to-v1/overview.md`
+**公式の移行ドキュメントを確認する：** `https://mastra.ai/guides/migrations/upgrade-to-v1/overview.md`
 
-This will list:
+ここに載っている内容：
 
-- Breaking changes
-- Deprecated APIs
-- New features
-- Migration tools
+- 破壊的変更
+- 非推奨になった API
+- 新機能
+- 移行ツール
 
-### Updating API usage
+### API の使い方を更新する
 
-**For each breaking change:**
+**破壊的変更ごとに：**
 
-1. **Find the old API** in your code
-2. **Look up the new API** using embedded docs:
+1. 自分のコードの中で **古い API を探す**
+2. 同梱のドキュメントで **新しい API を調べる**
    ```bash
    cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"NewApi"'
    cat node_modules/@mastra/core/dist/[path]
    ```
-3. **Update your code** based on the type signatures
-4. **Test** the change
+3. 型のシグネチャをもとに **コードを更新する**
+4. 変更を **テストする**
 
-### Example: Tool execute signature change
+### 例：ツールの execute の引数が変わった場合
 
-**Official docs say:** "Tool execute signature changed"
+**公式ドキュメントの記載：**「Tool の execute のシグネチャが変更されました」
 
-**Look up current signature:**
+**現在のシグネチャを調べる：**
 
 ```bash
 cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"createTool"'
 cat node_modules/@mastra/core/dist/tools/tool.d.ts
 ```
 
-**Update based on type definition:**
+**型定義をもとに更新する：**
 
 ```typescript
-// Old (from docs)
+// 古い書き方（ドキュメントより）
 execute: async (input) => { ... }
 
-// New (from embedded docs)
+// 新しい書き方（同梱のドキュメントより）
 execute: async (inputData, context) => { ... }
 ```
 
-## Pre-migration checklist
+## 移行前のチェックリスト
 
-- [ ] Backup code (git commit)
-- [ ] Check official migration docs: `https://mastra.ai/llms.txt`
-- [ ] Note current version: `npm list @mastra/core`
-- [ ] Read breaking changes list
-- [ ] Tests are passing
+- [ ] コードをバックアップする（git commit）
+- [ ] 公式の移行ドキュメントを確認する：`https://mastra.ai/llms.txt`
+- [ ] 現在のバージョンを控えておく：`npm list @mastra/core`
+- [ ] 破壊的変更の一覧を読む
+- [ ] テストが通っている
 
-## Post-migration checklist
+## 移行後のチェックリスト
 
-- [ ] All dependencies updated together
-- [ ] TypeScript compiles: `npx tsc --noEmit`
-- [ ] Tests pass: `npm test`
-- [ ] Studio works: `npm run dev`
-- [ ] No console warnings
-- [ ] APIs verified against embedded docs
+- [ ] すべての依存パッケージをまとめて更新した
+- [ ] TypeScript のコンパイルが通る：`npx tsc --noEmit`
+- [ ] テストが通る：`npm test`
+- [ ] Studio が動く：`npm run dev`
+- [ ] コンソールに警告が出ていない
+- [ ] 同梱のドキュメントで API を確認した
 
-## Migration resources
+## 移行に使えるリソース
 
-| Resource                               | Use For                                       |
-| -------------------------------------- | --------------------------------------------- |
-| `https://mastra.ai/llms.txt`           | Finding migration guides and breaking changes |
-| [`embedded-docs.md`](embedded-docs.md) | Looking up new API signatures after updating  |
-| [`remote-docs.md`](remote-docs.md)     | Checking latest docs before updating          |
-| [`common-errors.md`](common-errors.md) | Fixing migration errors                       |
+| リソース | 用途 |
+| --- | --- |
+| `https://mastra.ai/llms.txt` | 移行ガイドと破壊的変更を探す |
+| [`embedded-docs.md`](embedded-docs.md) | 更新後に、新しい API のシグネチャを調べる |
+| [`remote-docs.md`](remote-docs.md) | 更新前に、最新のドキュメントを確認する |
+| [`common-errors.md`](common-errors.md) | 移行で出たエラーを直す |
 
-## Version-specific notes
+## バージョンごとの注意点
 
-### General principles
+### 共通の原則
 
-1. **Always update all @mastra packages together**
+1. **@mastra のパッケージは必ずまとめて更新する**
 
    ```bash
    npm install @mastra/core@latest @mastra/memory@latest @mastra/rag@latest mastra@latest
    ```
 
-2. **Check for automated migration tools**
+2. **自動移行ツールがあるか確認する**
 
    ```bash
    npx @mastra/codemod@latest [version]
    ```
 
-3. **Verify Node.js version requirements**
-   - Check official migration docs for minimum Node version
+3. **Node.js のバージョン要件を確認する**
+   - 必要な最低バージョンは、公式の移行ドキュメントで確認する
 
-4. **Run database migrations if using storage**
-   - Follow storage migration guide in official docs
+4. **ストレージを使っている場合は、データベースの移行を実行する**
+   - 公式ドキュメントのストレージ移行ガイドに従う
 
-## Getting help
+## 困ったときは
 
-1. **Check official migration docs**: `https://mastra.ai/llms.txt` → Migrations section
-2. **Look up new APIs**: See [`embedded-docs.md`](embedded-docs.md)
-3. **Check for errors**: See [`common-errors.md`](common-errors.md)
-4. **Ask in Discord**: https://discord.gg/BTYqqHKUrf
-5. **File issues**: https://github.com/mastra-ai/mastra/issues
+1. **公式の移行ドキュメントを確認する**：`https://mastra.ai/llms.txt` → Migrations のセクション
+2. **新しい API を調べる**：[`embedded-docs.md`](embedded-docs.md) を参照
+3. **エラーを確認する**：[`common-errors.md`](common-errors.md) を参照
+4. **Discord で質問する**：https://discord.gg/BTYqqHKUrf
+5. **Issue を立てる**：https://github.com/mastra-ai/mastra/issues
 
-## Key principles
+## 大事な原則
 
-1. **Official docs are source of truth** - Start with `https://mastra.ai/llms.txt`
-2. **Verify with embedded docs** - Check installed version APIs
-3. **Update incrementally** - Don't skip major versions
-4. **Test thoroughly** - Run tests after each change
-5. **Use automation** - Use codemods when available
+1. **公式ドキュメントが正解の情報源** - `https://mastra.ai/llms.txt` から始める
+2. **同梱のドキュメントで確認する** - インストール済みのバージョンの API を確認する
+3. **少しずつ更新する** - メジャーバージョンを飛ばさない
+4. **しっかりテストする** - 変更のたびにテストを実行する
+5. **自動化を使う** - codemod があれば使う
