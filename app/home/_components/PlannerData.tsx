@@ -39,7 +39,7 @@ export default function PlannerData() {
               {randomPlan && (
                 <div key={randomPlan.id}
                   className="flex flex-col justify-center items-center py-3">
-                  <Image src={getRecipeImageUrl(randomPlan.recipe.image)} alt="planner_image" width={200} height={200} className="flex justify-center items-center rounded-lg" />
+                  <Image src={getRecipeImageUrl(randomPlan.recipe.recipeImageKey)} alt="planner_image" width={200} height={200} className="flex justify-center items-center rounded-lg" />
                   <span className="rouded-2xl text-center m-3 font-semibold ">
                     {randomPlan.recipe.name}
                   </span>

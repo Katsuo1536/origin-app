@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/app/_libs/supabase";
 import type { RecipeConvertBody } from "@/app/api/recipes/[id]/convert/route";
+import { RecipePostType } from "@/app/api/recipes/new_recipe/route";
 
 export type Data = {
   id: string
@@ -30,10 +31,12 @@ export type Data = {
   }[]
 }
 
+const sampleImage = 'private/1d85abb6-c95a-4ae6-b412-146302a16852'
+
 const defaultValues: Data = {
   id: '',
   name: '',
-  recipeImageKey: '',
+  recipeImageKey: sampleImage,
   recipeUrl: '',
   favorite: false,
   servings: 1,
@@ -60,6 +63,8 @@ type Props = {
   onCreateLists?: (data: Data) => void
   onConvertIngredients?: (data: Data) => void
   convert?: RecipeConvertBody
+  onCreateRecipe?: (data: FormData) => void
+  create?: RecipePostType
 };
 
 
@@ -71,6 +76,8 @@ export const RecipeForm = ({
   onCreateLists,
   onConvertIngredients,
   convert,
+  onCreateRecipe,
+  create
 }: Props
 ) => {
   const {
@@ -156,6 +163,17 @@ export const RecipeForm = ({
     });
   }, [convert, getValues, setValue]);
 
+  useEffect(() => {
+    if (!create) return;
+
+    setValue('name', create.recipe.name)
+
+    setValue('servings', create.recipe.servings)
+
+    new_recipeingredients.replace(create.recipe.recipeingredients)
+    new_processes.replace(create.recipe.processes)
+
+  }, [create, getValues, setValue]);
 
   const new_recipeingredients = useFieldArray({ control, name: 'recipeingredients' })
   const new_processes = useFieldArray({ control, name: 'processes' })
@@ -179,6 +197,12 @@ export const RecipeForm = ({
             お気に入り
           </label>
 
+          {create && (
+            <label className="rounded-2xl bg-green-500 px-3 py-1 text-xl font-bold text-white">
+              2人前
+            </label>
+          )}
+
           {mode === 'edit' && (
             <Link href={`/planners/new_planner?recipeId=${values?.id}`} className="px-3 py-2 font-semibold rounded-2xl p-4 
           bg-emerald-700 text-white">
@@ -193,7 +217,7 @@ export const RecipeForm = ({
             {values?.name}
           </span>
         ) : (
-          <input className="rounded-2xl focus:ring-4 focus:outline-none focus:ring-green-800 text-2xl font-bold text-amber-950 text-center"
+          <input className="rounded-2xl focus:ring-4 focus:outline-none focus:ring-green-800 text-2xl font-bold text-amber-950 text-center w-sm"
             {...register(`name`, {
             })}
             disabled={isSubmitting}
@@ -225,12 +249,51 @@ export const RecipeForm = ({
               )}
             </>
           ) : (
-            <input className="rounded-2xl bg-orange-500 
-            px-2 py-1 text-md font-medium text-white text-center"
-              {...register(`recipeUrl`, {
-              })}
-              disabled={isSubmitting}
-              placeholder="参考URL" />
+            <span className="px-10">
+              <input className="rounded-2xl bg-orange-300 
+            px-2 py-1 text-md font-medium text-white text-center my-1 w-full"
+                {...register(`recipeUrl`, {
+                })}
+                disabled={isSubmitting}
+                placeholder="参考URL" />
+
+
+              {onCreateRecipe && (
+                <span>
+                  <input type="file" accept="image/*" className="rounded-2xl bg-orange-500 
+            px-2 py-1 text-md font-medium text-gray-200 text-center my-1 w-full"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      const formData = new FormData()
+                      formData.append('image', file)
+
+                      onCreateRecipe(formData)
+                    }
+                    }
+                    disabled={isSubmitting}
+                  />
+
+                  <input className="rounded-2xl bg-red-500
+            px-2 py-1 text-md font-medium text-white text-center my-1 w-full"
+                    onBlur={(e) => {
+                      const ingredient = e.target.value;
+                      if (!ingredient) return;
+
+                      const formData = new FormData()
+                      formData.append('ingredient', ingredient)
+
+                      onCreateRecipe(formData)
+                    }
+                    }
+                    disabled={isSubmitting}
+                    placeholder="材料" />
+
+                </span>
+              )}
+            </span>
+
           )}
 
 

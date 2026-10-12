@@ -24,5 +24,5 @@ export const convertAgent = new Agent({
 ## 出力
 - 日本語で、指定のJSON形式のみを返す。説明文やマークダウンは付けない
 - 形式: { "targetNumber": number, "ingredients": [{ "id": string, "name": string, "quantity": string}] }`,
-  model: 'google/gemini-3.7-flash',
+  model: 'google/gemini-3.5-flash-lite',
 });
