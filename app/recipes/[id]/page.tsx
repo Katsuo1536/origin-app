@@ -176,7 +176,7 @@ export default function Recipe() {
 
     }
     catch {
-      alert('レシピの削除に失敗しました。')
+      alert('人数自動変換に失敗しました。')
     }
   }
 

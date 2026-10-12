@@ -1,8 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
-import { connect } from "http2";
-import { create } from "domain";
 
 
 export type RecipePostType = {
