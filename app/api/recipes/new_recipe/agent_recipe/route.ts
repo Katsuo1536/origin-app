@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/app/_libs/supabase";
-import { convertAgent } from "@/src/mastra/agents/convert-agent";
 import { string, z } from "zod";
 import { createRecipeAgent } from "@/src/mastra/agents/create-agent";
 
@@ -46,7 +45,10 @@ export const POST = async (request: NextRequest) => {
   const image = req.get('image')
   const ingredient = req.get('ingredient')
 
-  const content: any[] = []
+  type ImageType = { type: 'image', image: string, mimeType: string };
+  type TextType = { type: 'text', text: string };
+
+  const content: (ImageType | TextType)[] = []
 
   if (image instanceof File) {
 
@@ -66,7 +68,9 @@ export const POST = async (request: NextRequest) => {
 
   try {
 
-    const response = await createRecipeAgent.generate(
+    type RecipeResult = z.infer<typeof createRecipeSchema>;
+
+    const { object } : {object: RecipeResult} = await createRecipeAgent.generate(
       [
         {
           role: "user",
@@ -78,7 +82,7 @@ export const POST = async (request: NextRequest) => {
       });
 
 
-    return NextResponse.json(response.object, { status: 200 })
+    return NextResponse.json<RecipeResult>(object, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })

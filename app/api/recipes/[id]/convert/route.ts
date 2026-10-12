@@ -57,12 +57,14 @@ export const POST = async (request: NextRequest,
 
   try {
 
-    const response = await convertAgent.generate(prompt, {
+        type ConvertResult = z.infer<typeof convertSchema>;
+
+    const { object } : { object: ConvertResult} = await convertAgent.generate(prompt, {
       structuredOutput: { schema: convertSchema },
     });
 
 
-    return NextResponse.json(response.object, { status: 200 })
+    return NextResponse.json<ConvertResult>(object, { status: 200 })
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
