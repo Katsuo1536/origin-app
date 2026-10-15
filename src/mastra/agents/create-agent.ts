@@ -1,5 +1,4 @@
 import { Agent } from '@mastra/core/agent';
-import { recipeTool } from '../tools/fetch-recipe-tool';
 
 
 export const createRecipeAgent = new Agent({
