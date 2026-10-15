@@ -7,7 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { time } from '@/app/_utils/time';
 import { RecipesResponse } from '@/app/recipes/page';
 import { PlannerPostType } from '@/app/api/planners/new_planner/route';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export type recipeData = {
@@ -33,7 +33,7 @@ export type recipeData = {
 }
 
 
-export default function NewPlanner() {
+function NewPlanner() {
 
   const { token } = useSupabaseSession()
 
@@ -123,4 +123,12 @@ export default function NewPlanner() {
     </>
   );
 
+}
+
+export default function Page(){
+  return(
+    <Suspense fallback={<>...</>}>
+      <NewPlanner/>
+    </Suspense>
+  )
 }
