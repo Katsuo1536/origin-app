@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { Data } from '../sign_up/page';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
+import { UserRequest } from '../api/account/route';
 
 
 const defaultValues: Data = {
@@ -22,13 +23,27 @@ export default function Page() {
       password: data.password
     })
 
+    const sampleIcon = 'private/0bf4dd6c-b24c-4434-83bf-168d683337a7'
+
+    const body: UserRequest = {
+      user: {
+        name: data.email,
+        email: data.email,
+        iconImageKey: sampleIcon
+      }
+    }
+
     if (error) {
       alert('ログインに失敗しました')
     } else {
 
       await fetch('/api/account', {
         method: 'POST',
-        headers: { Authorization: SessionData.session.access_token },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: SessionData.session.access_token
+        },
+        body: JSON.stringify(body)
       })
       router.replace('/home')
 
@@ -47,7 +62,7 @@ export default function Page() {
     })
 
 
-    if (error)  return alert('ログインに失敗しました')
+    if (error) return alert('ログインに失敗しました')
 
   }
 
