@@ -2,13 +2,14 @@
 
 import Image from 'next/image';
 import { time } from '@/app/_utils/time'
+import Link from 'next/link';
 
 
 export default function Home() {
 
   return (
     <>
-      <div className="flex justify-center">
+      <div className="not-md:hidden flex justify-center">
         <span className="text-center text-xl bg-orange-200 m-10 rounded-3xl whitespace-pre-line px-30 py-5">
           <div className="text-lg">
             食卓を囲めていますか、、
@@ -26,7 +27,7 @@ export default function Home() {
       </div>
 
 
-      <div className="flex justify-center gap-10">
+      <div className="not-md:hidden flex justify-center gap-10">
 
         <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
           <h2 className="font-bold px-2 py-1 m-1">買い物リスト</h2>
@@ -57,7 +58,7 @@ export default function Home() {
 
       </div >
 
-      <div className="flex justify-center gap-10 m-10">
+      <div className="not-md:hidden flex justify-center gap-10 m-10">
         <section className="rounded-2xl border-2 border-orange-400 h-60 w-75">
           <h2 className="font-bold px-2 py-1 m-1">
             レシピ
@@ -70,27 +71,52 @@ export default function Home() {
           </div>
         </section>
 
-          <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
-            <h2 className="font-bold px-2 py-1 m-1">
-              予算
-            </h2>
-            <div className="flex justify-center">
-              <span className="flex size-45 justify-center items-center rounded-full bg-orange-400">
-                <span className="text-md text-white mx-2">のこり:</span>
-                <span className="text-xl text-white">XXXXX</span>
-              </span>
-            </div>
-          </section>
+        <section className="rounded-2xl border-2 border-lime-300 h-60 w-75">
+          <h2 className="font-bold px-2 py-1 m-1">
+            予算
+          </h2>
+          <div className="flex justify-center">
+            <span className="flex size-45 justify-center items-center rounded-full bg-orange-400">
+              <span className="text-md text-white mx-2">のこり:</span>
+              <span className="text-xl text-white">XXXXX</span>
+            </span>
+          </div>
+        </section>
 
       </div>
 
       <div
-        className="absolute left-1/2 top-1/2 
+        className="not-md:hidden absolute left-1/2 top-1/2 
           flex size-40 -translate-x-1/2 -translate-y-1/2 
           items-center justify-center text-center
           rounded-full bg-red-600 text-white
           ring-8 ring-amber-50 whitespace-pre-line">
         {"もっと時間を \n あなたに、、"}
+      </div>
+
+      <div className='p-5 md:hidden'>
+        <video
+          src="/taberu_top_intro_phone.mp4"
+          poster="/taberu_top_intro_phone_poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-label="TABERUでできることを紹介する動画"
+          className="w-full aspect-4/5 rounded-3xl shadow-lg" />
+
+        <div className='grid grid-cols-1 justify-center gap-10 m-10'>
+
+          <Link href="/sign_up" className="text-2xl text-center text-white bg-green-400 border-2 border-green-400 rounded-lg px-1 py-1">
+            新規登録
+          </Link>
+
+          <Link href="/sign_in" className="text-2xl text-center text-white bg-red-500 border-2 border-red-500 rounded-lg px-1 py-1">
+            ログイン
+          </Link>
+
+        </div>
       </div>
 
     </>

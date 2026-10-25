@@ -60,7 +60,7 @@ export default function Page() {
   } = useForm<Data>({ defaultValues })
 
   return (
-    <div className="flex justify-center pt-20">
+    <div className="flex justify-center pt-20 not-md:p-8">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-100">
 
         <div className='bg-white py-20 px-10 rounded-4xl shadow-md shadow-gray-800'>

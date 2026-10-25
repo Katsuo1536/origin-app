@@ -20,7 +20,7 @@ export const RecipesArray = ({
   return (
     <>
 
-      <span className="flex items-center translate-x-275 py-5 gap-5">
+      <span className="flex items-center justify-center md:justify-end md:px-125 py-5 gap-5">
 
 
         {booleanRecipe ? (
@@ -48,7 +48,7 @@ export const RecipesArray = ({
         </Link>
       </span>
 
-      <div className="grid grid-cols-2 justify-items-center gap-10 w-fit mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 justify-items-center gap-5 md:gap-10 w-fit mx-auto">
 
         {values?.map(elem => (
 

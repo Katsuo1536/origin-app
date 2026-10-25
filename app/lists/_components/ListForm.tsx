@@ -21,7 +21,7 @@ export const ListForm = ({
 
   return (
     <>
-      <span className="flex items-center translate-x-275 py-5 gap-5">
+      <span className="flex items-center justify-end px-10 md:px-125 py-5 gap-5">
         <button className="flex justify-center items-center bg-red-500
                             text-xl text-white font-semibold h-10 w-20
                             rounded-lg" type="button"
@@ -46,14 +46,14 @@ export const ListForm = ({
             </button>
 
             <span className="flex items-center  justify-between
-                  border border-gray-300 h-7 w-80 rounded-lg
+                  border border-gray-300 h-3 md:h-7 w-50 md:w-80 rounded-lg
                   px-3 py-7">
 
-              <span className="text-black  text-2xl">
+              <span className="text-black text-xl md:text-2xl">
                 {elem.name}
               </span>
 
-              <span className="text-gray-400  text-lg">
+              <span className="text-gray-400 text-sm md:text-lg">
                 {elem.quantity}
               </span>
             </span>

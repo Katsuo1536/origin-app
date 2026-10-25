@@ -100,14 +100,14 @@ export const PlanForm = ({
 
 
   return (
-    <form className="flex w-full flex-col items-center m-10"
+    <form className="flex w-full flex-col items-center mt-5 md:m-10"
       onSubmit={handleSubmit(Submit)}>
 
-      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-80">
+      <div className="grid w-full grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center md:px-80">
         <span />
 
         {mode === 'edit' ? (
-          <span className="text-2xl font-bold text-amber-950">
+          <span className="not-md:mx-auto text-2xl font-bold text-amber-950">
             {values?.recipe.name}
           </span>
         ) : (
@@ -135,7 +135,7 @@ export const PlanForm = ({
 
         )}
 
-        <span className="flex items-center gap-5 justify-self-end ">
+        <span className="not-md:mx-auto flex not-md:mt-3 items-center gap-5 justify-self-end ">
 
           {mode === 'edit' ? (
             <>
@@ -197,7 +197,7 @@ export const PlanForm = ({
 
       {values && (
 
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-1 md:gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
 
 
           <section className="flex flex-col justify-center items-center">

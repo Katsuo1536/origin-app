@@ -100,11 +100,11 @@ export const AccountForm = ({
   return (
     <>
 
-      <div className='flex p-10'>
+      <div className='flex md:p-10'>
 
-        <section className="mx-auto flex max-w-8xl items-center justify-center gap-50 px-6 py-10">
+        <section className="grid grid-cols-1 mx-auto md:flex max-w-8xl items-center justify-center md:gap-50 px-6 py-10">
 
-          <div className="flex w-80 shrink-0 flex-col items-center mt-15">
+          <div className="flex w-80 shrink-0 flex-col items-center md:mt-15">
 
             {iconImage ? (
 
@@ -118,18 +118,18 @@ export const AccountForm = ({
             ) : (
               values && (<Image src={getRecipeImageUrl(values.iconImageKey)}
                 alt="icon" width={200} height={200}
-                className="rounded-full size-80 object-cover" />
+                className="rounded-full size-60 md:size-80 object-cover" />
               )
             )}
 
           </div>
 
-          <div className="flex flex-1 flex-col gap-20 mt-15">
-            <div className=" text-amber-950" >
-              <span className="text-xl mx-20">
+          <div className="flex flex-1 flex-col gap-5 md:gap-20 mt-5 md:mt-15">
+            <div className="grid grid-cols-1 md:flex text-amber-950 items-center" >
+              <span className="text-sm font-bold md:text-xl mx-auto md:mx-20">
                 お名前（ニックネーム）
               </span>
-              <input className="text-2xl font-bold text-center bg-amber-400 rounded-4xl px-5 py-2 h-10 w-50 "
+              <input className="text-lg md:text-2xl font-bold text-center bg-amber-400 rounded-4xl px-5 py-2 h-10 w-50 mx-auto md:mx-10"
                 {...register('name', {
                   required: 'お名前を入力してください。',
                   minLength: { value: 1, message: '1文字以上で入力してください' },
@@ -137,20 +137,20 @@ export const AccountForm = ({
                 })} />
             </div>
 
-            <div className=" text-amber-950">
-              <span className="text-xl mx-20">
+            <div className="grid grid-cols-1 md:flex text-amber-950">
+              <span className="text-sm md:text-xl font-bold mx-auto md:mx-20">
                 メールアドレス
               </span>
-              <span className="text-2xl font-bold text-center bg-amber-400 rounded-4xl px-5 py-2 h-10 w-100">
+              <span className="text-lg md:text-2xl font-bold text-center bg-amber-400 rounded-4xl px-5 py-2 h-10 w-80 md:w-100 mx-auto md:mx-10">
                 {values?.email}
                 </span>
             </div>
 
-            <div className=" text-amber-950">
-              <span className="text-xl mx-20">
+            <div className="grid grid-cols-1 md:flex text-amber-950">
+              <span className="text-sm md:text-xl font-bold mx-auto md:mx-20">
                 プロフィール画像
               </span>
-              <input type='file' id='iconImageKey' className="bg-amber-400 rounded-2xl px-5 py-2 h-10 w-80"
+              <input type='file' id='iconImageKey' className="bg-amber-400 rounded-2xl px-5 py-2 h-10 w-80 mx-auto md:mx-10"
                 accept="image/*"
                 {...register('iconImageKey', {
                   onChange: handleImageChange,
