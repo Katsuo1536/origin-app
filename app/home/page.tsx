@@ -11,9 +11,9 @@ export default function Home() {
   return (
     <>
 
-      <div className="py-30">
+      <div className="grid grid-cols-1 px-10 py-5 md:py-30 gap-5">
 
-        <div className="flex justify-center gap-10">
+        <div className="grid grid-cols-1 md:flex justify-center gap-5 md:gap-10">
 
           <ListsData />
 
@@ -21,7 +21,7 @@ export default function Home() {
 
         </div >
 
-        <div className="flex justify-center gap-10 m-10">
+        <div className="grid grid-cols-1 md:flex justify-center gap-5 md:gap-10 md:m-10">
 
           <RecipeData />
 

@@ -180,11 +180,11 @@ export const RecipeForm = ({
 
 
   return (
-    <form className="flex w-full flex-col items-center m-10"
+    <form className="flex w-full flex-col items-center md:m-10"
       onSubmit={handleSubmit(handleSubmitData)}>
-      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center px-80">
+      <div className="grid w-full grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center md:px-80">
 
-        <span className="flex items-center gap-10 justify-self-start px-5">
+        <span className="not-md:mx-auto flex items-center gap-10 justify-self-start px-5 not-md:mt-2">
           <label className="px-3 py-2 font-semibold rounded-2xl p-4 cursor-pointer border
                       border-red-500 text-red-500
                        has-checked:bg-red-500 has-checked:text-white">
@@ -213,18 +213,18 @@ export const RecipeForm = ({
         </span>
 
         {mode === 'edit' ? (
-          <span className="text-2xl font-bold text-amber-950">
+          <span className="not-md:mx-auto not-md:mt-5 text-2xl font-bold text-amber-950">
             {values?.name}
           </span>
         ) : (
-          <input className="rounded-2xl focus:ring-4 focus:outline-none focus:ring-green-800 text-2xl font-bold text-amber-950 text-center w-sm"
+          <input className="not-md:mx-auto not-md:mt-5 rounded-2xl focus:ring-4 focus:outline-none focus:ring-green-800 text-2xl font-bold text-amber-950 text-center w-sm"
             {...register(`name`, {
             })}
             disabled={isSubmitting}
             placeholder="レシピ名" />
         )}
 
-        <span className="flex items-center gap-5 justify-self-end ">
+        <span className="not-md:mx-auto not-md:mt-5 flex items-center gap-5 justify-self-end ">
 
           {onCreateLists && (
             <button className="rounded-2xl bg-amber-700
@@ -322,7 +322,7 @@ export const RecipeForm = ({
 
 
       {mode === 'edit' ? (
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-1 md:gap-8 p-6 md:grid-cols-[320px_1fr] items-start">
 
           <section className="flex flex-col justify-center items-center">
 
@@ -367,7 +367,7 @@ export const RecipeForm = ({
             </div>
           </section>
 
-          <section className="flex flex-col gap-3 rounded-lg bg-orange-200 p-5 w-2xl">
+          <section className="flex flex-col gap-3 rounded-lg bg-orange-200 p-5 w-full md:w-2xl">
             {values?.processes.map((elem, index) => (
               <div key={elem.id} className="flex items-center gap-3">
                 <span className="w-8 shrink-0 pt-2 text-xl font-bold tabular-nums">
@@ -400,7 +400,7 @@ export const RecipeForm = ({
 
       ) : (
         /* useFieldArrayと画像選択の関数と表示の部分*/
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-1 md:gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
 
           <section className="flex flex-col justify-center items-center">
             <input type='file' id='recipeImageKey' className="bg-amber-400 rounded-2xl px-5 py-2 h-10 w-80"
@@ -486,7 +486,7 @@ export const RecipeForm = ({
 
           </section>
 
-          <section className="flex flex-col gap-3 rounded-lg bg-orange-200 p-5 w-2xl">
+          <section className="flex flex-col gap-3 rounded-lg bg-orange-200 p-5 w-full md:w-2xl">
             {new_processes.fields.map((elem, index) => (
               <div key={elem.id} className="flex items-center gap-3">
                 {index === 0 ? (

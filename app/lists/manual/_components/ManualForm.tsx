@@ -35,7 +35,7 @@ export const ManualForm = ({
 
       <div className="flex flex-col justify-center items-center  gap-3 font-semibold">
         材料名
-        <input className="text-2xl text-center rounded-2xl bg-orange-400 h-15 w-90"
+        <input className="text-2xl text-center rounded-2xl bg-orange-400 h-15 w-50 md:w-90"
           {...register('name', {
             required: '材料名を入力してください',
             minLength: { value: 1, message: '1文字以上で入力してください' },
@@ -48,7 +48,7 @@ export const ManualForm = ({
 
       <div className="flex flex-col justify-center items-center gap-3 font-semibold">
         分量
-        <input className="text-2xl text-center rounded-2xl bg-amber-300 h-15 w-90"
+        <input className="text-2xl text-center rounded-2xl bg-amber-300 h-15 w-50 md:w-90"
           {...register('quantity', {
             required: '分量を入力してください',
             minLength: { value: 1, message: '1文字以上で入力してください' },

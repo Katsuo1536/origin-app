@@ -20,7 +20,7 @@ export const PlannersArray = ({
     <>
 
 
-        <span className="flex items-center translate-x-275 py-5 gap-5">
+        <span className="flex items-center justify-end px-10 md:px-125 py-5 gap-5">
           <button className="flex justify-center items-center bg-red-500
                             text-xl text-white font-semibold h-10 w-20
                             rounded-lg" type="button"
@@ -34,7 +34,7 @@ export const PlannersArray = ({
           </Link>
         </span>
 
-      <div className="grid grid-cols-2 justify-items-center gap-10 w-fit mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 justify-items-center gap-5 md:gap-10 w-fit mx-auto">
 
         {values?.map(elem => (
 
