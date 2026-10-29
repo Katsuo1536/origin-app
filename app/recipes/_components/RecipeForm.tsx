@@ -288,7 +288,7 @@ export const RecipeForm = ({
                     }
                     }
                     disabled={isSubmitting}
-                    placeholder="材料" />
+                    placeholder="材料 or 料理名" />
 
                 </span>
               )}
@@ -399,7 +399,7 @@ export const RecipeForm = ({
         </section>
 
       ) : (
-        /* useFieldArrayと画像選択の関数と表示の部分*/
+
         <section className="mx-auto grid max-w-6xl grid-cols-1 gap-1 md:gap-8 p-6 md:grid-cols-[320px_1fr] md:items-start">
 
           <section className="flex flex-col justify-center items-center">
