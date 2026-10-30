@@ -60,7 +60,72 @@
 - 画面設計（Figma）：https://www.figma.com/design/xXYINf8fYQ8yRoWoruIdfh/%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB%E3%82%A2%E3%83%97%E3%83%AA%EF%BC%88UI%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%EF%BC%89?node-id=0-1&t=M16lfRvmYPslhW64-1
 - ER図（Miro）：https://miro.com/app/board/uXjVHvT2QqA=/?share_link_id=410235941565
 
-※ 画面設計とER図は開発前に作成したものです。実装の過程で、使いやすさを優先して画面を一部変更し、レシピの人数（servings）などのカラムを追加しています。
+```mermaid
+erDiagram
+    User ||--o{ Recipe : "作成する"
+    User ||--o{ Planner : "登録する"
+    User ||--o{ ShoppingList : "持つ"
+    User ||--o| Budget : "持つ"
+    Recipe ||--o{ Planner : "献立に使われる"
+    Recipe |o--o{ ShoppingList : "由来になる"
+    Recipe ||--o{ RecipeIngredient : "材料を持つ"
+    Recipe ||--o{ Process : "手順を持つ"
+    Ingredient ||--o{ RecipeIngredient : "使われる"
+
+    User {
+        uuid id PK
+        string name
+        string email UK
+        Role role "CLIENT / ADMIN"
+        string iconImageKey
+    }
+    Recipe {
+        uuid id PK
+        string name
+        string recipeImageKey
+        string recipeUrl
+        boolean favorite
+        int servings "default 2"
+        uuid userId FK
+    }
+    ShoppingList {
+        uuid id PK
+        uuid userId FK
+        string name
+        string quantity
+        uuid recipeId FK "nullable（手入力のとき）"
+    }
+    RecipeIngredient {
+        uuid id PK
+        string quantity
+        uuid recipeId FK
+        uuid ingredientId FK
+    }
+    Ingredient {
+        uuid id PK
+        string name UK
+        string quantity
+    }
+    Process {
+        uuid id PK
+        int stepNumber
+        string description
+        uuid recipeId FK
+    }
+    Budget {
+        uuid id PK
+        int balance
+        uuid userId FK, UK
+    }
+    Planner {
+        uuid id PK
+        uuid recipeId FK
+        datetime date
+        uuid userId FK
+    }
+```
+
+※ 画面設計とER図は開発前に作成したものです。実装の過程で、使いやすさを優先して画面を一部変更しています。
 
 ### 主なテーブル
 
