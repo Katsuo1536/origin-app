@@ -30,7 +30,7 @@
 - レシピの登録・編集・削除（材料・分量・手順・人数）
 - お気に入り登録と、お気に入りだけの一覧表示
 - **AIによる人数変換**：人数を選ぶと、材料の分量を自動で換算
-- **AIによるレシピ作成**：材料名や料理の画像から、レシピの下書きを自動で作成（内容を確認してから保存）
+- **AIによるレシピ作成**：料理名・材料名・画像からレシピの下書きを自動で作成（内容を確認してから保存）
 
 ### 献立
 - レシピと日付を選んで献立を作成
@@ -58,6 +58,9 @@
 ## 設計
 
 - 画面設計（Figma）：https://www.figma.com/design/xXYINf8fYQ8yRoWoruIdfh/%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB%E3%82%A2%E3%83%97%E3%83%AA%EF%BC%88UI%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%EF%BC%89?node-id=0-1&t=M16lfRvmYPslhW64-1
+
+※ 画面設計は開発前に作成したものです。実装の過程で、使いやすさを優先して画面を一部変更しています。
+
 - ER図（Miro）：https://miro.com/app/board/uXjVHvT2QqA=/?share_link_id=410235941565
 
 ```mermaid
@@ -125,19 +128,17 @@ erDiagram
     }
 ```
 
-※ 画面設計とER図は開発前に作成したものです。実装の過程で、使いやすさを優先して画面を一部変更しています。
-
 ### 主なテーブル
 
 | テーブル | 役割 |
 |---|---|
-| Users | ユーザー情報（表示名・アイコン） |
-| Recipes | レシピ本体（人数・参考URL・お気に入り） |
+| User | ユーザー情報（表示名・アイコン） |
+| Recipe | レシピ本体（人数・参考URL・お気に入り） |
 | Ingredient | 材料マスター |
-| RecipesIngredient | レシピと材料の中間テーブル（レシピごとの分量） |
+| RecipeIngredient | レシピと材料の中間テーブル（レシピごとの分量） |
 | Process | 作り方の手順 |
-| Planners | 献立（日付とレシピ） |
-| ShoppingLists | 買い物リストのアイテム |
+| Planner | 献立（日付とレシピ） |
+| ShoppingList | 買い物リストのアイテム |
 | Budget | 予算・残高 |
 
 ## 工夫したところ
@@ -150,6 +151,48 @@ erDiagram
 ## 今後の課題
 
 - 買い物リストの、同じ材料のまとめ表示
+
+## 開発者向けセットアップ
+
+### 1. リポジトリをクローン
+```bash
+git clone https://github.com/Katsuo1536/origin-app.git
+cd origin-app
+```
+
+### 2. パッケージをインストール
+```bash
+npm install
+```
+
+### 3. 環境変数を設定
+`.env.local` を作成し、以下を設定します。
+
+```env
+DATABASE_URL=            # Supabase の接続文字列
+DIRECT_URL=              # マイグレーション用の接続文字列
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=   # Gemini API（Mastra で使用）
+```
+
+### 4. DBをセットアップ
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 5. 開発サーバーを起動
+```bash
+npm run dev
+```
+
+### その他のコマンド
+| コマンド | 内容 |
+| --- | --- |
+| `npm run build` | 本番ビルド |
+| `npm run lint` | ESLint |
+
 
 ## 開発者
 
