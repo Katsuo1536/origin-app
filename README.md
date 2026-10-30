@@ -191,7 +191,7 @@ npm run dev
 | コマンド | 内容 |
 | --- | --- |
 | `npm run build` | 本番ビルド |
-| `npm run lint` | ESLintによる静的解析 |
+| `npm run lint` | ESLint |
 
 
 ## 開発者
