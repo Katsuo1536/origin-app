@@ -128,6 +128,37 @@ erDiagram
     }
 ```
 
+- システム構成図
+
+```mermaid
+flowchart LR
+    user["ユーザー<br/>（ブラウザ）"]
+
+    subgraph vercel["Vercel"]
+        front["Next.js App Router<br/>画面（React / Tailwind CSS）"]
+        api["Route Handlers<br/>（/api/*）"]
+        mastra["Mastra<br/>AIエージェント"]
+        prisma["Prisma"]
+    end
+
+    subgraph supabase["Supabase"]
+        auth["Auth<br/>メール / Google"]
+        db[("PostgreSQL")]
+        storage["Storage<br/>レシピ画像・アイコン"]
+    end
+
+    gemini["Gemini API"]
+    github["GitHub"]
+
+    user --> front
+    front --> api
+    front --> auth
+    front --> storage
+    api --> prisma --> db
+    api --> mastra --> gemini
+    github -- "push で自動デプロイ" --> vercel
+```
+
 ### 主なテーブル
 
 | テーブル | 役割 |
@@ -166,7 +197,7 @@ npm install
 ```
 
 ### 3. 環境変数を設定
-`.env.local` を作成し、以下を設定します。
+`.env` を作成し、以下を設定します。
 
 ```env
 DATABASE_URL=            # Supabase の接続文字列
