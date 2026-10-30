@@ -152,6 +152,48 @@ erDiagram
 
 - 買い物リストの、同じ材料のまとめ表示
 
+## 開発者向けセットアップ
+
+### 1. リポジトリをクローン
+```bash
+git clone https://github.com/Katsuo1536/origin-app.git
+cd origin-app
+```
+
+### 2. パッケージをインストール
+```bash
+npm install
+```
+
+### 3. 環境変数を設定
+`.env.local` を作成し、以下を設定します。
+
+```env
+DATABASE_URL=            # Supabase の接続文字列
+DIRECT_URL=              # マイグレーション用の接続文字列
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=   # Gemini API（Mastra で使用）
+```
+
+### 4. DBをセットアップ
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 5. 開発サーバーを起動
+```bash
+npm run dev
+```
+
+### その他のコマンド
+| コマンド | 内容 |
+| --- | --- |
+| `npm run build` | 本番ビルド |
+| `npm run lint` | ESLintによる静的解析 |
+
+
 ## 開発者
 
 橋元 勝美
