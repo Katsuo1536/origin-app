@@ -58,6 +58,7 @@
 ## 設計
 
 - 画面設計（Figma）：https://www.figma.com/design/xXYINf8fYQ8yRoWoruIdfh/%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB%E3%82%A2%E3%83%97%E3%83%AA%EF%BC%88UI%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%EF%BC%89?node-id=0-1&t=M16lfRvmYPslhW64-1
+
 ※ 画面設計は開発前に作成したものです。実装の過程で、使いやすさを優先して画面を一部変更しています。
 
 - ER図（Miro）：https://miro.com/app/board/uXjVHvT2QqA=/?share_link_id=410235941565
