@@ -1,3 +1,5 @@
+![TABERUのトップ画面](./public/taberu_thumbnail_16x9.png)
+
 # TABERU（タベル）
 
 献立やレシピから、買い物リストを自動で作るWebアプリです。
