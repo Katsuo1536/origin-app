@@ -6,9 +6,10 @@ import { supabase } from '../_libs/supabase'
 import { useRouter } from 'next/navigation'
 import Image from "next/image";
 import { usePathname } from 'next/navigation'
+import { Tester } from './Tester';
 
 export const Header = () => {
-  
+
   const pathname = usePathname()
   const router = useRouter();
 
@@ -41,7 +42,7 @@ export const Header = () => {
                 <span className="text-gray-300  px-1 py-1 text-2xl">
                   {components.map(elem =>
                     <Link key={`${elem.link}`}
-                    href={`/${elem.link}`} className={`whitespace-nowrap text-lg px-0.5 md:text-2xl md:px-2 md:py-1 ${pathname.startsWith(`/${elem.link}`) ? 'text-orange-500 font-bold' : 'text-gray-300' }`}>
+                      href={`/${elem.link}`} className={`whitespace-nowrap text-lg px-0.5 md:text-2xl md:px-2 md:py-1 ${pathname.startsWith(`/${elem.link}`) ? 'text-orange-500 font-bold' : 'text-gray-300'}`}>
                       {elem.name}
                     </Link>
                   )}
@@ -63,10 +64,12 @@ export const Header = () => {
               <>
                 <button onClick={handleLogout} className="not-md:whitespace-nowrap text-white bg-green-400 border-2 border-green-400 rounded-lg px-1 py-1 text-xs md:text-xl">
                   ログアウト
-                  </button>
+                </button>
               </>
             ) : (
               <>
+                <Tester className='text-xl py-0.5' />
+
                 <Link href="/sign_in" className="text-gray-300 border-2 border-gray-300 rounded-lg px-1 py-1">
                   ログイン
                 </Link>
