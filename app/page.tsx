@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { time } from '@/app/_utils/time'
 import Link from 'next/link';
+import { Tester } from './_components/Tester';
 
 
 export default function Home() {
@@ -107,6 +108,8 @@ export default function Home() {
           className="w-full aspect-4/5 rounded-3xl shadow-lg" />
 
         <div className='grid grid-cols-1 justify-center gap-10 m-10'>
+
+          <Tester className=' text-2xl font-bold py-1' />
 
           <Link href="/sign_up" className="text-2xl text-center text-white bg-green-400 border-2 border-green-400 rounded-lg px-1 py-1">
             新規登録
