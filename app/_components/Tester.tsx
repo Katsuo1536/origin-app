@@ -1,3 +1,5 @@
+'use client'
+
 import { supabase } from "../_libs/supabase"
 import { useRouter } from "next/navigation"
 
