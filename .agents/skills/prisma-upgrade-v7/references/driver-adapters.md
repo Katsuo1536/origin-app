@@ -1,20 +1,20 @@
-# Driver Adapters
+# ドライバーアダプター
 
-Prisma v7 requires driver adapters for SQL database connections. This is the standard SQL execution path in current Prisma releases.
+Prisma v7 では、SQL のデータベースへの接続にドライバーアダプターが必須です。これが、今の Prisma のリリースでの標準の SQL の実行の流れです。
 
-MongoDB should not follow this path. There is no published MongoDB `@prisma/adapter-*` package, and MongoDB projects should remain on the latest Prisma 6.x release instead of trying to fit into the Prisma 7 SQL adapter model.
+MongoDB は、この流れに従わないでください。MongoDB 用の `@prisma/adapter-*` パッケージは公開されていません。MongoDB のプロジェクトは、Prisma 7 の SQL のアダプターの仕組みに無理に合わせようとせず、最新の Prisma 6.x のリリースのままにしてください。
 
-## Why Driver Adapters?
+## なぜドライバーアダプターなのか
 
-- No native engine binary in the Prisma Client SQL path
-- Smaller bundle size
-- Better serverless/edge compatibility
-- Uses native Node.js database drivers
-- More control over connection pooling
+- Prisma Client の SQL の流れに、ネイティブのエンジンのバイナリがない
+- バンドルのサイズが小さい
+- サーバーレスやエッジ環境との互換性が高い
+- Node.js のふつうのデータベースのドライバーを使う
+- コネクションプールを細かく制御できる
 
-## Available Adapters
+## 使えるアダプター
 
-| Database | Adapter Package | Underlying Driver |
+| データベース | アダプターのパッケージ | 下で使うドライバー |
 |----------|-----------------|-------------------|
 | PostgreSQL | `@prisma/adapter-pg` | `pg` |
 | MySQL / MariaDB | `@prisma/adapter-mariadb` | `mariadb` |
@@ -27,7 +27,7 @@ MongoDB should not follow this path. There is no published MongoDB `@prisma/adap
 | Turso/libSQL | `@prisma/adapter-libsql` | `@libsql/client` |
 | D1 (Cloudflare) | `@prisma/adapter-d1` | Cloudflare D1 |
 
-## Installation
+## インストール
 
 ### PostgreSQL
 
@@ -59,7 +59,7 @@ npm install @prisma/adapter-pg pg
 npm install @prisma/adapter-mssql mssql
 ```
 
-## Configuration
+## 設定
 
 ### PostgreSQL
 
@@ -105,7 +105,7 @@ const adapter = new PrismaBetterSqlite3({
 const prisma = new PrismaClient({ adapter })
 ```
 
-### Neon (Serverless PostgreSQL)
+### Neon（サーバーレスの PostgreSQL）
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -131,7 +131,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-### Prisma Postgres serverless driver
+### Prisma Postgres のサーバーレスのドライバー
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -165,47 +165,47 @@ const adapter = new PrismaMssql({
 const prisma = new PrismaClient({ adapter })
 ```
 
-## Connection Pool Configuration
+## コネクションプールの設定
 
-Driver adapters use the underlying driver's pool settings, which differ from v6 defaults.
+ドライバーアダプターは、下にあるドライバーのプールの設定を使います。これは v6 のデフォルトとは違います。
 
-### PostgreSQL with custom pool
+### プールを独自に設定した PostgreSQL
 
 ```typescript
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
-  // Pool configuration
-  max: 10,                    // Maximum connections
-  idleTimeoutMillis: 30000,   // Close idle connections after 30s
-  connectionTimeoutMillis: 5000, // Connection timeout (v6 default was 5s)
+  // プールの設定
+  max: 10,                    // 最大の接続数
+  idleTimeoutMillis: 30000,   // 使われていない接続を30秒後に閉じる
+  connectionTimeoutMillis: 5000, // 接続のタイムアウト（v6 のデフォルトは5秒だった）
 })
 ```
 
-### Matching v6 behavior
+### v6 の動きに合わせる
 
 ```typescript
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 5000,  // v6 used 5 second timeout
+  connectionTimeoutMillis: 5000,  // v6 は5秒のタイムアウトを使っていた
 })
 ```
 
-## SSL Configuration
+## SSL の設定
 
-### Accept self-signed certificates
+### 自己署名の証明書を受け入れる
 
 ```typescript
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false  // Accept self-signed certs
+    rejectUnauthorized: false  // 自己署名の証明書を受け入れる
   }
 })
 ```
 
-### Proper SSL configuration
+### 正しい SSL の設定
 
 ```typescript
 const adapter = new PrismaPg({
@@ -217,9 +217,9 @@ const adapter = new PrismaPg({
 })
 ```
 
-## Migration from v6
+## v6 からの移行
 
-### Before (v6)
+### 変更前（v6）
 
 ```typescript
 import { PrismaClient } from '@prisma/client'
@@ -231,7 +231,7 @@ const prisma = new PrismaClient({
 })
 ```
 
-### After (v7)
+### 変更後（v7）
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -244,7 +244,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-## Singleton Pattern
+## シングルトンのパターン
 
 ```typescript
 // lib/prisma.ts

@@ -1,10 +1,10 @@
-# ESM and CommonJS Support
+# ESM と CommonJS への対応
 
-Prisma ORM v7 is ESM-first, but the `prisma-client` generator can target either ESM or CommonJS. Use ESM by default, and opt into CommonJS with `moduleFormat = "cjs"` if your project still needs it.
+Prisma ORM v7 は ESM が基本ですが、`prisma-client` ジェネレーターは ESM と CommonJS のどちらも出力できます。デフォルトでは ESM を使い、プロジェクトでまだ必要なら `moduleFormat = "cjs"` で CommonJS を選びます。
 
-## ESM Projects
+## ESM のプロジェクト
 
-Add `"type": "module"` to `package.json` and use an ESM-compatible `tsconfig.json`:
+`package.json` に `"type": "module"` を追加し、ESM に対応した `tsconfig.json` を使います。
 
 ```json
 {
@@ -31,9 +31,9 @@ Add `"type": "module"` to `package.json` and use an ESM-compatible `tsconfig.jso
 }
 ```
 
-## CommonJS Projects
+## CommonJS のプロジェクト
 
-If the rest of your app is still CommonJS, keep that setup and make the generated Prisma Client CommonJS too:
+アプリのほかの部分がまだ CommonJS なら、その構成のままにして、生成される Prisma Client も CommonJS にします。
 
 ```json
 {
@@ -54,14 +54,14 @@ generator client {
 }
 ```
 
-## Generator Fields That Matter
+## 関係のある generator の項目
 
-- `moduleFormat`: `esm` or `cjs`
-- `runtime`: `nodejs`, `bun`, `deno`, `workerd`, `vercel-edge`, `react-native`
-- `generatedFileExtension`: `ts`, `mts`, or `cts`
-- `importFileExtension`: `ts`, `mts`, `cts`, `js`, `mjs`, `cjs`, or empty
+- `moduleFormat`：`esm` か `cjs`
+- `runtime`：`nodejs`、`bun`、`deno`、`workerd`、`vercel-edge`、`react-native`
+- `generatedFileExtension`：`ts`、`mts`、`cts`
+- `importFileExtension`：`ts`、`mts`、`cts`、`js`、`mjs`、`cjs`、または空
 
-Example:
+例：
 
 ```prisma
 generator client {
@@ -74,15 +74,15 @@ generator client {
 }
 ```
 
-## Import Paths
+## import のパス
 
-### Server Code
+### サーバーのコード
 
 ```typescript
 import { PrismaClient } from '../generated/prisma/client'
 ```
 
-### Browser-Safe Types
+### ブラウザーで使っても安全な型
 
 ```typescript
 import { Prisma } from '../generated/prisma/browser'
@@ -90,39 +90,39 @@ import { Role } from '../generated/prisma/enums'
 import type { UserModel } from '../generated/prisma/models/User'
 ```
 
-## File Extensions
+## ファイルの拡張子
 
-With `moduleResolution: "Node16"` or `"NodeNext"`, use `.js`/`.mjs`/`.cjs` extensions that match your emitted files.
+`moduleResolution: "Node16"` や `"NodeNext"` では、出力されるファイルに合った `.js`・`.mjs`・`.cjs` の拡張子を使います。
 
-With `moduleResolution: "bundler"`, bare relative imports are usually fine.
+`moduleResolution: "bundler"` では、拡張子なしの相対パスの import で、ふつうは問題ありません。
 
-## Minimum Versions
+## 最低限のバージョン
 
-| Requirement | Minimum Version |
+| 必要なもの | 最低限のバージョン |
 |-------------|-----------------|
 | Node.js | 20.19.0 |
 | TypeScript | 5.4.0 |
 
-## Framework Considerations
+## フレームワークごとの注意
 
 ### Next.js
 
-Next.js works well with the default ESM output. If you need generated types in client components, import them from `browser`, `models`, or `enums`, not from `client`.
+Next.js は、デフォルトの ESM の出力でうまく動きます。クライアントコンポーネントで生成された型が必要なら、`client` からではなく、`browser`、`models`、`enums` から import してください。
 
 ### Bun
 
-Bun loads `.env` files automatically, so ESM plus `env()` is the smoothest default. You can still choose `moduleFormat = "cjs"` if the rest of your project requires it.
+Bun は `.env` ファイルを自動で読み込むので、ESM と `env()` の組み合わせが一番スムーズなデフォルトです。プロジェクトのほかの部分が必要とするなら、`moduleFormat = "cjs"` も選べます。
 
-## Troubleshooting
+## トラブルシューティング
 
 ### "ERR_REQUIRE_ESM"
 
-Your generated client is ESM, but your app is requiring it as CommonJS. Either switch the project to ESM or set `moduleFormat = "cjs"` and regenerate.
+生成された Client は ESM なのに、アプリが CommonJS として require しています。プロジェクトを ESM に切り替えるか、`moduleFormat = "cjs"` を設定して生成し直してください。
 
 ### "Cannot use import statement outside a module"
 
-Your app is still being executed as CommonJS. Add `"type": "module"` or use `moduleFormat = "cjs"` instead.
+アプリがまだ CommonJS として実行されています。`"type": "module"` を追加するか、代わりに `moduleFormat = "cjs"` を使ってください。
 
-### TypeScript compilation errors
+### TypeScript のコンパイルのエラー
 
-Ensure `module`, `moduleResolution`, and your generator's `moduleFormat` agree with one another.
+`module`、`moduleResolution`、ジェネレーターの `moduleFormat` が、互いに合っていることを確認してください。

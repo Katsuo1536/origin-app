@@ -1,69 +1,69 @@
 # console-and-connections
 
-Use Prisma Console workflows for project visibility, data inspection, and connection setup.
+プロジェクトの状況の確認、データの確認、接続の準備には、Prisma Console での作業の流れを使います。
 
-## Priority
+## 優先度
 
-HIGH
+高（HIGH）
 
-## Why It Matters
+## なぜ大事か
 
-Many Prisma Postgres tasks are quickest in the Console: viewing Studio data, checking metrics, and retrieving connection details. This avoids unnecessary API or CLI work for simple operational tasks.
+Prisma Postgres の作業の多くは、Console で行うのが一番早く済みます。Studio でデータを見る、利用状況の数値を確認する、接続情報を取得する、などです。簡単な運用の作業で、API や CLI を使う手間をかけずに済みます。
 
-## Console workflow
+## Console での作業の流れ
 
-1. Open `https://console.prisma.io`.
-2. Select workspace and project.
-3. Use dashboard metrics for usage and billing visibility.
-4. Open the **Studio** tab in the sidebar to inspect and edit data.
+1. `https://console.prisma.io` を開く。
+2. ワークスペースとプロジェクトを選ぶ。
+3. ダッシュボードの数値で、利用状況と請求を確認する。
+4. サイドバーの **Studio** タブを開いて、データを確認・編集する。
 
-## Local Studio
+## ローカルの Studio
 
-You can also inspect data locally:
+ローカルでもデータを確認できます。
 
 ```bash
 npx prisma studio
 ```
 
-## Linking an existing project
+## 既存のプロジェクトをつなぐ
 
-If the Prisma Postgres database already exists, link the local project instead of provisioning a new one:
+Prisma Postgres のデータベースがすでにあれば、新しく用意せずに、ローカルのプロジェクトをつなぎます。
 
 ```bash
 prisma postgres link
 ```
 
-For CI or non-interactive usage:
+CI や対話なしで使うときは：
 
 ```bash
 prisma postgres link --api-key "<your-api-key>" --database "db_..."
 ```
 
-This command updates or creates `.env` with `DATABASE_URL`. If the project is already linked, use `--force` to re-link. After linking, run `prisma generate`, then `prisma migrate dev` if you need to apply the schema.
+このコマンドは、`DATABASE_URL` を入れた `.env` を更新、またはなければ作成します。プロジェクトがすでにつながっていれば、`--force` でつなぎ直します。つないだあとは `prisma generate` を実行し、スキーマを反映する必要があれば `prisma migrate dev` を実行します。
 
-## Connection setup
+## 接続の準備
 
-For direct PostgreSQL tools and drivers:
+PostgreSQL に直接つなぐツールやドライバーでは：
 
-- Generate/copy direct connection credentials from the project connection UI.
-- Use the resulting PostgreSQL URL as `DATABASE_URL` for `pg` and `@prisma/adapter-pg`.
-- For Prisma Postgres direct TCP, include `sslmode=require`.
+- プロジェクトの接続の画面で、直接つなぐための認証情報を生成・コピーする。
+- 得られた PostgreSQL の URL を、`pg` と `@prisma/adapter-pg` の `DATABASE_URL` として使う。
+- Prisma Postgres に TCP で直接つなぐときは、`sslmode=require` を入れる。
 
-Typical direct TCP format:
+TCP で直接つなぐときの、よくある形：
 
 ```env
 DATABASE_URL="postgres://identifier:key@db.prisma.io:5432/postgres?sslmode=require"
 ```
 
-Management API connection responses expose both `endpoints.direct` (`db.prisma.io:5432`) and `endpoints.pooled` (`pooled.db.prisma.io:5432`); prefer those fields over the deprecated flat `connectionString`. Connection secrets are shown once at creation (one-time view); store them immediately.
+Management API の接続についての返り値には、`endpoints.direct`（`db.prisma.io:5432`）と `endpoints.pooled`（`pooled.db.prisma.io:5432`）の両方があります。非推奨になった平らな `connectionString` よりも、これらの項目を使ってください。接続の秘密の情報は、作成したときに一度だけ表示されます。すぐに保存してください。
 
-## Adapter choices
+## アダプターの選び方
 
-- Standard Node.js apps: prefer `@prisma/adapter-pg` with the direct TCP URL above.
-- Edge/serverless runtimes: use `@prisma/adapter-ppg` with `@prisma/ppg` only when you specifically need the Prisma Postgres serverless driver.
+- ふつうの Node.js のアプリ：上の TCP で直接つなぐ URL と一緒に、`@prisma/adapter-pg` を使うのがおすすめ。
+- エッジ・サーバーレスのランタイム：Prisma Postgres のサーバーレスのドライバーがどうしても必要なときだけ、`@prisma/adapter-ppg` と `@prisma/ppg` を使う。
 
-## References
+## 参考
 
-- [Prisma Postgres overview](https://www.prisma.io/docs/postgres/introduction/overview)
-- [Viewing data](https://www.prisma.io/docs/postgres/integrations/viewing-data)
-- [Direct connections](https://www.prisma.io/docs/postgres/database/direct-connections)
+- [Prisma Postgres の概要](https://www.prisma.io/docs/postgres/introduction/overview)
+- [データを見る](https://www.prisma.io/docs/postgres/integrations/viewing-data)
+- [直接の接続](https://www.prisma.io/docs/postgres/database/direct-connections)

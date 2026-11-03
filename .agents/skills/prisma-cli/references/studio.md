@@ -1,137 +1,137 @@
 # prisma studio
 
-Opens a visual database browser for viewing and editing data.
+データを見たり編集したりできる、画面付きのデータベースブラウザーを開きます。
 
-## Command
+## コマンド
 
 ```bash
 prisma studio [options]
 ```
 
-## What It Does
+## できること
 
-- Starts a web-based database GUI
-- View all your models and records
-- Create, update, and delete records
-- Filter and sort data
-- Navigate relations
+- ブラウザーで使えるデータベースの GUI を起動する
+- すべてのモデルとレコードを見る
+- レコードの作成・更新・削除
+- データの絞り込みと並べ替え
+- リレーションをたどる
 
-## Options
+## オプション
 
-| Option | Description | Default |
+| オプション | 説明 | デフォルト |
 |--------|-------------|---------|
-| `--port` / `-p` | Port to start Studio on | `5555` |
-| `--browser` / `-b` | Browser to open Studio in | System default |
-| `--config` | Custom path to your Prisma config file | - |
-| `--url` | Database connection string (overrides the one in your Prisma config) | - |
+| `--port` / `-p` | Studio を起動するポート | `5555` |
+| `--browser` / `-b` | Studio を開くブラウザー | システムの標準 |
+| `--config` | Prisma の設定ファイルの場所を指定する | - |
+| `--url` | データベースの接続文字列（Prisma の設定にあるものを上書きする） | - |
 
-## Examples
+## 使用例
 
-### Open Studio
+### Studio を開く
 
 ```bash
 prisma studio
 ```
 
-Opens at http://localhost:5555
+http://localhost:5555 で開きます。
 
-### Custom port
+### ポートを指定する
 
 ```bash
 prisma studio --port 3000
 ```
 
-### Specific browser
+### ブラウザーを指定する
 
 ```bash
 prisma studio --browser firefox
 ```
 
-### Don't open browser
+### ブラウザーを開かない
 
 ```bash
 BROWSER=none prisma studio
 ```
 
-Useful for remote servers.
+リモートのサーバーで便利です。
 
-## Features
+## 機能
 
-### View Records
+### レコードを見る
 
-- See all records in table format
-- Pagination for large datasets
-- Column sorting
+- すべてのレコードを表の形で見る
+- 大量のデータはページ分け
+- 列での並べ替え
 
-### Filter Data
+### データを絞り込む
 
-- Filter by any field
-- Multiple conditions
-- Relation filtering
+- どのフィールドでも絞り込める
+- 複数の条件
+- リレーションでの絞り込み
 
-### Edit Records
+### レコードを編集する
 
-- Click to edit inline
-- Add new records
-- Delete records (with confirmation)
+- クリックしてその場で編集
+- 新しいレコードを追加
+- レコードを削除（確認あり）
 
-### Navigate Relations
+### リレーションをたどる
 
-- Click relations to view related records
-- See counts of related items
-- Follow relation links
+- リレーションをクリックして、関連するレコードを見る
+- 関連する項目の数を見る
+- リレーションのリンクをたどる
 
-## Recent Studio Capabilities
+## 最近の Studio の機能
 
-Recent Prisma Studio releases added richer editor workflows:
+最近の Prisma Studio のリリースで、編集の機能が充実しました。
 
-- multi-cell selection and editing
-- full-table search and more intuitive filtering
-- command palette shortcuts
-- dark mode
-- copy selections as Markdown
-- back-relation navigation
-- SQL workflows including raw SQL queries
+- 複数のセルの選択と編集
+- 表全体の検索と、わかりやすくなった絞り込み
+- コマンドパレットのショートカット
+- ダークモード
+- 選択した部分を Markdown としてコピー
+- 逆向きのリレーションをたどる
+- 生の SQL クエリを含む SQL の作業
 
-Some recent builds also expose AI-assisted SQL authoring. Treat these as interactive Studio features rather than a replacement for checked-in migrations or application queries.
+最近のビルドには、AI が SQL を書く手助けをする機能もあります。これらは Studio の対話的な機能として扱い、コミット済みのマイグレーションやアプリのクエリの代わりにはしないでください。
 
-## Use Cases
+## 使いどころ
 
-- **Development**: Quick data inspection
-- **Debugging**: Check data state
-- **Testing**: Verify seed data
-- **Demo**: Show data to stakeholders
+- **開発**：データをすばやく確認する
+- **デバッグ**：データの状態を確認する
+- **テスト**：シードデータを確認する
+- **デモ**：関係者にデータを見せる
 
-## Limitations
+## 制限
 
-- Development tool only
-- Not for production use
-- Limited to configured database
-- Prisma Studio in Prisma 7 currently targets PostgreSQL, MySQL, and SQLite first
-- For reproducible application logic, prefer Prisma Client and checked-in SQL scripts
+- 開発用のツールです
+- 本番環境では使わない
+- 設定したデータベースしか扱えない
+- Prisma 7 の Prisma Studio は、今のところ PostgreSQL、MySQL、SQLite を優先して対応している
+- 再現できるアプリのロジックには、Prisma Client とコミット済みの SQL スクリプトを使う
 
-## Common Workflow
+## よくある流れ
 
-1. Run migrations:
+1. マイグレーションを実行する：
    ```bash
    prisma migrate dev
    ```
 
-2. Seed data:
+2. シードデータを入れる：
    ```bash
    prisma db seed
    ```
 
-3. Open Studio to verify:
+3. Studio を開いて確認する：
    ```bash
    prisma studio
    ```
 
-4. Make manual edits if needed
+4. 必要なら手で編集する
 
-## Security Note
+## セキュリティの注意
 
-Studio provides direct database access. Only run on:
-- Local development machines
-- Secure internal networks
-- Never expose publicly
+Studio はデータベースに直接アクセスできます。次の環境でだけ使ってください。
+- ローカルの開発用のパソコン
+- 安全な社内ネットワーク
+- 絶対に外部に公開しない

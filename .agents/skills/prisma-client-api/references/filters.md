@@ -1,62 +1,62 @@
-# Filter Conditions and Operators
+# 絞り込みの条件と演算子
 
-Filter operators for the `where` clause.
+`where` で使う絞り込みの演算子です。
 
-## Equality
+## 等しい
 
 ```typescript
-// Exact match (implicit)
+// 完全に一致する（省略形）
 where: { email: 'alice@prisma.io' }
 
-// Explicit equals
+// equals を明示する
 where: { email: { equals: 'alice@prisma.io' } }
 
-// Not equal
+// 等しくない
 where: { email: { not: 'alice@prisma.io' } }
 ```
 
-## Comparison
+## 比較
 
 ```typescript
-// Greater than
+// より大きい
 where: { age: { gt: 18 } }
 
-// Greater than or equal
+// 以上
 where: { age: { gte: 18 } }
 
-// Less than
+// より小さい
 where: { age: { lt: 65 } }
 
-// Less than or equal
+// 以下
 where: { age: { lte: 65 } }
 
-// Combined
+// 組み合わせ
 where: { age: { gte: 18, lte: 65 } }
 ```
 
-## Lists
+## リスト
 
 ```typescript
-// In array
+// 配列のどれかに含まれる
 where: { role: { in: ['ADMIN', 'MODERATOR'] } }
 
-// Not in array
+// 配列のどれにも含まれない
 where: { role: { notIn: ['GUEST', 'BANNED'] } }
 ```
 
-## String Filters
+## 文字列の絞り込み
 
 ```typescript
-// Contains
+// 含む
 where: { email: { contains: 'prisma' } }
 
-// Starts with
+// で始まる
 where: { email: { startsWith: 'alice' } }
 
-// Ends with
+// で終わる
 where: { email: { endsWith: '@prisma.io' } }
 
-// Case-insensitive (default for some databases)
+// 大文字・小文字を区別しない（データベースによってはこれがデフォルト）
 where: { 
   email: { 
     contains: 'PRISMA',
@@ -65,32 +65,32 @@ where: {
 }
 ```
 
-## Null Checks
+## null の確認
 
 ```typescript
-// Is null
+// null である
 where: { deletedAt: null }
 
-// Is not null
+// null でない
 where: { deletedAt: { not: null } }
 
-// Using isSet (for optional fields)
+// isSet を使う（省略できるフィールド向け）
 where: { middleName: { isSet: true } }
 ```
 
-## Logical Operators
+## 論理演算子
 
-### AND (implicit)
+### AND（省略形）
 
 ```typescript
-// Multiple conditions = AND
+// 条件を複数並べる = AND
 where: {
   email: { contains: '@prisma.io' },
   role: 'ADMIN'
 }
 ```
 
-### AND (explicit)
+### AND（明示）
 
 ```typescript
 where: {
@@ -121,7 +121,7 @@ where: {
   }
 }
 
-// Multiple NOT conditions
+// NOT の条件を複数
 where: {
   NOT: [
     { role: 'GUEST' },
@@ -130,7 +130,7 @@ where: {
 }
 ```
 
-### Combined
+### 組み合わせ
 
 ```typescript
 where: {
@@ -147,14 +147,14 @@ where: {
 }
 ```
 
-## Relation Filters
+## リレーションの絞り込み
 
 ### some
 
-At least one related record matches:
+関連するレコードのうち、1件以上が条件に合う：
 
 ```typescript
-// Users with at least one published post
+// 公開済みの投稿が1件以上あるユーザー
 where: {
   posts: {
     some: { published: true }
@@ -164,10 +164,10 @@ where: {
 
 ### every
 
-All related records match:
+関連するレコードがすべて条件に合う：
 
 ```typescript
-// Users where all posts are published
+// 投稿がすべて公開済みのユーザー
 where: {
   posts: {
     every: { published: true }
@@ -177,10 +177,10 @@ where: {
 
 ### none
 
-No related records match:
+関連するレコードが1件も条件に合わない：
 
 ```typescript
-// Users with no published posts
+// 公開済みの投稿が1件もないユーザー
 where: {
   posts: {
     none: { published: true }
@@ -188,17 +188,17 @@ where: {
 }
 ```
 
-### is / isNot (1-to-1)
+### is / isNot（1対1）
 
 ```typescript
-// Users with profile in specific country
+// 特定の国のプロフィールを持つユーザー
 where: {
   profile: {
     is: { country: 'USA' }
   }
 }
 
-// Users without profile
+// プロフィールのないユーザー
 where: {
   profile: {
     isNot: null
@@ -206,28 +206,28 @@ where: {
 }
 ```
 
-## Array Field Filters
+## 配列のフィールドの絞り込み
 
-For fields like `String[]`:
+`String[]` のようなフィールド向け：
 
 ```typescript
-// Has element
+// 要素を持つ
 where: { tags: { has: 'typescript' } }
 
-// Has some elements
+// どれかの要素を持つ
 where: { tags: { hasSome: ['typescript', 'javascript'] } }
 
-// Has every element
+// すべての要素を持つ
 where: { tags: { hasEvery: ['typescript', 'prisma'] } }
 
-// Is empty
+// 空である
 where: { tags: { isEmpty: true } }
 ```
 
-## JSON Filters
+## JSON の絞り込み
 
 ```typescript
-// Path-based filter
+// パスを指定した絞り込み
 where: {
   metadata: {
     path: ['settings', 'theme'],
@@ -235,7 +235,7 @@ where: {
   }
 }
 
-// String contains in JSON
+// JSON の中の文字列が含む
 where: {
   metadata: {
     path: ['bio'],
@@ -244,10 +244,10 @@ where: {
 }
 ```
 
-## Full-Text Search
+## 全文検索
 
 ```typescript
-// Requires @@fulltext index
+// @@fulltext インデックスが必要
 where: {
   content: {
     search: 'prisma database'

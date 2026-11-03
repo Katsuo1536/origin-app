@@ -1,13 +1,13 @@
-# Removed Features
+# なくなった機能
 
-Several features have been removed in Prisma v7. Here's how to migrate.
+Prisma v7 では、いくつかの機能がなくなりました。移行の方法を説明します。
 
-## Client Middleware
+## Client のミドルウェア
 
-### Removed
+### なくなったもの
 
 ```typescript
-// ❌ No longer works in v7
+// ❌ v7 ではもう動かない
 prisma.$use(async (params, next) => {
   const before = Date.now()
   const result = await next(params)
@@ -17,10 +17,10 @@ prisma.$use(async (params, next) => {
 })
 ```
 
-### Use Client Extensions Instead
+### 代わりに Client Extensions を使う
 
 ```typescript
-// ✅ v7 approach
+// ✅ v7 での方法
 const prisma = new PrismaClient({ adapter }).$extends({
   query: {
     $allModels: {
@@ -36,23 +36,23 @@ const prisma = new PrismaClient({ adapter }).$extends({
 })
 ```
 
-### Common Middleware Patterns
+### よくあるミドルウェアのパターン
 
-#### Soft delete
+#### 論理削除（ソフトデリート）
 
 ```typescript
 const prisma = new PrismaClient({ adapter }).$extends({
   query: {
     user: {
       async delete({ args, query }) {
-        // Convert delete to soft delete
+        // 削除を論理削除に置き換える
         return prisma.user.update({
           where: args.where,
           data: { deletedAt: new Date() },
         })
       },
       async findMany({ args, query }) {
-        // Filter out soft-deleted records
+        // 論理削除されたレコードを除く
         args.where = { ...args.where, deletedAt: null }
         return query(args)
       },
@@ -61,7 +61,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
 })
 ```
 
-#### Logging
+#### ログ
 
 ```typescript
 const prisma = new PrismaClient({ adapter }).$extends({
@@ -76,20 +76,20 @@ const prisma = new PrismaClient({ adapter }).$extends({
 })
 ```
 
-## Metrics
+## メトリクス
 
-### Removed
+### なくなったもの
 
-The Metrics preview feature has been removed.
+メトリクスのプレビュー機能はなくなりました。
 
 ```typescript
-// ❌ No longer works
+// ❌ もう動かない
 const metrics = await prisma.$metrics.json()
 ```
 
-### Alternatives
+### 代わりの方法
 
-#### Custom counter with extensions
+#### 拡張機能で独自のカウンターを作る
 
 ```typescript
 let totalQueries = 0
@@ -110,65 +110,65 @@ const prisma = new PrismaClient({ adapter }).$extends({
   },
 })
 
-// Usage
+// 使い方
 const count = await prisma.$totalQueries()
 ```
 
-#### Use driver-level metrics
+#### ドライバーのメトリクスを使う
 
-Access metrics from the underlying driver adapter.
+下にあるドライバーアダプターから、メトリクスを取得します。
 
-## CLI Flags Removed
+## なくなった CLI のフラグ
 
 ### --skip-generate
 
-Removed from `migrate dev` and `db push`.
+`migrate dev` と `db push` からなくなりました。
 
 ```bash
 # v6
 prisma migrate dev --skip-generate
 
-# v7 - generate is not run automatically
+# v7 - generate は自動で実行されない
 prisma migrate dev
-prisma generate  # Run explicitly if needed
+prisma generate  # 必要なら明示的に実行する
 ```
 
-Local verification with Prisma `7.6.0` showed no generated client files emitted by `migrate dev` or `db push`, even though some CLI help text still says `migrate dev` "trigger[s] generators".
+Prisma `7.6.0` でローカルで確かめたところ、CLI のヘルプの一部には今も `migrate dev` が "trigger[s] generators"（ジェネレーターを実行する）と書かれているものの、`migrate dev` や `db push` で Client のファイルは生成されませんでした。
 
 ### --skip-seed
 
-Removed from `migrate dev`. More importantly, Prisma v7 no longer auto-runs seeds during `migrate dev` or `migrate reset`, so seed explicitly when you need it.
+`migrate dev` からなくなりました。もっと大事なのは、Prisma v7 では `migrate dev` や `migrate reset` のときにシードが自動で実行されなくなったことです。必要なときは明示的にシードを実行してください。
 
 ```bash
 # v6
 prisma migrate dev --skip-seed
 
-# v7 - seed is not run automatically
+# v7 - シードは自動で実行されない
 prisma migrate dev
-prisma db seed  # Run explicitly if needed
+prisma db seed  # 必要なら明示的に実行する
 ```
 
-### --schema and --url from db execute
+### db execute の --schema と --url
 
 ```bash
 # v6
 prisma db execute --file ./script.sql --url "$DATABASE_URL"
 
-# v7 - configure in prisma.config.ts
+# v7 - prisma.config.ts で設定する
 prisma db execute --file ./script.sql
 ```
 
-## migrate diff Options
+## migrate diff のオプション
 
-| Removed | Replacement |
+| なくなったもの | 置き換え |
 |---------|-------------|
 | `--from-url` | `--from-config-datasource` |
 | `--to-url` | `--to-config-datasource` |
 | `--from-schema-datasource` | `--from-config-datasource` |
 | `--to-schema-datasource` | `--to-config-datasource` |
-| `--shadow-database-url` | Configure in `prisma.config.ts` |
+| `--shadow-database-url` | `prisma.config.ts` で設定する |
 
-### Example
+### 例
 
 ```bash
 # v6
@@ -178,27 +178,27 @@ prisma migrate diff --from-url "$DATABASE_URL" --to-schema schema.prisma
 prisma migrate diff --from-config-datasource --to-schema schema.prisma
 ```
 
-## Automatic Behaviors Removed
+## なくなった自動の動き
 
-### Auto-generate after migrate
+### migrate のあとの自動の生成
 
 ```bash
-# v7 workflow
+# v7 での作業の流れ
 prisma migrate dev --name add_field
-prisma generate  # Must run explicitly
+prisma generate  # 明示的に実行する必要がある
 ```
 
-### Auto-seed after migrate
+### migrate のあとの自動のシード
 
 ```bash
-# v7 workflow
+# v7 での作業の流れ
 prisma migrate reset --force
-prisma db seed  # Must run explicitly
+prisma db seed  # 明示的に実行する必要がある
 ```
 
 ## Prisma.validator
 
-The `prisma-client` generator no longer exposes `Prisma.validator`. Use TypeScript's `satisfies` operator instead.
+`prisma-client` ジェネレーターには、`Prisma.validator` がなくなりました。代わりに TypeScript の `satisfies` 演算子を使ってください。
 
 ```typescript
 import { Prisma } from '../generated/prisma/client'
@@ -211,15 +211,15 @@ const userSelect = {
 
 ## rejectOnNotFound
 
-Removed in v5.0.0 (already deprecated).
+v5.0.0 でなくなりました（すでに非推奨だった）。
 
 ```typescript
-// ❌ Removed
+// ❌ なくなった
 const prisma = new PrismaClient({
   rejectOnNotFound: true,
 })
 
-// ✅ Use OrThrow methods
+// ✅ OrThrow のメソッドを使う
 const user = await prisma.user.findUniqueOrThrow({
   where: { id: 1 },
 })

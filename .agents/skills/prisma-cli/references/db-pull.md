@@ -1,60 +1,60 @@
 # prisma db pull
 
-Introspects an existing database and updates your Prisma schema to reflect its structure.
+既存のデータベースの構造を読み取り（イントロスペクション）、その内容に合わせてPrismaのスキーマを更新します。
 
-## Command
+## コマンド
 
 ```bash
 prisma db pull [options]
 ```
 
-## What It Does
+## できること
 
-- Connects to your database
-- Reads the database schema (tables, columns, relations, indexes)
-- Updates `schema.prisma` with corresponding Prisma models
-- For MongoDB, samples data to infer schema
+- データベースに接続する
+- データベースのスキーマ（テーブル・カラム・リレーション・インデックス）を読み取る
+- それに対応するPrismaモデルで `schema.prisma` を更新する
+- MongoDBの場合は、データを抜き出して調べ、スキーマを推測する
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--force` | Ignore current Prisma schema file |
-| `--print` | Print the introspected Prisma schema to stdout |
-| `--schema` | Custom path to your Prisma schema |
-| `--config` | Custom path to your Prisma config file |
-| `--url` | Override the datasource URL from the Prisma config file |
-| `--composite-type-depth` | Specify the depth for introspecting composite types (default: -1 for infinite, 0 = off) |
-| `--schemas` | Specify the database schemas to introspect |
-| `--local-d1` | Generate a Prisma schema from a local Cloudflare D1 database |
+| `--force` | 今のPrismaスキーマファイルを無視する |
+| `--print` | 読み取ったPrismaスキーマを、ファイルに書かずに画面（標準出力）に表示する |
+| `--schema` | Prismaスキーマの場所を指定する |
+| `--config` | Prismaの設定ファイルの場所を指定する |
+| `--url` | 設定ファイルのデータソースURLの代わりに、このURLを使う |
+| `--composite-type-depth` | 複合型をどの深さまで読み取るかを指定する（デフォルトは -1＝無制限、0＝読み取らない） |
+| `--schemas` | 読み取るデータベースのスキーマを指定する |
+| `--local-d1` | ローカルの Cloudflare D1 データベースからPrismaスキーマを作る |
 
-## Examples
+## 使用例
 
-### Basic introspection
+### 基本の読み取り
 
 ```bash
 prisma db pull
 ```
 
-### Preview without writing
+### 書き込まずに確認する
 
 ```bash
 prisma db pull --print
 ```
 
-Outputs schema to terminal for review.
+スキーマをターミナルに表示するだけなので、中身を確認できます。
 
-### Force overwrite
+### 強制的に上書きする
 
 ```bash
 prisma db pull --force
 ```
 
-Replaces schema file, losing any manual customizations.
+スキーマファイルを丸ごと置き換えます。手で加えた変更は消えます。
 
-## Prerequisites
+## 事前の準備
 
-Configure database connection in `prisma.config.ts`:
+`prisma.config.ts` でデータベースの接続先を設定しておきます。
 
 ```typescript
 import 'dotenv/config'
@@ -68,44 +68,44 @@ export default defineConfig({
 })
 ```
 
-## Workflow
+## 作業の流れ
 
-### Starting from existing database
+### 既存のデータベースから始める場合
 
-1. Initialize Prisma:
+1. Prismaを初期化する
    ```bash
    prisma init
    ```
 
-2. Configure database URL
+2. データベースのURLを設定する
 
-3. Pull schema:
+3. スキーマを取り込む
    ```bash
    prisma db pull
    ```
 
-4. Review and customize generated schema
+4. できたスキーマを確認して、手直しする
 
-5. Generate client:
+5. クライアントを生成する
    ```bash
    prisma generate
    ```
 
-### Syncing changes from database
+### データベース側の変更を取り込む場合
 
-When database changes are made outside Prisma:
+Prismaを使わずにデータベースを変更したときは、次を実行します。
 
 ```bash
 prisma db pull
 prisma generate
 ```
 
-## Generated Schema Example
+## 生成されるスキーマの例
 
-Database tables become Prisma models:
+データベースのテーブルが、Prismaのモデルになります。
 
 ```sql
--- Database tables
+-- データベースのテーブル
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE posts (
 );
 ```
 
-Becomes:
+これが次のようになります。
 
 ```prisma
 model users {
@@ -137,49 +137,49 @@ model posts {
 }
 ```
 
-## Post-Introspection Cleanup
+## 読み取ったあとの手直し
 
-After `db pull`, consider:
+`db pull` のあとは、次の手直しを検討してください。
 
-1. **Rename models** to PascalCase:
+1. **モデル名をパスカルケースにする**
    ```prisma
-   model User {  // Was: users
+   model User {  // 元は users
      @@map("users")
    }
    ```
 
-2. **Rename fields** to camelCase:
+2. **フィールド名をキャメルケースにする**
    ```prisma
    authorId Int? @map("author_id")
    ```
 
-3. **Add relation names** for clarity:
+3. **分かりやすいようにリレーション名を付ける**
    ```prisma
    author User? @relation("PostAuthor", fields: [authorId], references: [id])
    ```
 
-4. **Add documentation**:
+4. **説明コメントを付ける**
    ```prisma
-   /// User account information
+   /// ユーザーアカウントの情報
    model User {
-     /// Primary email for authentication
+     /// 認証に使うメインのメールアドレス
      email String @unique
    }
    ```
 
-## MongoDB Introspection
+## MongoDBの場合
 
-For MongoDB, `db pull` samples documents to infer schema:
+MongoDBでは、`db pull` はドキュメントを抜き出して調べ、スキーマを推測します。
 
 ```bash
 prisma db pull
 ```
 
-May require manual refinement since MongoDB is schemaless.
+MongoDBにはスキーマがないので、手で直す必要が出ることがあります。
 
-## Warning
+## 注意
 
-`db pull` overwrites your schema file. Always:
-- Commit current schema before pulling
-- Use `--print` to preview first
-- Backup customizations you want to keep
+`db pull` はスキーマファイルを上書きします。必ず次を守ってください。
+- 取り込む前に、今のスキーマをコミットしておく
+- まず `--print` で中身を確認する
+- 残したい手直しはバックアップしておく

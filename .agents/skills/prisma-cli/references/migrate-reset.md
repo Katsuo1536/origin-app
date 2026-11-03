@@ -1,67 +1,67 @@
 # prisma migrate reset
 
-Resets your database and re-applies all migrations.
+データベースをリセットして、すべてのマイグレーションを適用し直します。
 
-## Command
+## コマンド
 
 ```bash
 prisma migrate reset [options]
 ```
 
-## What It Does
+## できること
 
-1. **Drops** the database (if possible) or deletes all data/tables
-2. **Re-creates** the database
-3. **Applies** all migrations from `prisma/migrations/`
-4. Stops there - run seed and generate explicitly if needed
+1. データベースを**削除**する（できる場合）。できなければ、すべてのデータとテーブルを消す
+2. データベースを**作り直す**
+3. `prisma/migrations/` のすべてのマイグレーションを**適用**する
+4. ここで終わる。必要なら、シードと generate は明示的に実行する
 
-**Warning: All data will be lost.**
+**注意：すべてのデータが失われます。**
 
-When Prisma detects an AI agent, this command is blocked until the user gives explicit consent. Follow `agent-safety.md`; `--force` skips the ordinary prompt but does not constitute user consent for an agent.
+Prisma が AI エージェントによる実行だと判断すると、ユーザーがはっきり同意するまで、このコマンドは止められます。`agent-safety.md` に従ってください。`--force` は通常の確認をとばしますが、エージェントにとってのユーザーの同意にはなりません。
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--force` / `-f` | Skip confirmation prompt |
-| `--schema` | Path to schema file |
-| `--config` | Custom path to your Prisma config file |
+| `--force` / `-f` | 確認をとばす |
+| `--schema` | スキーマファイルの場所 |
+| `--config` | Prisma の設定ファイルの場所を指定する |
 
-## Examples
+## 使用例
 
-### Basic reset
+### 基本のリセット
 
 ```bash
 prisma migrate reset
 ```
 
-Prompts for confirmation in interactive terminals.
+対話できるターミナルでは、確認を求めてきます。
 
-### Force reset (CI/Automation)
+### 強制リセット（CI・自動化）
 
 ```bash
 prisma migrate reset --force
 ```
 
-### With custom schema
+### スキーマを指定する
 
 ```bash
 prisma migrate reset --schema=./custom/schema.prisma
 ```
 
-## When to Use
+## 使う場面
 
-- **Development**: When you want a fresh start
-- **Testing**: Resetting test database before suites
-- **Drift Recovery**: When the database is out of sync and you can't migrate
+- **開発**：まっさらな状態からやり直したいとき
+- **テスト**：テストを流す前に、テスト用のデータベースをリセットする
+- **ずれからの復旧**：データベースが同期していなくて、マイグレーションできないとき
 
-## Follow-up Steps
+## そのあとの手順
 
-Run `prisma generate` and `prisma db seed` explicitly when you need refreshed client output or seed data after a reset.
+リセットのあとに最新の Client の出力やシードデータが必要なら、`prisma generate` と `prisma db seed` を明示的に実行してください。
 
-## Configuration
+## 設定
 
-Configure the seed script in `prisma.config.ts`, then run it explicitly after reset:
+シードスクリプトを `prisma.config.ts` で設定して、リセットのあとに明示的に実行します。
 
 ```typescript
 export default defineConfig({
@@ -71,7 +71,7 @@ export default defineConfig({
 })
 ```
 
-Typical workflow:
+よくある流れ：
 
 ```bash
 prisma migrate reset --force

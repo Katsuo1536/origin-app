@@ -1,14 +1,14 @@
-# CockroachDB Setup
+# CockroachDB の準備
 
-Configure Prisma with CockroachDB.
+CockroachDB で Prisma を設定します。
 
-## Prerequisites
+## 前提条件
 
-- CockroachDB cluster
+- CockroachDB のクラスター
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
@@ -21,9 +21,9 @@ generator client {
 }
 ```
 
-## 2. Config Configuration
+## 2. 設定ファイルの設定
 
-In `prisma.config.ts`:
+`prisma.config.ts` に書きます。
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -36,26 +36,26 @@ export default defineConfig({
 })
 ```
 
-## 3. Environment Variable
+## 3. 環境変数
 
-In `.env`:
+`.env` に書きます。
 
 ```env
 DATABASE_URL="postgresql://user:password@host:26257/db?sslmode=verify-full"
 ```
 
-Note: CockroachDB uses the PostgreSQL wire protocol, so the URL often looks like postgresql, but the provider **MUST** be `cockroachdb` in the schema to handle specific CRDB features correctly.
+注意：CockroachDB は PostgreSQL の通信プロトコルを使うので、URL は postgresql のように見えることがよくあります。ただし、CRDB 固有の機能を正しく扱うために、スキーマのプロバイダーは**必ず** `cockroachdb` にしてください。
 
-## Driver Adapter
+## ドライバーアダプター
 
-Use a driver adapter for the standard SQL workflow. CockroachDB is PostgreSQL-compatible, so use the PostgreSQL adapter.
+標準の SQL の流れでは、ドライバーアダプターを使います。CockroachDB は PostgreSQL と互換性があるので、PostgreSQL のアダプターを使います。
 
-1. Install adapter and driver:
+1. アダプターとドライバーをインストールする：
    ```bash
    npm install @prisma/adapter-pg pg
    ```
 
-2. Instantiate Prisma Client with the adapter:
+2. アダプターを使って Prisma Client のインスタンスを作る：
    ```typescript
    import 'dotenv/config'
    import { PrismaClient } from '../generated/client'
@@ -65,17 +65,17 @@ Use a driver adapter for the standard SQL workflow. CockroachDB is PostgreSQL-co
    const prisma = new PrismaClient({ adapter })
    ```
 
-## ID Generation
+## ID の生成
 
-CockroachDB uses `BigInt` or `UUID` for IDs efficiently.
+CockroachDB では、ID に `BigInt` や `UUID` を使うと効率的です。
 
 ```prisma
 model User {
-  id BigInt @id @default(autoincrement()) // Uses unique_rowid()
+  id BigInt @id @default(autoincrement()) // unique_rowid() を使う
 }
 ```
 
-Or using string UUIDs:
+文字列の UUID を使う場合：
 
 ```prisma
 model User {
@@ -83,7 +83,7 @@ model User {
 }
 ```
 
-## Common Issues
+## よくある問題
 
-### Schema Introspection
-Always use `provider = "cockroachdb"` to ensure correct type mapping during `db pull`.
+### スキーマの取り込み（イントロスペクション）
+`db pull` のときに型が正しく対応付けられるように、必ず `provider = "cockroachdb"` を使ってください。

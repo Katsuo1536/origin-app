@@ -1,53 +1,53 @@
 # prisma validate
 
-Validates your Prisma schema file.
+Prisma のスキーマファイルを検証します。
 
-## Command
+## コマンド
 
 ```bash
 prisma validate [options]
 ```
 
-## What It Does
+## できること
 
-- Parses the `schema.prisma` file
-- Checks for syntax errors
-- Validates model definitions, relations, and types
-- Reports any errors or warnings without generating code
+- `schema.prisma` ファイルを読み取る
+- 構文のエラーを確認する
+- モデルの定義、リレーション、型を検証する
+- コードは生成せずに、エラーや警告を報告する
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--schema` | Path to schema file |
-| `--config` | Custom path to your Prisma config file |
+| `--schema` | スキーマファイルの場所 |
+| `--config` | Prisma の設定ファイルの場所を指定する |
 
-## Examples
+## 使用例
 
-### Validate default schema
+### デフォルトのスキーマを検証する
 
 ```bash
 prisma validate
 ```
 
-### Validate specific schema
+### スキーマを指定して検証する
 
 ```bash
 prisma validate --schema=./custom/schema.prisma
 ```
 
-### Use in CI
+### CI で使う
 
-Run `validate` in your CI pipeline to catch schema errors early:
+CI のパイプラインで `validate` を実行すると、スキーマのエラーを早めに見つけられます。
 
 ```yaml
 - name: Validate Schema
   run: npx prisma validate
 ```
 
-## Common Errors
+## よくあるエラー
 
-- Missing `@relation` fields
-- Invalid types
-- Duplicate model names
-- Syntax errors (missing braces, etc.)
+- `@relation` のフィールドがない
+- 型が正しくない
+- モデル名が重複している
+- 構文のエラー（かっこの閉じ忘れなど）

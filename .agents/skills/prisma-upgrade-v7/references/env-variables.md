@@ -1,29 +1,29 @@
-# Environment Variables
+# 環境変数
 
-Prisma v7 no longer automatically loads environment variables. You must load them explicitly.
+Prisma v7 は、環境変数を自動で読み込まなくなりました。明示的に読み込む必要があります。
 
-## The Change
+## 変更点
 
-### v6 Behavior
+### v6 の動き
 
-Prisma CLI automatically loaded `.env` files.
+Prisma CLI が、`.env` ファイルを自動で読み込んでいました。
 
-### v7 Behavior
+### v7 の動き
 
-You must manually load environment variables using `dotenv` or similar.
+`dotenv` などを使って、環境変数を手で読み込む必要があります。
 
-## Setup
+## 準備
 
-### 1. Install dotenv
+### 1. dotenv をインストールする
 
 ```bash
 npm install dotenv
 ```
 
-### 2. Import in prisma.config.ts
+### 2. prisma.config.ts で import する
 
 ```typescript
-import 'dotenv/config'  // Must be first import
+import 'dotenv/config'  // 最初の import にする必要がある
 import { defineConfig, env } from 'prisma/config'
 
 export default defineConfig({
@@ -33,9 +33,9 @@ export default defineConfig({
 })
 ```
 
-## Bun Users
+## Bun の利用者
 
-Bun automatically loads `.env` files. No additional setup needed:
+Bun は `.env` ファイルを自動で読み込みます。追加の準備は必要ありません。
 
 ```typescript
 // prisma.config.ts (Bun)
@@ -48,9 +48,9 @@ export default defineConfig({
 })
 ```
 
-## Multiple .env Files
+## 複数の .env ファイル
 
-### Using dotenv-cli
+### dotenv-cli を使う
 
 ```bash
 npm install -D dotenv-cli
@@ -65,14 +65,14 @@ npm install -D dotenv-cli
 }
 ```
 
-### Using dotenv with path
+### パスを指定して dotenv を使う
 
 ```typescript
 // prisma.config.ts
 import { config } from 'dotenv'
 import path from 'path'
 
-// Load specific .env file
+// 特定の .env ファイルを読み込む
 config({ path: path.join(__dirname, '.env.local') })
 
 import { defineConfig, env } from 'prisma/config'
@@ -84,11 +84,11 @@ export default defineConfig({
 })
 ```
 
-## Application Code
+## アプリのコード
 
-For your application, load env vars at startup:
+アプリでは、起動するときに環境変数を読み込みます。
 
-### Entry point
+### 入り口（エントリーポイント）
 
 ```typescript
 // index.ts
@@ -104,50 +104,50 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-### Or use dotenv explicitly
+### または、dotenv を明示的に使う
 
 ```typescript
 import { config } from 'dotenv'
 config()
 
-// Now process.env.DATABASE_URL is available
+// これで process.env.DATABASE_URL が使える
 ```
 
-## Removed Environment Variables
+## なくなった環境変数
 
-These Prisma-specific env vars are removed in v7:
+次の Prisma 専用の環境変数は、v7 でなくなりました。
 
-| Removed Variable | Alternative |
+| なくなった変数 | 代わり |
 |-----------------|-------------|
-| `PRISMA_CLI_QUERY_ENGINE_TYPE` | Not needed (no engines) |
-| `PRISMA_CLIENT_ENGINE_TYPE` | Not needed (no engines) |
-| `PRISMA_QUERY_ENGINE_BINARY` | Not needed |
-| `PRISMA_QUERY_ENGINE_LIBRARY` | Not needed |
-| `PRISMA_GENERATE_SKIP_AUTOINSTALL` | Not needed |
-| `PRISMA_SKIP_POSTINSTALL_GENERATE` | Not needed |
-| `PRISMA_GENERATE_IN_POSTINSTALL` | Not needed |
-| `PRISMA_GENERATE_DATAPROXY` | Migrate to `prisma-client` with driver adapters |
-| `PRISMA_GENERATE_NO_ENGINE` | Migrate to `prisma-client` with driver adapters |
-| `PRISMA_CLIENT_NO_RETRY` | Configure on adapter |
-| `PRISMA_MIGRATE_SKIP_GENERATE` | Not needed (auto-generate removed) |
-| `PRISMA_MIGRATE_SKIP_SEED` | Not needed (auto-seed removed) |
+| `PRISMA_CLI_QUERY_ENGINE_TYPE` | 不要（エンジンがない） |
+| `PRISMA_CLIENT_ENGINE_TYPE` | 不要（エンジンがない） |
+| `PRISMA_QUERY_ENGINE_BINARY` | 不要 |
+| `PRISMA_QUERY_ENGINE_LIBRARY` | 不要 |
+| `PRISMA_GENERATE_SKIP_AUTOINSTALL` | 不要 |
+| `PRISMA_SKIP_POSTINSTALL_GENERATE` | 不要 |
+| `PRISMA_GENERATE_IN_POSTINSTALL` | 不要 |
+| `PRISMA_GENERATE_DATAPROXY` | ドライバーアダプターを使う `prisma-client` に移行する |
+| `PRISMA_GENERATE_NO_ENGINE` | ドライバーアダプターを使う `prisma-client` に移行する |
+| `PRISMA_CLIENT_NO_RETRY` | アダプターで設定する |
+| `PRISMA_MIGRATE_SKIP_GENERATE` | 不要（自動の生成がなくなった） |
+| `PRISMA_MIGRATE_SKIP_SEED` | 不要（自動のシードがなくなった） |
 
-## TypeScript env() Helper
+## TypeScript の env() ヘルパー
 
-The `env()` function from `prisma/config` provides type safety:
+`prisma/config` の `env()` 関数で、型の安全性が得られます。
 
 ```typescript
 import { env } from 'prisma/config'
 
-// Type-safe environment variable access
+// 型安全な環境変数へのアクセス
 const url = env('DATABASE_URL')  // string
 ```
 
-Note: This only works within `prisma.config.ts`, not in your application code.
+注意：これが使えるのは `prisma.config.ts` の中だけで、アプリのコードでは使えません。
 
-## CI/CD Considerations
+## CI/CD での注意
 
-Ensure environment variables are set in your CI environment:
+CI の環境で、環境変数が設定されていることを確認してください。
 
 ```yaml
 # GitHub Actions
@@ -158,4 +158,4 @@ steps:
   - run: npx prisma migrate deploy
 ```
 
-No need for dotenv in CI if variables are set directly.
+変数を直接設定しているなら、CI では dotenv は必要ありません。

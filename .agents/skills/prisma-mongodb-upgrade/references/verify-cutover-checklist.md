@@ -1,60 +1,36 @@
 # verify-cutover-checklist
 
-Verification checklist for a v6 → Prisma Next cutover: the data never moves — only the code does.
+v6 から Prisma Next への切り替えの確認のチェックリスト。データは動かさず、動かすのはコードだけです。
 
-## Priority
+## 優先度
 
-CRITICAL
+最重要（CRITICAL）
 
-## Why It Matters
+## なぜ大事か
 
-A v6 → Next migration is a *client and workflow* migration against the **same MongoDB
-database** — there is no data export/import step, and introducing one (or pointing the new
-stack at a fresh database) turns a code migration into an outage. The checklist below keeps
-the cutover observable and reversible.
+v6 から Next への移行は、**同じ MongoDB のデータベース**に対する、*Client と作業の流れ*の移行です。データを書き出して取り込む手順はありません。そうした手順を入れる（または新しい仕組みを新しいデータベースに向ける）と、コードの移行がサービスの停止に変わってしまいます。下のチェックリストで、切り替えの様子を見えるようにし、元に戻せるようにしておきます。
 
-## Ground rules
+## 基本のルール
 
-- **No data moves.** The Next contract is authored to describe the existing collections;
-  both stacks read the same database during the staged phase.
-- **v6 stays runnable until cutover is verified.** Do not delete the v6 client, schema, or
-  dependencies until the checklist passes.
+- **データは動かさない。** Next の contract は、既存のコレクションを表すように書きます。段階的に進める間は、両方の仕組みが同じデータベースを読みます。
+- **切り替えの確認が終わるまで、v6 は動かせる状態のままにする。** チェックリストに通るまで、v6 の Client、スキーマ、依存関係を消さないでください。
 
-## Checklist
+## チェックリスト
 
-1. **Same database, verified:** the Next config points at the same connection string /
-   database name the v6 app uses (minus v6-specific URL parameters that the `mongodb@^7`
-   driver rejects — validate the URL with the driver first).
-2. **Server floor:** MongoDB server is 8.0+ (Next's requirement; v6 tolerated older).
-   Confirm before authoring any contract.
-3. **Contract round-trip on a copy:** on a staging copy (or `mongodb-memory-server`), emit
-   the contract, run plan → migrate → verify → sign, and confirm `verify` passes against
-   data copied from production shape. Verification failures here are contract-mapping bugs,
-   not database problems.
-4. **Index parity:** enumerate indexes on every collection (`db.collection.getIndexes()`)
-   and confirm the Next contract declares the same set — v6 `db push` may have created
-   indexes the new contract must re-declare, or verification and query performance will
-   diverge.
-5. **Validator impact assessed:** Next emits closed `$jsonSchema` validators by default;
-   confirm legacy documents (extra fields, drifted shapes) pass them on the staging copy
-   before applying to production.
-6. **Storage-name addressing audited:** every ported call site uses collection storage
-   names (`db.orm.users`), not model names (see `schema-contract-mapping.md`).
-7. **Transaction inventory mapped:** grep the v6 app for `$transaction`; each hit gets a
-   driver-session equivalent (the `mongodb` driver is directly available; the façade wrapper
-   is expected soon — see `client-api-mapping.md`).
-8. **Raw call inventory mapped:** every `$runCommandRaw` / `findRaw` / `aggregateRaw` call
-   has an explicit Next-side replacement (`mongoRaw(...)` lane or pipeline builder).
-9. **Staged read-only soak:** run the Next stack read-only against staging/production data
-   alongside v6 and compare outputs before allowing writes.
-10. **Cutover + rollback:** switch writes to Next only after the soak; keep the v6 branch
-    deployable as the rollback path. Rolling back is a code rollback — the data was never
-    moved.
+1. **同じデータベースであることを確認する：** Next の設定が、v6 のアプリが使っているのと同じ接続文字列・データベース名を指している（ただし、`mongodb@^7` のドライバーが受け付けない v6 固有の URL のパラメーターは除く。先にドライバーで URL を検証する）。
+2. **サーバーの最低条件：** MongoDB のサーバーが 8.0 以上（Next の条件。v6 はもっと古くても動いた）。contract を書く前に確認する。
+3. **コピーで contract を一通り試す：** ステージングのコピー（または `mongodb-memory-server`）で、contract を出力し、plan → migrate → verify → sign を実行して、本番と同じ形からコピーしたデータに対して `verify` が通ることを確認する。ここでの確認の失敗は、データベースの問題ではなく、contract の対応付けのバグ。
+4. **インデックスの一致：** すべてのコレクションのインデックスを一覧にし（`db.collection.getIndexes()`）、Next の contract が同じものを宣言していることを確認する。v6 の `db push` が作ったインデックスを新しい contract で宣言し直さないと、確認の結果やクエリの性能がずれる。
+5. **validator の影響を評価する：** Next はデフォルトで閉じた `$jsonSchema` の validator を出力する。本番に適用する前に、ステージングのコピーで、古いドキュメント（余分な項目がある、形がずれている）がそれに通ることを確認する。
+6. **保存先の名前での指し方を点検する：** 書き換えたすべての呼び出しで、モデル名ではなく、コレクションの保存先の名前（`db.orm.users`）を使っている（`schema-contract-mapping.md` を見る）。
+7. **トランザクションの一覧を対応付ける：** v6 のアプリを `$transaction` で grep し、見つかったものすべてに、ドライバーのセッションでの置き換えを用意する（`mongodb` のドライバーは直接使える。窓口で包む仕組みはもうすぐ入る見込み。`client-api-mapping.md` を見る）。
+8. **生の操作の呼び出しの一覧を対応付ける：** すべての `$runCommandRaw` / `findRaw` / `aggregateRaw` の呼び出しに、Next 側での明示的な置き換え（`mongoRaw(...)` の仕組みかパイプラインのビルダー）がある。
+9. **段階的に読み取りだけで様子を見る：** 書き込みを許す前に、Next の仕組みを読み取りだけで、ステージングや本番のデータに対して v6 と並べて動かし、出力を比べる。
+10. **切り替えと巻き戻し：** 様子見が終わってから、書き込みを Next に切り替える。巻き戻しの手段として、v6 のブランチをデプロイできる状態のままにしておく。巻き戻しはコードを戻すだけで、データは一度も動いていない。
 
-After cutover, install and follow Prisma Next's own skills for ongoing work (see the
-hand-off rule in `SKILL.md`).
+切り替えのあとは、続きの作業のために Prisma Next 自身のスキルをインストールして、それに従ってください（`SKILL.md` の引き継ぎのルールを見る）。
 
-## References
+## 参考
 
-- [v6 MongoDB documentation](https://www.prisma.io/docs/orm/overview/databases/mongodb)
-- Prisma Next migrations + queries skills — authoritative for the Next side; verified @ `a2791c5dd59d579b4b3052942ae7f8fe5e2ee852`
+- [v6 の MongoDB のドキュメント](https://www.prisma.io/docs/orm/overview/databases/mongodb)
+- Prisma Next の migrations と queries のスキル。Next 側についての正式な情報。確認した対象 @ `a2791c5dd59d579b4b3052942ae7f8fe5e2ee852`

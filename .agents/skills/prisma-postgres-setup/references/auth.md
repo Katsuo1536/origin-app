@@ -1,46 +1,46 @@
 # auth
 
-How to authenticate with the Prisma Management API using service tokens.
+サービストークンを使って、Prisma Management API で認証する方法。
 
-## Service Tokens
+## サービストークン
 
-Service tokens authenticate server-to-server requests. They are scoped to a workspace and grant access to all resources within it.
+サービストークンは、サーバー同士のリクエストを認証します。範囲はワークスペースで、その中のすべてのリソースへのアクセスを許可します。
 
-### Creating a service token
+### サービストークンを作る
 
-1. Open https://console.prisma.io
-2. Navigate to **Workspace Settings** → **Service Tokens**
-3. Click **Create Token**
-4. Copy the token immediately — it is only shown once
+1. https://console.prisma.io を開く
+2. **Workspace Settings** → **Service Tokens** に移動する
+3. **Create Token** をクリックする
+4. トークンをすぐにコピーする（一度しか表示されない）
 
-### Using a service token
+### サービストークンを使う
 
-Set the token as an environment variable:
+トークンを環境変数に設定します。
 
 ```bash
 export PRISMA_SERVICE_TOKEN="eyJ..."
 ```
 
-Include it in the `Authorization` header of every API request:
+すべての API のリクエストの `Authorization` ヘッダーに入れます。
 
 ```bash
 curl -H "Authorization: Bearer $PRISMA_SERVICE_TOKEN" \
   https://api.prisma.io/v1/projects
 ```
 
-### Token scope
+### トークンの範囲
 
-Service tokens are workspace-scoped. A single token grants access to all projects, databases, and connections within the workspace. There are no project-scoped tokens at this time.
+サービストークンの範囲はワークスペースです。1つのトークンで、ワークスペースの中のすべてのプロジェクト、データベース、接続にアクセスできます。今のところ、プロジェクト単位のトークンはありません。
 
-### Security practices
+### 安全のための習慣
 
-- Store tokens in environment variables or secret managers, never in source code
-- Add `.env` to `.gitignore` to prevent accidental commits
-- Rotate tokens periodically via Console → Workspace Settings → Service Tokens
-- In CI/CD, store tokens as encrypted secrets (e.g., GitHub Secrets)
+- トークンは環境変数かシークレットの管理ツールに保存し、ソースコードには絶対に書かない
+- うっかりコミットしないように、`.gitignore` に `.env` を追加する
+- Console → Workspace Settings → Service Tokens で、定期的にトークンを入れ替える
+- CI/CD では、トークンを暗号化されたシークレット（例：GitHub Secrets）として保存する
 
-## OAuth 2.0 (for user-scoped access)
+## OAuth 2.0（ユーザー単位のアクセス）
 
-OAuth is used when acting on behalf of a user, typically in partner/integrator flows. See the `prisma-postgres-integrator` skill for OAuth details.
+OAuth は、ユーザーの代わりに操作するときに使います。ふつうはパートナーや連携サービスの流れで使います。OAuth の詳細は、`prisma-postgres-integrator` スキルを見てください。
 
-For standard database setup, service tokens are the recommended authentication method.
+ふつうのデータベースの準備では、サービストークンがおすすめの認証の方法です。

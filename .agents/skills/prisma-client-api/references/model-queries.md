@@ -1,12 +1,12 @@
-# Model Queries
+# モデルのクエリ
 
-CRUD operations for your Prisma models.
+Prisma のモデルに対する CRUD 操作です。
 
-## Read Operations
+## 読み取りの操作
 
 ### findUnique
 
-Find a single record by unique field:
+一意のフィールドで1件探します。
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -18,10 +18,10 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-#### With composite unique key
+#### 複合の一意キーで探す
 
 ```typescript
-// Model with @@unique([firstName, lastName])
+// @@unique([firstName, lastName]) のあるモデル
 const user = await prisma.user.findUnique({
   where: {
     firstName_lastName: {
@@ -34,18 +34,18 @@ const user = await prisma.user.findUnique({
 
 ### findUniqueOrThrow
 
-Same as findUnique but throws if not found:
+findUnique と同じですが、見つからなければエラーを投げます。
 
 ```typescript
 const user = await prisma.user.findUniqueOrThrow({
   where: { id: 1 }
 })
-// Throws PrismaClientKnownRequestError if not found
+// 見つからなければ PrismaClientKnownRequestError を投げる
 ```
 
 ### findFirst
 
-Find first matching record:
+条件に合う最初の1件を探します。
 
 ```typescript
 const user = await prisma.user.findFirst({
@@ -64,7 +64,7 @@ const user = await prisma.user.findFirstOrThrow({
 
 ### findMany
 
-Find multiple records:
+複数件を探します。
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -75,11 +75,11 @@ const users = await prisma.user.findMany({
 })
 ```
 
-## Create Operations
+## 作成の操作
 
 ### create
 
-Create a single record:
+1件を作成します。
 
 ```typescript
 const user = await prisma.user.create({
@@ -90,7 +90,7 @@ const user = await prisma.user.create({
 })
 ```
 
-#### With relations
+#### リレーションと一緒に作成する
 
 ```typescript
 const user = await prisma.user.create({
@@ -109,7 +109,7 @@ const user = await prisma.user.create({
 
 ### createMany
 
-Create multiple records:
+複数件を作成します。
 
 ```typescript
 const result = await prisma.user.createMany({
@@ -117,14 +117,14 @@ const result = await prisma.user.createMany({
     { email: 'alice@prisma.io', name: 'Alice' },
     { email: 'bob@prisma.io', name: 'Bob' }
   ],
-  skipDuplicates: true  // Skip records with duplicate unique fields
+  skipDuplicates: true  // 一意のフィールドが重複するレコードはとばす
 })
-// Returns { count: 2 }
+// { count: 2 } を返す
 ```
 
 ### createManyAndReturn
 
-Create multiple and return them:
+複数作成して、作成したものを返します。
 
 ```typescript
 const users = await prisma.user.createManyAndReturn({
@@ -133,14 +133,14 @@ const users = await prisma.user.createManyAndReturn({
     { email: 'bob@prisma.io', name: 'Bob' }
   ]
 })
-// Returns array of created users
+// 作成したユーザーの配列を返す
 ```
 
-## Update Operations
+## 更新の操作
 
 ### update
 
-Update a single record:
+1件を更新します。
 
 ```typescript
 const user = await prisma.user.update({
@@ -149,7 +149,7 @@ const user = await prisma.user.update({
 })
 ```
 
-#### Atomic operations
+#### アトミックな操作
 
 ```typescript
 const post = await prisma.post.update({
@@ -166,14 +166,14 @@ const post = await prisma.post.update({
 
 ### updateMany
 
-Update multiple records:
+複数件を更新します。
 
 ```typescript
 const result = await prisma.user.updateMany({
   where: { role: 'USER' },
   data: { verified: true }
 })
-// Returns { count: 42 }
+// { count: 42 } を返す
 ```
 
 ### updateManyAndReturn
@@ -183,12 +183,12 @@ const users = await prisma.user.updateManyAndReturn({
   where: { role: 'USER' },
   data: { verified: true }
 })
-// Returns array of updated users
+// 更新したユーザーの配列を返す
 ```
 
 ### upsert
 
-Update or create:
+更新、なければ作成します。
 
 ```typescript
 const user = await prisma.user.upsert({
@@ -198,34 +198,34 @@ const user = await prisma.user.upsert({
 })
 ```
 
-## Delete Operations
+## 削除の操作
 
 ### delete
 
-Delete a single record:
+1件を削除します。
 
 ```typescript
 const user = await prisma.user.delete({
   where: { id: 1 }
 })
-// Returns deleted record
+// 削除したレコードを返す
 ```
 
 ### deleteMany
 
-Delete multiple records:
+複数件を削除します。
 
 ```typescript
 const result = await prisma.user.deleteMany({
   where: { role: 'GUEST' }
 })
-// Returns { count: 5 }
+// { count: 5 } を返す
 
-// Delete all
+// すべて削除する
 const result = await prisma.user.deleteMany({})
 ```
 
-## Aggregation Operations
+## 集計の操作
 
 ### count
 
@@ -260,14 +260,14 @@ const groups = await prisma.user.groupBy({
 })
 ```
 
-## Return Types
+## 戻り値の型
 
-| Method | Returns |
+| メソッド | 戻り値 |
 |--------|---------|
 | `findUnique` | Record \| null |
-| `findUniqueOrThrow` | Record (throws if not found) |
+| `findUniqueOrThrow` | Record（見つからなければエラーを投げる） |
 | `findFirst` | Record \| null |
-| `findFirstOrThrow` | Record (throws if not found) |
+| `findFirstOrThrow` | Record（見つからなければエラーを投げる） |
 | `findMany` | Record[] |
 | `create` | Record |
 | `createMany` | { count: number } |
@@ -277,5 +277,5 @@ const groups = await prisma.user.groupBy({
 | `delete` | Record |
 | `deleteMany` | { count: number } |
 | `count` | number |
-| `aggregate` | Aggregate result |
-| `groupBy` | Group result[] |
+| `aggregate` | 集計の結果 |
+| `groupBy` | グループの結果の配列 |

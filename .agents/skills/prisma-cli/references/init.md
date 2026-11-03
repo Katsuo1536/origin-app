@@ -1,88 +1,88 @@
 # prisma init
 
-Bootstraps a fresh Prisma ORM project in the current directory.
+今いるフォルダに、Prisma ORMの新しいプロジェクトをひと通り用意します。
 
-## Command
+## コマンド
 
 ```bash
 prisma init [options]
 ```
 
-## Bun Runtime
+## Bunを使う場合
 
-If you're using Bun, run Prisma with `bunx --bun` so it doesn't fall back to Node.js:
+Bunを使っているときは、Node.jsで実行されないように `bunx --bun` でPrismaを実行します。
 
 ```bash
 bunx --bun prisma init
 ```
 
-## What It Creates
+## 作られるもの
 
-- `prisma/schema.prisma` - Your Prisma schema file
-- `prisma.config.ts` - TypeScript configuration for Prisma CLI
-- `.env` - Environment variables (DATABASE_URL)
-- `.gitignore` - Ensures `.env` is ignored and appends the generated client path
+- `prisma/schema.prisma`：Prismaのスキーマファイル
+- `prisma.config.ts`：Prisma CLI用のTypeScriptの設定ファイル
+- `.env`：環境変数（DATABASE_URL）
+- `.gitignore`：`.env` がGitの管理から外れるようにし、生成されるクライアントのパスも書き足す
 
-## Options
+## オプション
 
-| Option | Description | Default |
+| オプション | 説明 | デフォルト |
 |--------|-------------|---------|
-| `--datasource-provider` | Database provider: `postgresql`, `mysql`, `sqlite`, `sqlserver`, `mongodb`, `cockroachdb` | `postgresql` |
-| `--db` | Provisions a fully managed Prisma Postgres database on the Prisma Data Platform | - |
-| `--url` | Define a custom datasource url | - |
-| `--generator-provider` | Define the generator provider to use | `prisma-client` |
-| `--output` | Define Prisma Client generator output path to use | - |
-| `--preview-feature` | Define a preview feature to use | - |
-| `--with-model` | Add example model to created schema file | - |
-| `--no-skills` | Skip the best-effort installation of Prisma agent skills | - |
+| `--datasource-provider` | データベースの種類：`postgresql`、`mysql`、`sqlite`、`sqlserver`、`mongodb`、`cockroachdb` | `postgresql` |
+| `--db` | Prisma Data Platform 上に、管理がすべておまかせのPrisma Postgresデータベースを用意する | - |
+| `--url` | データソースのURLを指定する | - |
+| `--generator-provider` | 使うgeneratorの種類を指定する | `prisma-client` |
+| `--output` | Prisma Clientの生成先のパスを指定する | - |
+| `--preview-feature` | 使うプレビュー機能を指定する | - |
+| `--with-model` | 作るスキーマファイルにサンプルのモデルを入れる | - |
+| `--no-skills` | Prismaのエージェント用スキルのインストールを省く | - |
 
-`prisma init` attempts to install `prisma/skills` for detected agents. This is best-effort and does not make project initialization fail. Use `--no-skills` in minimal or controlled environments.
+`prisma init` は、AIエージェントを検知すると `prisma/skills` のインストールを試みます。これはできる範囲で行うもので、失敗してもプロジェクトの初期化自体は失敗しません。必要なものだけにしたい環境や、管理された環境では `--no-skills` を使ってください。
 
-## Examples
+## 使用例
 
-### Basic initialization
+### 基本の初期化
 
 ```bash
 prisma init
 ```
 
-Creates a PostgreSQL project setup.
+PostgreSQL用のプロジェクト構成を作ります。
 
-### SQLite project
+### SQLiteのプロジェクト
 
 ```bash
 prisma init --datasource-provider sqlite
 ```
 
-### MySQL with custom URL
+### MySQLで、URLを指定する
 
 ```bash
 prisma init --datasource-provider mysql --url "mysql://user:password@localhost:3306/mydb"
 ```
 
-### Prisma Postgres (cloud)
+### Prisma Postgres（クラウド）
 
 ```bash
 prisma init --db
 ```
 
-Opens browser for authentication, creates cloud database instance.
+ブラウザが開いて認証を行い、クラウドのデータベースを作ります。
 
-### Add an example model
+### サンプルのモデルを入れる
 
 ```bash
 prisma init --with-model
 ```
 
-Adds a starter model to the generated schema.
+作られるスキーマに、最初のモデルを1つ書き足します。
 
-### With preview features
+### プレビュー機能を使う
 
 ```bash
 prisma init --preview-feature relationJoins --preview-feature fullTextSearch
 ```
 
-## Generated Schema
+## 作られるスキーマ
 
 ```prisma
 generator client {
@@ -95,7 +95,7 @@ datasource db {
 }
 ```
 
-## Generated Config (Node.js default)
+## 作られる設定ファイル（Node.jsの場合・デフォルト）
 
 ```typescript
 // prisma.config.ts
@@ -113,7 +113,7 @@ export default defineConfig({
 })
 ```
 
-## Generated Config (Bun)
+## 作られる設定ファイル（Bunの場合）
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -129,11 +129,11 @@ export default defineConfig({
 })
 ```
 
-## Next Steps After Init
+## 初期化のあとにやること
 
-1. Configure `DATABASE_URL` in `.env` (and let `prisma.config.ts` read it)
-2. Define your models in `prisma/schema.prisma`
-3. Run `prisma dev` for local development or connect to remote DB
-4. Run `prisma migrate dev` to create migrations
-5. Run `prisma generate` to generate Prisma Client
-6. Run `prisma db seed` explicitly if you want seed data
+1. `.env` に `DATABASE_URL` を設定する（`prisma.config.ts` がそれを読み込む）
+2. `prisma/schema.prisma` にモデルを書く
+3. ローカルで開発するなら `prisma dev` を実行する。または外部のDBにつなぐ
+4. `prisma migrate dev` を実行して、マイグレーションを作る
+5. `prisma generate` を実行して、Prisma Clientを生成する
+6. シードデータが必要なら、`prisma db seed` を自分で実行する

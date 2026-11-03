@@ -1,10 +1,10 @@
-# Relation Queries
+# リレーションのクエリ
 
-Query and modify related records.
+関連するレコードを取得したり変更したりします。
 
-## Include Relations
+## リレーションを含める
 
-Load related records:
+関連するレコードを読み込みます。
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -16,7 +16,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-### Filtered include
+### 絞り込んだ include
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -32,7 +32,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-### Nested include
+### 入れ子の include
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -49,7 +49,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-## Select Relations
+## リレーションを選ぶ
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -63,9 +63,9 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-## Nested Writes
+## 入れ子の書き込み
 
-### Create with relations
+### リレーションと一緒に作成する
 
 ```typescript
 const user = await prisma.user.create({
@@ -84,7 +84,7 @@ const user = await prisma.user.create({
 })
 ```
 
-### Create or connect
+### 作成するか、既存のものにつなげる
 
 ```typescript
 const post = await prisma.post.create({
@@ -100,7 +100,7 @@ const post = await prisma.post.create({
 })
 ```
 
-### Connect existing
+### 既存のものにつなげる
 
 ```typescript
 const post = await prisma.post.create({
@@ -112,7 +112,7 @@ const post = await prisma.post.create({
   }
 })
 
-// Shorthand for foreign key
+// 外部キーで書く省略形
 const post = await prisma.post.create({
   data: {
     title: 'New Post',
@@ -121,9 +121,9 @@ const post = await prisma.post.create({
 })
 ```
 
-## Update Relations
+## リレーションを更新する
 
-### Update related records
+### 関連するレコードを更新する
 
 ```typescript
 const user = await prisma.user.update({
@@ -139,7 +139,7 @@ const user = await prisma.user.update({
 })
 ```
 
-### Update many related
+### 関連するレコードをまとめて更新する
 
 ```typescript
 const user = await prisma.user.update({
@@ -155,7 +155,7 @@ const user = await prisma.user.update({
 })
 ```
 
-### Upsert related
+### 関連するレコードを upsert する
 
 ```typescript
 const user = await prisma.user.update({
@@ -171,10 +171,10 @@ const user = await prisma.user.update({
 })
 ```
 
-### Disconnect
+### つながりを外す
 
 ```typescript
-// 1-to-1 optional
+// 省略できる1対1
 const user = await prisma.user.update({
   where: { id: 1 },
   data: {
@@ -182,7 +182,7 @@ const user = await prisma.user.update({
   }
 })
 
-// Many-to-many
+// 多対多
 const post = await prisma.post.update({
   where: { id: 1 },
   data: {
@@ -193,7 +193,7 @@ const post = await prisma.post.update({
 })
 ```
 
-### Delete related
+### 関連するレコードを削除する
 
 ```typescript
 const user = await prisma.user.update({
@@ -205,7 +205,7 @@ const user = await prisma.user.update({
   }
 })
 
-// Delete many
+// まとめて削除する
 const user = await prisma.user.update({
   where: { id: 1 },
   data: {
@@ -216,10 +216,10 @@ const user = await prisma.user.update({
 })
 ```
 
-### Set (replace all)
+### set（すべて置き換える）
 
 ```typescript
-// Replace all related records
+// 関連するレコードをすべて置き換える
 const post = await prisma.post.update({
   where: { id: 1 },
   data: {
@@ -230,11 +230,11 @@ const post = await prisma.post.update({
 })
 ```
 
-## Relation Filters
+## リレーションの絞り込み
 
 ### some
 
-At least one matches:
+1件以上が条件に合う：
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -246,7 +246,7 @@ const users = await prisma.user.findMany({
 
 ### every
 
-All match:
+すべてが条件に合う：
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -258,7 +258,7 @@ const users = await prisma.user.findMany({
 
 ### none
 
-None match:
+1件も条件に合わない：
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -268,7 +268,7 @@ const users = await prisma.user.findMany({
 })
 ```
 
-### is / isNot (1-to-1)
+### is / isNot（1対1）
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -278,7 +278,7 @@ const users = await prisma.user.findMany({
 })
 ```
 
-## Count Relations
+## リレーションの件数を数える
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -292,7 +292,7 @@ const users = await prisma.user.findMany({
 // { name: 'Alice', _count: { posts: 5, followers: 100 } }
 ```
 
-### Filter counted relations
+### 数えるリレーションを絞り込む
 
 ```typescript
 const users = await prisma.user.findMany({

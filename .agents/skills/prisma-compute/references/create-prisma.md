@@ -1,39 +1,39 @@
-# create-prisma Compute Flow
+# create-prisma での Compute の流れ
 
-Use this reference when creating a new app with Prisma and optionally deploying it to Prisma Compute.
+Prisma を使った新しいアプリを作り、必要なら Prisma Compute にデプロイするときに、このリファレンスを使います。
 
-Do not use `create-prisma` as the deploy path for an existing app. For existing projects, use the generated `compute:deploy` script when present, or call `bunx @prisma/cli@latest app deploy` directly.
+既存のアプリのデプロイに `create-prisma` を使わないでください。既存のプロジェクトでは、生成された `compute:deploy` スクリプトがあればそれを使い、なければ `bunx @prisma/cli@latest app deploy` を直接呼びます。
 
-## Reference
+## 参考
 
-Useful scaffold checks:
+ひな形について確認するのに便利なコマンド：
 
 ```bash
 bunx create-prisma@latest --help
 bunx create-prisma@latest --version
 ```
 
-Use `create-prisma@latest` for new-project scaffolding.
+新しいプロジェクトのひな形作りには `create-prisma@latest` を使います。
 
-## Supported Templates
+## 対応しているテンプレート
 
-`create-prisma@latest` scaffolds `hono`, `elysia`, `nest`, `next`, `svelte`, `astro`, `nuxt`, `tanstack-start`, and `turborepo`.
+`create-prisma@latest` が作れるひな形は、`hono`、`elysia`、`nest`、`next`、`svelte`、`astro`、`nuxt`、`tanstack-start`、`turborepo` です。
 
-Integrated `--deploy` support applies to `hono`, `elysia`, `nest`, `next`, `astro`, `nuxt`, `tanstack-start`, and `turborepo`. For `turborepo`, the generated config target is usually `api`.
+組み込みの `--deploy` に対応しているのは、`hono`、`elysia`、`nest`、`next`、`astro`、`nuxt`、`tanstack-start`、`turborepo` です。`turborepo` では、生成される設定のデプロイ先は、ふつう `api` です。
 
-The scaffold template name is `nest`, but the Compute deploy framework/config key is `nestjs`.
+ひな形のテンプレート名は `nest` ですが、Compute のデプロイのフレームワークや設定のキーは `nestjs` です。
 
-`svelte` is scaffold-only for Compute because `@prisma/cli app deploy --framework` has no `svelte` key.
+`@prisma/cli app deploy --framework` に `svelte` のキーがないため、`svelte` は Compute ではひな形作りだけに対応しています。
 
-## Basic Commands
+## 基本のコマンド
 
-Interactive creation:
+対話で作成する：
 
 ```bash
 bunx create-prisma@latest
 ```
 
-Non-interactive scaffold only:
+対話なしで、ひな形だけを作る：
 
 ```bash
 bunx create-prisma@latest \
@@ -46,7 +46,7 @@ bunx create-prisma@latest \
   --no-deploy
 ```
 
-Create and deploy a supported template:
+対応しているテンプレートを作成してデプロイする：
 
 ```bash
 bunx create-prisma@latest \
@@ -56,18 +56,18 @@ bunx create-prisma@latest \
   --deploy
 ```
 
-## PostgreSQL and Database Behavior
+## PostgreSQL とデータベースの動き
 
-With PostgreSQL, no explicit `--database-url`, and no `--no-prisma-postgres`, the Compute flow can create:
+PostgreSQL を使い、`--database-url` を明示せず、`--no-prisma-postgres` も付けない場合、Compute の流れで次のものが作られることがあります。
 
-- a Prisma Compute project
-- a `main` Prisma Postgres database on the `main` branch
-- a `.env` file containing `DATABASE_URL`
-- an initial Compute deployment with env vars loaded from `.env`
+- Prisma Compute のプロジェクト
+- `main` ブランチの `main` という Prisma Postgres のデータベース
+- `DATABASE_URL` を含む `.env` ファイル
+- `.env` から環境変数を読み込んだ、最初の Compute のデプロイ
 
-`create-prisma` is the new-project path. If the user needs a later preview branch deploy, use the generated `compute:deploy` script or `@prisma/cli app deploy --branch <git-name>` after the app exists. Keep branch names aligned across `app deploy --branch`, `database create --branch`, and `project env ... --branch`.
+`create-prisma` は新しいプロジェクトを作るための手段です。あとでプレビューのブランチにデプロイしたいときは、アプリができたあとに、生成された `compute:deploy` スクリプトか `@prisma/cli app deploy --branch <git-name>` を使います。ブランチ名は、`app deploy --branch`、`database create --branch`、`project env ... --branch` で揃えてください。
 
-For unattended local tests, pass `--no-prisma-postgres` unless you intentionally want provisioning:
+人が見ていないローカルのテストでは、意図して準備させたいのでなければ、`--no-prisma-postgres` を付けます。
 
 ```bash
 bunx create-prisma@latest \
@@ -79,11 +79,11 @@ bunx create-prisma@latest \
   --no-deploy
 ```
 
-Do not deploy placeholder database URLs. If `DATABASE_URL` came from a placeholder default, omit it from deploy env and ask the user for a real production database.
+仮のデータベースの URL のままデプロイしないでください。`DATABASE_URL` が仮のデフォルトの値なら、デプロイの環境変数から外して、本番の本物のデータベースをユーザーに確認してください。
 
-## Generated Deploy Script
+## 生成されるデプロイのスクリプト
 
-When the deploy flow is selected, `create-prisma` can add:
+デプロイの流れを選ぶと、`create-prisma` が次のようなスクリプトを追加することがあります。
 
 ```json
 {
@@ -93,25 +93,25 @@ When the deploy flow is selected, `create-prisma` can add:
 }
 ```
 
-Use the actual generated script from `package.json`; do not reconstruct it from memory. The script redeploys app code using generated flags and/or `prisma.compute.ts`. It does not create a new project, create a new database, run migrations, or seed data. If a scaffolded project does not have `compute:deploy`, use `@prisma/cli app deploy` directly.
+記憶から組み立て直さずに、`package.json` に実際に生成されたスクリプトを使ってください。このスクリプトは、生成されたフラグや `prisma.compute.ts` を使って、アプリのコードを再デプロイします。新しいプロジェクトやデータベースは作らず、マイグレーションもシードデータの投入もしません。ひな形で作ったプロジェクトに `compute:deploy` がなければ、`@prisma/cli app deploy` を直接使います。
 
-Inspect the generated `package.json`, `prisma.compute.ts`, and README before editing deploy behavior.
+デプロイの動きを編集する前に、生成された `package.json`、`prisma.compute.ts`、README を確認してください。
 
-## Generated Files to Preserve
+## 残しておくべき生成されたファイル
 
-Preserve generated framework runtime files and `prisma.compute.ts` unless you are intentionally changing the deploy target. For framework-specific deploy/runtime details, read [`frameworks.md`](frameworks.md).
+デプロイ先を意図して変えるのでなければ、生成されたフレームワークのランタイムのファイルと `prisma.compute.ts` は残しておいてください。フレームワークごとのデプロイやランタイムの詳細は、[`frameworks.md`](frameworks.md) を読んでください。
 
-All Prisma 7 scaffolds:
+Prisma 7 のひな形はすべて、次のようになっています。
 
-- use `prisma.config.ts`
-- load `dotenv/config` where the runtime supports it
-- generate Prisma Client into a template-local path such as `src/generated/prisma`
-- use `@prisma/adapter-pg` with a `DATABASE_URL` connection string for PostgreSQL
+- `prisma.config.ts` を使う
+- ランタイムが対応していれば `dotenv/config` を読み込む
+- Prisma Client を、`src/generated/prisma` のようなテンプレート内の場所に生成する
+- PostgreSQL では、`DATABASE_URL` の接続文字列と `@prisma/adapter-pg` を使う
 
-## Addon Notes
+## 追加機能についての注意
 
-`create-prisma` supports `--skills`, `--mcp`, and `--extension`. Those are separate from Compute deployment. Do not imply that enabling skills or MCP deploys the app.
+`create-prisma` は、`--skills`、`--mcp`、`--extension` に対応しています。これらは Compute のデプロイとは別物です。スキルや MCP を有効にすればアプリがデプロイされる、というような言い方をしないでください。
 
-## Failure Handling
+## 失敗したときの対処
 
-If `--deploy` is explicit and setup cannot authenticate, cannot run the Platform CLI, or cannot complete the integrated deploy, report that deploy failed and keep the scaffolded project. Do not delete the user's files.
+`--deploy` を明示したのに、準備の段階で認証できない、Platform の CLI を実行できない、組み込みのデプロイを最後までできない、という場合は、デプロイが失敗したことを報告して、ひな形で作ったプロジェクトはそのまま残してください。ユーザーのファイルを削除しないでください。

@@ -1,15 +1,15 @@
-# MySQL Setup
+# MySQL の準備
 
-Configure Prisma with MySQL (or MariaDB).
+MySQL（または MariaDB）で Prisma を設定します。
 
-## Prerequisites
+## 前提条件
 
-- MySQL or MariaDB database
-- Connection string
+- MySQL か MariaDB のデータベース
+- 接続文字列
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
@@ -22,9 +22,9 @@ generator client {
 }
 ```
 
-## 2. Config Configuration
+## 2. 設定ファイルの設定
 
-In `prisma.config.ts`:
+`prisma.config.ts` に書きます。
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -37,36 +37,36 @@ export default defineConfig({
 })
 ```
 
-## 3. Environment Variable
+## 3. 環境変数
 
-In `.env`:
+`.env` に書きます。
 
 ```env
 DATABASE_URL="mysql://user:password@localhost:3306/mydb"
 ```
 
-### Connection String Format
+### 接続文字列の形式
 
 ```
 mysql://USER:PASSWORD@HOST:PORT/DATABASE
 ```
 
-- **USER**: Database user
-- **PASSWORD**: Password
-- **HOST**: Hostname
-- **PORT**: Port (default 3306)
-- **DATABASE**: Database name
+- **USER**：データベースのユーザー
+- **PASSWORD**：パスワード
+- **HOST**：ホスト名
+- **PORT**：ポート（デフォルトは 3306）
+- **DATABASE**：データベース名
 
-## Driver Adapter
+## ドライバーアダプター
 
-Use a driver adapter for the standard SQL workflow.
+標準の SQL の流れでは、ドライバーアダプターを使います。
 
-1. Install adapter and driver:
+1. アダプターとドライバーをインストールする：
    ```bash
    npm install @prisma/adapter-mariadb mariadb
    ```
 
-2. Instantiate Prisma Client with the adapter:
+2. アダプターを使って Prisma Client のインスタンスを作る：
    ```typescript
    import 'dotenv/config'
    import { PrismaClient } from '../generated/client'
@@ -84,9 +84,9 @@ Use a driver adapter for the standard SQL workflow.
    const prisma = new PrismaClient({ adapter })
    ```
 
-### Text protocol option
+### テキストプロトコルのオプション
 
-If you need the MariaDB driver's text protocol instead of the default binary `execute()` path, enable `useTextProtocol` explicitly:
+デフォルトのバイナリの `execute()` の経路ではなく、MariaDB のドライバーのテキストプロトコルが必要なときは、`useTextProtocol` を明示して有効にします。
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -99,28 +99,28 @@ const adapter = new PrismaMariaDb(process.env.DATABASE_URL!, {
 const prisma = new PrismaClient({ adapter })
 ```
 
-Use this only when you specifically need text-protocol compatibility for your MariaDB setup.
+使っている MariaDB の構成で、どうしてもテキストプロトコルとの互換性が必要なときだけ使ってください。
 
-## PlanetScale Setup
+## PlanetScale の準備
 
-PlanetScale uses MySQL but requires specific settings because it doesn't support foreign key constraints.
+PlanetScale は MySQL を使いますが、外部キー制約に対応していないので、専用の設定が必要です。
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
   provider     = "mysql"
-  relationMode = "prisma" // Emulate foreign keys in Prisma
+  relationMode = "prisma" // 外部キーを Prisma の側で再現する
 }
 ```
 
-## Common Issues
+## よくある問題
 
 ### "Too many connections"
-MySQL has a connection limit. Adjust connection pool size in URL:
+MySQL には接続数の上限があります。URL でコネクションプールの大きさを調整します。
 ```env
 DATABASE_URL="mysql://...?connection_limit=5"
 ```
 
-### JSON Support
-MySQL 5.7+ supports JSON. MariaDB 10.2+ supports JSON (as an alias for LONGTEXT with check constraints). Prisma handles this, but verify your version.
+### JSON への対応
+MySQL 5.7 以上は JSON に対応しています。MariaDB 10.2 以上も JSON に対応しています（チェック制約付きの LONGTEXT の別名として）。Prisma はこれを扱えますが、使っているバージョンを確認してください。

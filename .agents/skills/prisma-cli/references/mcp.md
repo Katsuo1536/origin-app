@@ -1,39 +1,39 @@
 # prisma mcp
 
-Starts Prisma's MCP server for AI development tools.
+AI開発ツール向けに、PrismaのMCPサーバーを起動します。
 
-## Command
-
-```bash
-prisma mcp
-```
-
-## What It Does
-
-- Starts a Model Context Protocol (MCP) server for your Prisma project
-- Exposes Prisma schema and database context to compatible AI tools
-- Helps AI assistants understand models, generate queries, and suggest migrations
-
-## Usage
+## コマンド
 
 ```bash
 prisma mcp
 ```
 
-## Typical Use Cases
+## できること
 
-- Connect Prisma to ChatGPT, Claude, or other MCP-aware tools
-- Give an AI assistant access to your Prisma schema structure
-- Help an agent propose queries, schema updates, and migration steps with project context
+- Prismaのプロジェクト用に、MCP（Model Context Protocol）サーバーを起動する
+- 対応しているAIツールに、Prismaのスキーマとデータベースの情報を渡す
+- AIアシスタントがモデルを理解したり、クエリを作ったり、マイグレーションを提案したりするのを助ける
 
-## Notes
+## 使い方
 
-- Run this from the project that contains your Prisma schema and `prisma.config.ts`
-- The command is separate from Prisma Studio and does not open a browser UI
-- The MCP server exposes `migrate-status`, `migrate-dev`, and Prisma Studio tooling. It does not expose the destructive `migrate-reset` tool; do not claim it is available or try to bypass that safety boundary.
-- For destructive shell commands, follow `agent-safety.md` and obtain explicit user consent.
+```bash
+prisma mcp
+```
 
-## References
+## 主な使いどころ
 
-- [Prisma CLI `mcp` command](https://docs.prisma.io/docs/cli/mcp)
-- [Prisma MCP Server](https://www.prisma.io/docs/ai/tools/chatgpt)
+- PrismaをChatGPTやClaudeなど、MCPに対応したツールにつなぐ
+- AIアシスタントが、Prismaスキーマの構造を見られるようにする
+- エージェントがプロジェクトの状況をふまえて、クエリ、スキーマの変更、マイグレーションの手順を提案できるようにする
+
+## 注意点
+
+- Prismaスキーマと `prisma.config.ts` があるプロジェクトの中で実行する
+- このコマンドはPrisma Studioとは別物で、ブラウザの画面は開かない
+- MCPサーバーで使えるのは `migrate-status`、`migrate-dev`、Prisma Studio関連のツール。データを消す `migrate-reset` ツールはないので、使えると言ったり、この安全上の制限をすり抜けようとしたりしてはいけない
+- データを消すシェルのコマンドを使うときは、`agent-safety.md` に従い、ユーザーの明確な同意を得る
+
+## 参考
+
+- [Prisma CLI の `mcp` コマンド](https://docs.prisma.io/docs/cli/mcp)
+- [Prisma MCP サーバー](https://www.prisma.io/docs/ai/tools/chatgpt)

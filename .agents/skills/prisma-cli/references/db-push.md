@@ -1,129 +1,129 @@
 # prisma db push
 
-Pushes schema changes directly to database without creating migrations. Ideal for prototyping.
+マイグレーションを作らずに、スキーマの変更をデータベースに直接反映します。試作の段階に向いています。
 
-## Command
+## コマンド
 
 ```bash
 prisma db push [options]
 ```
 
-## What It Does
+## できること
 
-- Syncs your Prisma schema to the database
-- Creates database if it doesn't exist
-- Does NOT create migration files
-- Does NOT track migration history
+- Prismaスキーマの内容をデータベースに反映する
+- データベースがなければ作成する
+- マイグレーションファイルは作らない
+- マイグレーションの履歴も残さない
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--force-reset` | Force a reset of the database before push |
-| `--accept-data-loss` | Ignore data loss warnings |
-| `--schema` | Custom path to your Prisma schema |
-| `--config` | Custom path to your Prisma config file |
-| `--url` | Override the datasource URL from the Prisma config file |
+| `--force-reset` | 反映する前に、データベースを強制的にリセットする |
+| `--accept-data-loss` | データが消えるという警告を無視する |
+| `--schema` | Prismaスキーマの場所を指定する |
+| `--config` | Prismaの設定ファイルの場所を指定する |
+| `--url` | 設定ファイルのデータソースURLの代わりに、このURLを使う |
 
-When Prisma detects an AI agent, `--force-reset` and `--accept-data-loss` require explicit user consent. Follow `agent-safety.md`; never infer or fabricate the consent text.
+PrismaがAIエージェントを検知した場合、`--force-reset` と `--accept-data-loss` を使うにはユーザーの明確な同意が必要です。`agent-safety.md` の手順に従ってください。同意文を推測したり、でっち上げたりしてはいけません。
 
-### Follow-up Command
+### このあとに実行するコマンド
 
-- Run `prisma generate` explicitly when you need refreshed client output
+- クライアントを最新にしたいときは、`prisma generate` を自分で実行する
 
-## Examples
+## 使用例
 
-### Basic push
+### 基本の反映
 
 ```bash
 prisma db push
 ```
 
-### Accept data loss
+### データが消えることを受け入れる
 
 ```bash
 prisma db push --accept-data-loss
 ```
 
-Required when changes would delete data (dropping columns, etc.)
+カラムの削除など、変更でデータが消える場合に必要です。
 
-### Force reset
+### 強制リセット
 
 ```bash
 prisma db push --force-reset
 ```
 
-Completely resets database and applies schema.
+データベースを完全にリセットしてから、スキーマを反映します。
 
-### Full workflow
+### 一連の流れ
 
 ```bash
 prisma db push
 prisma generate
 ```
 
-## When to Use
+## 使う場面
 
-- **Prototyping** - Rapid schema iteration
-- **Local development** - Quick schema changes
-- **MongoDB** - Primary workflow (migrations not supported)
-- **Testing** - Setting up test databases
+- **試作**：スキーマをすばやく何度も変える
+- **ローカル開発**：スキーマをさっと変える
+- **MongoDB**：基本の進め方（マイグレーションに対応していないため）
+- **テスト**：テスト用のデータベースを用意する
 
-## When NOT to Use
+## 使わない場面
 
-- **Production** - Use `migrate deploy`
-- **Team collaboration** - Use migrations for trackable changes
-- **When you need rollback** - Migrations provide history
+- **本番環境**：`migrate deploy` を使う
+- **チーム開発**：変更を追えるように、マイグレーションを使う
+- **元に戻したい可能性があるとき**：マイグレーションなら履歴が残る
 
-## Comparison with migrate dev
+## migrate dev との比較
 
-| Feature | db push | migrate dev |
+| 項目 | db push | migrate dev |
 |---------|---------|-------------|
-| Creates migration files | No | Yes |
-| Tracks history | No | Yes |
-| Requires shadow database | No | Yes |
-| Speed | Faster | Slower |
-| Rollback capability | No | Yes |
-| Best for | Prototyping | Development |
+| マイグレーションファイルを作る | いいえ | はい |
+| 履歴を残す | いいえ | はい |
+| シャドーデータベースが必要 | いいえ | はい |
+| 速さ | 速い | 遅い |
+| 元に戻せる | いいえ | はい |
+| 向いている用途 | 試作 | 開発 |
 
-## MongoDB Workflow
+## MongoDBでの進め方
 
-MongoDB doesn't support migrations. Use `db push` exclusively:
+MongoDBはマイグレーションに対応していないので、`db push` だけを使います。
 
 ```bash
-# Schema changes for MongoDB
+# MongoDBのスキーマ変更
 prisma db push
 prisma generate
 ```
 
-## Common Patterns
+## よくある使い方
 
-### Prototyping workflow
+### 試作の流れ
 
 ```bash
-# Make schema changes
+# スキーマを変更する
 # ...
 
-# Push to database
+# データベースに反映する
 prisma db push
 
-# Generate client
+# クライアントを生成する
 prisma generate
 
-# Test your changes
-# Repeat as needed
+# 変更を試す
+# 必要に応じてくり返す
 ```
 
-### Reset and start fresh
+### リセットして最初からやり直す
 
 ```bash
 prisma db push --force-reset
 prisma db seed
 ```
 
-### Handling conflicts
+### 反映できないとき
 
-If `db push` can't apply changes safely:
+`db push` が変更を安全に反映できない場合は、次のように表示されます。
 
 ```
 Error: The following changes cannot be applied:
@@ -132,19 +132,21 @@ Error: The following changes cannot be applied:
 Use --accept-data-loss to proceed
 ```
 
-Decide whether data loss is acceptable, then:
+（「`email` フィールドを削除するとデータが消えます。続けるには `--accept-data-loss` を使ってください」という意味です。）
+
+データが消えてもよいかを判断してから、次を実行します。
 
 ```bash
 prisma db push --accept-data-loss
 ```
 
-## Transition to Migrations
+## マイグレーションへの切り替え
 
-When ready for production, switch to migrations:
+本番に向けて準備ができたら、マイグレーションに切り替えます。
 
 ```bash
-# Create baseline migration from current schema
+# 今のスキーマをもとに、基準になるマイグレーションを作る
 prisma migrate dev --name init
 ```
 
-Then use `migrate dev` for future changes.
+それ以降の変更には `migrate dev` を使います。

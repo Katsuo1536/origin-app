@@ -1,31 +1,31 @@
 # prisma debug
 
-Prints information helpful for debugging and bug reports.
+デバッグやバグ報告に役立つ情報を表示します。
 
-## Command
+## コマンド
 
 ```bash
 prisma debug [options]
 ```
 
-## What It Does
+## できること
 
-Outputs details about your Prisma environment, including:
-- Prisma CLI version
-- Prisma Client version (if installed)
-- Engine binaries (Query Engine, Migration Engine, etc.)
-- Platform information (OS, Architecture)
-- Node.js version
-- Configured datasource provider
+Prismaの環境について、次のような情報を表示します。
+- Prisma CLI のバージョン
+- Prisma Client のバージョン（インストールしている場合）
+- エンジンのバイナリ（Query Engine、Migration Engine など）
+- 環境の情報（OS、CPUアーキテクチャ）
+- Node.js のバージョン
+- 設定しているデータソースのプロバイダー
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--schema` | Path to schema file |
-| `--config` | Custom path to your Prisma config file |
+| `--schema` | スキーマファイルのパス |
+| `--config` | Prismaの設定ファイルの場所を指定する |
 
-## Example Output
+## 出力の例
 
 ```
 prisma               : 7.3.0
@@ -39,8 +39,8 @@ PSL                  : ...
 Schema Engine        : ...
 ```
 
-## When to Use
+## 使う場面
 
-- **Troubleshooting**: Checking version mismatches
-- **Reporting Issues**: Including environment info in GitHub issues
-- **Verifying Installation**: Ensuring correct binaries are downloaded
+- **トラブルの原因を調べる**：バージョンがずれていないか確認する
+- **不具合を報告する**：GitHubのIssueに環境の情報を載せる
+- **インストールを確認する**：正しいバイナリがダウンロードされているか確かめる

@@ -1,92 +1,74 @@
 ---
 name: prisma-mongodb-upgrade
-description: Decision and migration guide for Prisma ORM MongoDB projects on v6, which have no upgrade path to v7. Use when a MongoDB project asks about upgrading Prisma, when "upgrade to prisma 7" comes up in a project with provider = "mongodb", or when evaluating a move to Prisma Next. Triggers on "upgrade prisma mongodb", "prisma 7 mongodb", "mongodb prisma migration", "prisma next mongodb".
+description: v6 の Prisma ORM の MongoDB プロジェクト向けの、判断と移行のガイド。これらには v7 へのバージョンアップの方法がない。MongoDB のプロジェクトで Prisma のバージョンアップについて聞かれたとき、provider = "mongodb" のプロジェクトで "upgrade to prisma 7" の話が出たとき、Prisma Next への移行を検討するときに使う。"upgrade prisma mongodb"、"prisma 7 mongodb"、"mongodb prisma migration"、"prisma next mongodb" で起動する。
 license: MIT
 metadata:
   author: prisma
   version: "0.1.0"
 ---
 
-# Prisma MongoDB Upgrade Path
+# Prisma の MongoDB のバージョンアップの道筋
 
-MongoDB projects are the one Prisma cohort with no road into Prisma 7: **v6 is the terminal
-classic-ORM major for MongoDB, and v7 never ships a MongoDB connector**. The successor path
-is [Prisma Next](https://github.com/prisma/prisma-next), where MongoDB support is in Early
-Access with GA planned after Postgres. This skill frames the real decision — migrate to
-Prisma Next (the encouraged path), or stay on v6 where a hard blocker applies — and carries
-the migration mechanics.
+MongoDB のプロジェクトは、Prisma 7 へ進む道がない唯一の Prisma の利用者のグループです。**MongoDB にとって v6 は、これまでの ORM の最後のメジャーバージョンで、v7 に MongoDB のコネクターが入ることはありません**。後継の道は
+[Prisma Next](https://github.com/prisma/prisma-next) で、MongoDB への対応は Early
+Access（先行公開）の段階にあり、Postgres のあとに GA（正式公開）の予定です。このスキルでは、実際に選ぶこと（Prisma Next に移行する（おすすめの道）か、決定的な妨げがあって v6 のままにするか）を整理し、移行の具体的な手順も扱います。
 
-**Never do either of these:**
+**次のどちらも、絶対にしないでください。**
 
-- Never advise a MongoDB project to "upgrade to Prisma 7". The connector does not exist
-  there. The `prisma-upgrade-v7` guide does not apply to MongoDB projects.
-- Never solve the version question by rewriting the app onto a SQL database. Changing the
-  database engine is a separate, much larger decision that is not yours to make implicitly.
+- MongoDB のプロジェクトに「Prisma 7 にバージョンアップする」ことを勧めない。そこにはコネクターがありません。`prisma-upgrade-v7` のガイドは、MongoDB のプロジェクトには当てはまりません。
+- アプリを SQL のデータベースに書き換えて、バージョンの問題を解決しない。データベースのエンジンを変えるのは、別の、ずっと大きな判断で、あなたが勝手に決めてよいことではありません。
 
-## The version landscape
+## バージョンの状況
 
-| Version | MongoDB status |
+| バージョン | MongoDB への対応の状況 |
 |---------|----------------|
-| Prisma ORM v6 | Fully supported (`mongodb` provider); latest 6.x is the current stable path; maintenance line |
-| Prisma ORM v7 | **No MongoDB connector — not an option, ever** |
-| Prisma Next | MongoDB support in **Early Access**, actively developed, GA planned after Postgres — the successor path for MongoDB projects |
+| Prisma ORM v6 | 完全に対応（`mongodb` のプロバイダー）。最新の 6.x が今の安定した道。保守のための系統 |
+| Prisma ORM v7 | **MongoDB のコネクターはない。この先もずっと選択肢にならない** |
+| Prisma Next | MongoDB への対応は **Early Access** で、活発に開発中。Postgres のあとに GA の予定。MongoDB のプロジェクトの後継の道 |
 
-## The decision, up front
+## 先に結論
 
-**Migrating to Prisma Next is the encouraged path.** MongoDB support in Prisma Next is Early
-Access: functional and moving quickly, with GA planned after Postgres — and the Prisma team
-wants MongoDB users to migrate early and share feedback. The migration mechanics are
-detailed in the references.
+**Prisma Next への移行が、おすすめの道です。** Prisma Next での MongoDB への対応は Early
+Access の段階です。ちゃんと動き、開発も速く進んでいて、Postgres のあとに GA の予定です。Prisma チームは、MongoDB の利用者に早めに移行してフィードバックを送ってほしいと考えています。移行の具体的な手順は、リファレンスに詳しく書いてあります。
 
-**Staying on the latest v6 remains a legitimate choice where a hard blocker applies** —
-stated plainly: the Next Mongo façade does not wrap transactions yet (the underlying driver
-is available directly; this is expected to change soon), and pre-1.0 minors can carry
-breaking changes with published upgrade recipes.
+**決定的な妨げがある場合は、最新の v6 のままにするのも正当な選択です。** はっきり言うと、Next の Mongo の窓口（façade）は、まだトランザクションを包んでいません（下にあるドライバーは直接使えます。これはもうすぐ変わる見込みです）。また、1.0 より前のマイナーバージョンには、互換性のない変更が入ることがあります（バージョンアップの手順は公開されます）。
 
-### Decision table
+### 判断の表
 
-| Signal | Direction |
+| 状況 | 方向 |
 |--------|-----------|
-| No blockers below apply | Migrate to Next; run the `verify-cutover-checklist` and share feedback with the Prisma team |
-| Greenfield / prototype / internal tool | Migrate to Next |
-| Codebase uses multi-document transactions (`$transaction`) — check with grep, do not ask | Plan raw-driver session equivalents first (see `client-api-mapping`), or stay on v6 until the façade wrapper lands |
-| Team cannot absorb pre-1.0 breaking upgrades between minors | Stay on v6 until GA |
-| Risk-averse but interested | Run a staged Next round-trip on a copy (see `verify-cutover-checklist`), then migrate |
+| 下の妨げがどれも当てはまらない | Next に移行する。`verify-cutover-checklist` を実行して、Prisma チームにフィードバックを送る |
+| 新規・試作・社内ツール | Next に移行する |
+| コードが複数のドキュメントにまたがるトランザクション（`$transaction`）を使っている（聞かずに grep で確認する） | 先に、ドライバーを直接使うセッションでの置き換えを計画する（`client-api-mapping` を見る）か、窓口でトランザクションを包めるようになるまで v6 のままにする |
+| チームが、マイナーバージョンの間の 1.0 より前の互換性のない変更に対応できない | GA まで v6 のままにする |
+| リスクは避けたいが興味がある | コピーで、段階的に Next を一通り試してから（`verify-cutover-checklist` を見る）、移行する |
 
-Note: the transactions gap is expected to close soon — this section will be updated when
-façade transactions merge in Prisma Next.
+注意：トランザクションが足りない問題は、もうすぐ解消される見込みです。窓口でのトランザクションが Prisma Next に取り込まれたら、この部分は更新されます。
 
-### If staying on v6: hygiene (a deliberate stay, not neglect)
+### v6 のままにする場合：きちんと手入れする（放置ではなく、意図して残す）
 
-- Pin the Prisma packages to the latest 6.x line and keep taking 6.x patch releases.
-- Track Prisma release notes and security advisories for the 6.x line.
-- Keep the classic v6 MongoDB setup: `url = env("DATABASE_URL")` in the schema, `db push`
-  workflow, no SQL driver adapters (see `prisma-database-setup` for the v6 MongoDB shape).
-- Re-evaluate when Prisma Next's MongoDB is GA, or when blockers for trying EA are resolved.
+- Prisma のパッケージを最新の 6.x の系統に固定し、6.x のパッチのリリースを入れ続ける。
+- 6.x の系統の Prisma のリリースノートとセキュリティの勧告を追う。
+- これまでの v6 の MongoDB の構成を保つ：スキーマに `url = env("DATABASE_URL")`、`db push`
+  の流れ、SQL のドライバーアダプターは使わない（v6 の MongoDB の形は `prisma-database-setup` を見る）。
+- Prisma Next の MongoDB が GA になったとき、または EA を試す妨げが解消されたときに、もう一度判断する。
 
-## Reference files
+## リファレンスファイル
 
-| Reference | What it covers |
+| リファレンス | 扱う内容 |
 |-----------|----------------|
-| `references/decision-stay-or-migrate.md` | The full decision framing, blocker checks, and stay-hygiene detail |
-| `references/schema-contract-mapping.md` | v6 schema (`mongodb` provider, `@db.ObjectId`, composite types) → Next contract concepts |
-| `references/client-api-mapping.md` | v6 client calls → Next equivalents, incl. raw escape hatches and transactions — names map, parity does not |
-| `references/migrations-mapping.md` | v6 `db push`-only story → Next's plan/migrate/verify/sign flow |
-| `references/verify-cutover-checklist.md` | No-data-moves verification: same DB, index parity, staged round-trip before cutover |
+| `references/decision-stay-or-migrate.md` | 判断の考え方の全体、妨げの確認、v6 のままにするときの手入れの詳細 |
+| `references/schema-contract-mapping.md` | v6 のスキーマ（`mongodb` のプロバイダー、`@db.ObjectId`、複合型）→ Next の contract の概念 |
+| `references/client-api-mapping.md` | v6 の Client の呼び出し → Next での置き換え。生の操作の抜け道とトランザクションも含む。名前は対応するが、同じ機能があるとは限らない |
+| `references/migrations-mapping.md` | v6 の `db push` だけの流れ → Next の plan・migrate・verify・sign の流れ |
+| `references/verify-cutover-checklist.md` | データを動かさない確認：同じデータベース、インデックスの一致、切り替え前の段階的な一通りの試し |
 
-## Verified against
+## 確認した対象
 
-Behavioral claims about Prisma Next in this skill were verified against
-[prisma/prisma-next](https://github.com/prisma/prisma-next) at commit
-`a2791c5dd59d579b4b3052942ae7f8fe5e2ee852` (pre-1.0, ~v0.14/0.15 line). Prisma Next moves
-quickly in Early Access: **before acting on any Next-side claim, verify it against the
-version actually installed** (check the project's `@prisma-next/*` versions and the
-prisma-next skills installed with it). Next's Mongo target requires MongoDB 8.0+ and expects
-`mongodb@^7` as a user-supplied peer dependency.
+このスキルの Prisma Next の動きについての説明は、
+[prisma/prisma-next](https://github.com/prisma/prisma-next) のコミット
+`a2791c5dd59d579b4b3052942ae7f8fe5e2ee852`（1.0 より前、v0.14・0.15 ごろの系統）で確認しました。Prisma Next は Early Access の段階で速く変わっています。**Next 側についての説明をもとに作業する前に、実際にインストールされているバージョンで確かめてください**（プロジェクトの `@prisma-next/*` のバージョンと、一緒にインストールされた prisma-next のスキルを確認する）。Next の Mongo の対象には MongoDB 8.0 以上が必要で、`mongodb@^7` を、利用者が用意する peer dependency として想定しています。
 
-## Hand-off rule
+## 引き継ぎのルール
 
-This skill is the **discovery bridge**, not a replacement for Prisma Next's own
-documentation. After a project switches to Prisma Next, run Prisma Next's `init`/skill
-installation and follow its own skills (quickstart, contract, queries, migrations, runtime)
-for day-to-day work — do not keep working from this skill's summaries.
+このスキルは、**見つけるための橋渡し**であって、Prisma Next 自身のドキュメントの代わりではありません。プロジェクトが Prisma Next に切り替わったら、Prisma Next の `init` やスキルのインストールを実行し、ふだんの作業ではそのスキル（quickstart、contract、queries、migrations、runtime）に従ってください。このスキルのまとめをもとに作業を続けないでください。

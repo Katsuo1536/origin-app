@@ -1,10 +1,10 @@
-# Prisma Platform CLI App Deploy
+# Prisma Platform の CLI でのアプリのデプロイ
 
-Use this reference for existing projects and for generated `compute:deploy` scripts.
+既存のプロジェクトや、生成された `compute:deploy` スクリプトを扱うときに、このリファレンスを使います。
 
-## Package and Command
+## パッケージとコマンド
 
-Compute app workflows are exposed through the Prisma Platform CLI package:
+Compute のアプリの作業は、Prisma Platform の CLI のパッケージで使えます。
 
 ```bash
 bunx @prisma/cli@latest --help
@@ -13,7 +13,7 @@ bunx @prisma/cli@latest app deploy --help
 bunx @prisma/cli@latest build logs --help
 ```
 
-The examples in help output may call the binary `prisma-cli`. When using package runners, prefer:
+ヘルプの出力の例では、バイナリが `prisma-cli` と呼ばれていることがあります。パッケージランナーを使うときは、次の書き方がおすすめです。
 
 ```bash
 bunx @prisma/cli@latest app deploy
@@ -21,9 +21,9 @@ npx @prisma/cli@latest app deploy
 pnpm dlx @prisma/cli@latest app deploy
 ```
 
-## Agent Skill Installation
+## エージェントのスキルのインストール
 
-`@prisma/cli` can install and refresh Prisma skills for local AI coding agents:
+`@prisma/cli` は、ローカルの AI コーディングエージェント向けに、Prisma のスキルをインストール・更新できます。
 
 ```bash
 bunx @prisma/cli@latest agent install
@@ -32,15 +32,15 @@ bunx @prisma/cli@latest agent update
 bunx @prisma/cli@latest agent status --json
 ```
 
-`agent install` and `agent update` shell out to `skills@latest add prisma/skills` through the detected package runner. Use them when the user wants Prisma's agent context installed or refreshed; they are not a deployment command.
+`agent install` と `agent update` は、検出したパッケージランナーを使って、`skills@latest add prisma/skills` を実行します。ユーザーが Prisma のエージェント向けの情報をインストール・更新したいときに使います。デプロイのコマンドではありません。
 
-## Typed Compute Config
+## 型付きの Compute の設定
 
-`prisma.compute.ts` is optional for normal single-app deploys and useful for reusable defaults or multi-app targets. Read [`compute-config.md`](compute-config.md) for config shapes, target selection, precedence, and monorepo rules. This reference only shows how deploy commands consume those settings.
+ふつうの単一のアプリのデプロイでは `prisma.compute.ts` は必須ではなく、使い回すデフォルトや複数のアプリのデプロイ先があるときに役立ちます。設定の形、デプロイ先の選び方、優先順位、モノレポのルールは、[`compute-config.md`](compute-config.md) を読んでください。このリファレンスでは、デプロイのコマンドがその設定をどう使うかだけを説明します。
 
-## Auth and Project Binding
+## 認証とプロジェクトとのつなぎ込み
 
-Useful commands:
+便利なコマンド：
 
 ```bash
 bunx @prisma/cli@latest auth login
@@ -50,9 +50,9 @@ bunx @prisma/cli@latest project show
 bunx @prisma/cli@latest project link <project-id-or-name>
 ```
 
-`@prisma/cli` can keep multiple local browser-login workspace sessions. Running `auth login` again for a different workspace should add/update that workspace session and make it active; it should not delete the existing workspace session. The active workspace pointer decides which stored OAuth workspace normal commands use.
+`@prisma/cli` は、ブラウザーでログインしたワークスペースのセッションを、ローカルに複数保存できます。別のワークスペースでもう一度 `auth login` を実行すると、そのワークスペースのセッションが追加・更新されて有効になります。既存のワークスペースのセッションは削除されません。どの保存済みの OAuth のワークスペースを通常のコマンドで使うかは、有効なワークスペースの指定で決まります。
 
-For agents, prefer this flow before project/app mutations:
+エージェントは、プロジェクトやアプリを変更する前に、次の流れで確認するのがおすすめです。
 
 ```bash
 bunx @prisma/cli@latest auth whoami --json
@@ -60,88 +60,88 @@ bunx @prisma/cli@latest auth workspace list --json
 bunx @prisma/cli@latest auth workspace use <workspace-id>
 ```
 
-Use workspace ids from `auth workspace list --json` when possible. Names are friendlier for humans but can be ambiguous. Use `auth workspace use` with no argument for a human interactive picker; headless scripts should pass an id because no-argument `use` fails non-interactively when multiple local OAuth workspaces exist.
+できれば、`auth workspace list --json` で得たワークスペース ID を使ってください。名前は人には分かりやすいですが、どれを指すのかあいまいになることがあります。引数なしの `auth workspace use` は、人が対話で選ぶときに使います。ローカルの OAuth のワークスペースが複数あると、引数なしの `use` は対話なしでは失敗するので、人が見ていないスクリプトでは ID を渡してください。
 
-If the active workspace is logged out or its refresh fails, the CLI intentionally does not auto-select another cached workspace. Choose the next workspace explicitly:
+有効なワークスペースがログアウトされた、または更新に失敗した場合、CLI は意図して、別の保存済みのワークスペースを自動で選びません。次のワークスペースは明示して選んでください。
 
-Use `auth workspace list --json`, then `auth workspace use <workspace-id>`.
+`auth workspace list --json` を実行してから、`auth workspace use <workspace-id>` を実行します。
 
-To clean up one local OAuth workspace without clearing every stored workspace session:
+保存済みのワークスペースのセッションをすべて消さずに、ローカルの OAuth のワークスペースを1つだけ片付けるには：
 
 ```bash
 bunx @prisma/cli@latest auth workspace logout <workspace-id-or-name>
-# equivalent:
+# 同じ意味：
 bunx @prisma/cli@latest auth logout --workspace <workspace-id-or-name>
 ```
 
-Plain `auth logout` clears all local OAuth workspace sessions. It does not unset `PRISMA_SERVICE_TOKEN`.
+引数なしの `auth logout` は、ローカルの OAuth のワークスペースのセッションをすべて消します。`PRISMA_SERVICE_TOKEN` は外しません。
 
-For a new linked project:
+新しいプロジェクトを作ってつなぎ込むには：
 
 ```bash
 bunx @prisma/cli@latest project create my-app --json
 ```
 
-For non-interactive or CI work, `@prisma/cli` accepts a workspace service token through `PRISMA_SERVICE_TOKEN`. A non-empty service token takes precedence over stored browser-login credentials, so local OAuth workspace switching does not affect command execution while the env var is set. `auth workspace list --json` may still show local OAuth sessions, but they are not switchable until the service-token env var is unset. Verify auth with `auth whoami` and never print the token value.
+対話なしの作業や CI では、`@prisma/cli` は `PRISMA_SERVICE_TOKEN` でワークスペースのサービストークンを受け付けます。空でないサービストークンは、ブラウザーでログインした保存済みの認証情報より優先されるので、この環境変数が設定されている間は、ローカルの OAuth のワークスペースを切り替えても、コマンドの実行には影響しません。`auth workspace list --json` にローカルの OAuth のセッションが表示されることはありますが、サービストークンの環境変数を外すまでは切り替えられません。認証は `auth whoami` で確認し、トークンの値は絶対に表示しないでください。
 
-If `PRISMA_SERVICE_TOKEN` is set but empty, unset it or provide a real token. The CLI should fail instead of silently falling back to local OAuth credentials.
+`PRISMA_SERVICE_TOKEN` が設定されているのに空の場合は、外すか、本物のトークンを指定してください。CLI は、黙ってローカルの OAuth の認証情報に切り替えずに、失敗するのが正しい動きです。
 
-Local auth storage is useful for debugging but should not be printed verbatim:
+ローカルの認証の保存場所は、調査には役立ちますが、中身をそのまま表示しないでください。
 
-- `PRISMA_COMPUTE_AUTH_FILE` can override the auth file path.
-- On macOS, the default OAuth credentials file is `~/Library/Application Support/prisma/auth.json`.
-- Workspace metadata and the active workspace pointer live beside it as `auth.context.json`.
-- Project pins live in `.prisma/local.json`.
-- Local CLI state such as selected app and known live deployment lives in `.prisma/cli/state.json`, rooted near `prisma.compute.ts` when a config is discovered.
+- `PRISMA_COMPUTE_AUTH_FILE` で、認証ファイルのパスを上書きできる。
+- macOS では、OAuth の認証情報のデフォルトのファイルは `~/Library/Application Support/prisma/auth.json`。
+- ワークスペースの情報と有効なワークスペースの指定は、その横の `auth.context.json` に保存される。
+- プロジェクトの固定設定は `.prisma/local.json` に保存される。
+- 選んだアプリや、把握している稼働中のデプロイのような、ローカルの CLI の状態は `.prisma/cli/state.json` に保存される。設定が見つかった場合は、`prisma.compute.ts` の近くに置かれる。
 
-## Project, Branch, Database, and Env Scope
+## プロジェクト、ブランチ、データベース、環境変数の範囲
 
-Compute deploys resolve a target project, app, and branch. Be explicit when the user's intent is not the already linked default project/app:
+Compute のデプロイでは、デプロイ先のプロジェクト、アプリ、ブランチが決まります。ユーザーの意図が、すでにつなぎ込んであるデフォルトのプロジェクトやアプリではない場合は、明示してください。
 
 ```bash
 bunx @prisma/cli@latest project show --json
 bunx @prisma/cli@latest app deploy --project proj_123 --app my-api --branch feature/login --json
 ```
 
-If `prisma.compute.ts` defines a `name` or an `apps` key, that config can provide the app name. `--app` and `PRISMA_APP_ID` rank above the config value. `[app]` selects a target from `apps`:
+`prisma.compute.ts` に `name` か `apps` のキーがあれば、その設定からアプリ名が決まることがあります。`--app` と `PRISMA_APP_ID` は、設定の値より優先されます。`[app]` は、`apps` の中からデプロイ先を選びます。
 
 ```bash
 bunx @prisma/cli@latest app deploy api --project proj_123 --branch feature/login --json
 ```
 
-See [`compute-config.md`](compute-config.md) for no-argument target inference, deploy-all, and build/run target rules.
+引数なしでのデプロイ先の推測、すべてのデプロイ、build や run のデプロイ先のルールは、[`compute-config.md`](compute-config.md) を見てください。
 
-Branch scope must line up across deploys, databases, and env vars:
+ブランチの範囲は、デプロイ、データベース、環境変数で揃える必要があります。
 
-- `app deploy --branch <git-name>` creates a deployment for that branch.
-- `database create <name> --branch <git-name>` creates a Prisma Postgres database for that branch scope.
-- `project env add/update/list/remove --branch <git-name>` manages branch-specific env overrides.
-- `project env add/update/list/remove --role production` manages production env.
-- `project env add/update/list/remove --role preview` manages preview-template env.
+- `app deploy --branch <git-name>` は、そのブランチのデプロイを作る。
+- `database create <name> --branch <git-name>` は、そのブランチの範囲の Prisma Postgres のデータベースを作る。
+- `project env add/update/list/remove --branch <git-name>` は、ブランチごとの環境変数の上書きを管理する。
+- `project env add/update/list/remove --role production` は、本番の環境変数を管理する。
+- `project env add/update/list/remove --role preview` は、プレビューのひな形の環境変数を管理する。
 
-Do not assume a local Git branch was used by the CLI unless the generated script or command output says so. If a user asks for `feature/login`, pass `--branch feature/login` consistently to app, database, and env commands.
+生成されたスクリプトかコマンドの出力にそう書いていない限り、CLI がローカルの Git のブランチを使ったと決めつけないでください。ユーザーが `feature/login` を指定したら、アプリ、データベース、環境変数のコマンドに、同じように `--branch feature/login` を渡してください。
 
-Promotion is a separate production action: `app promote <deployment-id>` rebuilds a deployment with production env vars. Do not treat a preview branch deploy as production promotion.
+本番への昇格は、本番に対する別の操作です。`app promote <deployment-id>` は、本番の環境変数を使ってデプロイをビルドし直します。プレビューのブランチへのデプロイを、本番への昇格として扱わないでください。
 
-## Deployment Story: GitHub vs CLI
+## デプロイの方法：GitHub と CLI
 
-When a Compute app is connected to GitHub push-to-deploy, the default branch is the production deploy path. If a PR has been merged into `main` or another configured default branch, the natural answer is that the changes should appear in production after the production deployment completes; use CLI deploys for explicit manual deploys, local-source deploys, or repositories that are not using GitHub push-to-deploy.
+Compute のアプリが GitHub の push によるデプロイにつながっている場合、デフォルトのブランチが本番へのデプロイの経路になります。PR が `main` やほかの設定されたデフォルトのブランチにマージされたなら、本番のデプロイが終われば変更が本番に反映される、というのが自然な答えです。CLI のデプロイは、手動で明示的にデプロイするとき、ローカルのソースからデプロイするとき、GitHub の push によるデプロイを使っていないリポジトリで使います。
 
-`app show`, `app list-deploys`, and `app logs` expose `--app`, `--project`, and for logs `--deployment`, not `--branch`. For branch debugging, capture the deployment id from deploy JSON and inspect that deployment or its logs.
+`app show`、`app list-deploys`、`app logs` にあるのは、`--app`、`--project`、ログの場合の `--deployment` で、`--branch` はありません。ブランチの調査では、デプロイの JSON からデプロイ ID を控えて、そのデプロイやログを確認してください。
 
-`app deploy --create-project <name>` creates and links a new Project before deploying. Use it only when the user wants a new Project. It conflicts with `--project` and `PRISMA_PROJECT_ID`, and `--yes` alone does not choose Project scope.
+`app deploy --create-project <name>` は、デプロイの前に新しい Project を作ってつなぎ込みます。ユーザーが新しい Project を望んでいるときだけ使ってください。`--project` や `PRISMA_PROJECT_ID` とは一緒に使えず、`--yes` だけでは Project の範囲は決まりません。
 
-`app deploy --region <region>` only applies when deploy creates a new app. Existing apps keep their current region. Use `prisma.compute.ts` `region` for a durable default, and use the flag only for one-off new-app placement.
+`app deploy --region <region>` が効くのは、deploy で新しいアプリを作るときだけです。既存のアプリは今のリージョンのままです。長く使うデフォルトには `prisma.compute.ts` の `region` を使い、フラグは、新しいアプリを一度だけ特定の場所に置きたいときにだけ使います。
 
-## Database and Env
+## データベースと環境変数
 
-Create a Prisma Postgres database for the linked project:
+つなぎ込んだプロジェクトに、Prisma Postgres のデータベースを作る：
 
 ```bash
 bunx @prisma/cli@latest database create main --branch main --json
 ```
 
-Manage project env vars:
+プロジェクトの環境変数を管理する：
 
 ```bash
 bunx @prisma/cli@latest project env list
@@ -154,20 +154,20 @@ bunx @prisma/cli@latest project env list --branch feature/foo
 bunx @prisma/cli@latest project env remove STRIPE_KEY --role preview
 ```
 
-`app deploy --env .env` loads environment variables from a file for the deployment. A config-backed deploy can instead load env through `prisma.compute.ts` `env`. Neither path is a migration command or seed command.
+`app deploy --env .env` は、デプロイ用の環境変数をファイルから読み込みます。設定を使うデプロイでは、代わりに `prisma.compute.ts` の `env` から環境変数を読み込めます。どちらも、マイグレーションやシードデータの投入のコマンドではありません。
 
-Database setup is not part of `prisma.compute.ts`. Keep database intent explicit with `database create` and project env commands. Do not add database setup to deploy examples. Treat any generated connection URL as a one-time secret.
+データベースの準備は、`prisma.compute.ts` の役割ではありません。データベースについての意図は、`database create` とプロジェクトの環境変数のコマンドで明示してください。デプロイの例にデータベースの準備を含めないでください。生成された接続 URL は、一度しか表示されない秘密の情報として扱ってください。
 
-Database and env guardrails:
+データベースと環境変数についての注意：
 
-- Deploys do not run migrations, seed data, or schema push. Run the app's own Prisma database command after deploy setup when needed.
-- In deploy-all, every target on the same branch shares branch-scoped project env unless you assign app-specific env values yourself.
-- Existing database env values supplied through `--env DATABASE_URL=...`, `--env DIRECT_URL=...`, an env file, or project env should be treated as the source of truth.
-- Known non-PostgreSQL Prisma schema sources should not be wired to Prisma Postgres automatically.
+- デプロイでは、マイグレーション、シードデータの投入、スキーマの反映は行われない。必要なら、デプロイの準備のあとに、アプリ自身の Prisma のデータベースのコマンドを実行する。
+- すべてをデプロイするときは、アプリごとの環境変数を自分で割り当てない限り、同じブランチのすべてのデプロイ先が、ブランチの範囲のプロジェクトの環境変数を共有する。
+- `--env DATABASE_URL=...`、`--env DIRECT_URL=...`、環境変数ファイル、プロジェクトの環境変数で渡された既存のデータベースの環境変数は、正しい値として扱う。
+- PostgreSQL ではないことが分かっている Prisma のスキーマは、自動で Prisma Postgres につながないようにする。
 
-## Project Git, Branch, and Database Operations
+## プロジェクトの Git、ブランチ、データベースの操作
 
-These commands are part of the same Platform CLI surface and often matter while preparing Compute deploys:
+次のコマンドも同じ Platform の CLI の一部で、Compute のデプロイを準備するときによく関わってきます。
 
 ```bash
 bunx @prisma/cli@latest branch list --json
@@ -188,57 +188,57 @@ bunx @prisma/cli@latest project transfer proj_123 --to-workspace wksp_456 --conf
 bunx @prisma/cli@latest project remove proj_123 --confirm proj_123
 ```
 
-Destructive and ownership-changing commands (`remove`, `restore`, `transfer`, `connection rotate`) require exact `--confirm <id>`; `--yes` is not enough.
+データを壊すコマンドや持ち主を変えるコマンド（`remove`、`restore`、`transfer`、`connection rotate`）には、正確な `--confirm <id>` が必要です。`--yes` だけでは足りません。
 
-Git integration connects a Project to a GitHub repository. Console-side GitHub import can create a Compute app and trigger push-to-deploy for the connected repository, including default-branch production deploys. The CLI `git connect` command is setup, not a local deploy command; use `app deploy` for explicit CLI deploys.
+Git の連携は、Project を GitHub のリポジトリにつなぎます。Console 側で GitHub から取り込むと、Compute のアプリが作られ、つないだリポジトリへの push によるデプロイ（デフォルトのブランチからの本番へのデプロイを含む）が動くことがあります。CLI の `git connect` コマンドは準備のためのもので、ローカルからデプロイするコマンドではありません。CLI で明示的にデプロイするには `app deploy` を使います。
 
-For GitHub-driven deploys, inspect the Console/build-runner state, deployment records, build logs, or the `Prisma Compute Deploy` GitHub check run instead of assuming local CLI output exists. The build runner can perform branch-aware database/env wiring: a preview branch with a Prisma schema and no `DATABASE_URL` can get a branch-scoped preview database, while production can wire a missing `DATABASE_URL` template from an existing ready database. GitHub check runs are the guided feedback path; do not promise Vercel-style PR comments.
+GitHub からのデプロイでは、ローカルの CLI の出力があると決めつけずに、Console やビルドの実行環境の状態、デプロイの記録、ビルドログ、GitHub の `Prisma Compute Deploy` のチェックの実行結果を確認してください。ビルドの実行環境は、ブランチに応じてデータベースや環境変数をつなぎ込むことがあります。Prisma のスキーマがあって `DATABASE_URL` がないプレビューのブランチには、ブランチの範囲のプレビュー用データベースが用意されることがあり、本番では、すでに準備ができているデータベースから、足りない `DATABASE_URL` のひな形がつなぎ込まれることがあります。案内付きのフィードバックは GitHub のチェックの実行結果で行われます。Vercel のような PR へのコメントを約束しないでください。
 
-Database and database-connection commands never print stored secret values in list/show output. `database create` and `database connection create` return a one-time connection URL; treat it as a secret, store it immediately in env if needed, and do not echo it back in summaries. Removal requires exact `--confirm <id>`; `--yes` is not enough.
+データベースやデータベースの接続のコマンドは、list や show の出力で、保存された秘密の値を表示しません。`database create` と `database connection create` は一度だけ接続 URL を返します。それを秘密の情報として扱い、必要ならすぐに環境変数に保存して、まとめの中で繰り返し表示しないでください。削除には正確な `--confirm <id>` が必要で、`--yes` だけでは足りません。
 
-## Build and Run Locally
+## ローカルでのビルドと実行
 
-Before deploy, verify that the app can produce a Compute artifact:
+デプロイの前に、アプリが Compute の成果物を作れることを確認します。
 
 ```bash
 bunx @prisma/cli@latest app build --build-type auto
 bunx @prisma/cli@latest app run --build-type auto --port 3000
 ```
 
-For Bun/server entrypoints:
+Bun やサーバーのエントリーポイントの場合：
 
 ```bash
 bunx @prisma/cli@latest app build --build-type bun --entry src/index.ts
 bunx @prisma/cli@latest app run --build-type bun --entry src/index.ts --port 8080
 ```
 
-For NestJS, use `app build` to validate the Compute artifact and run the framework's own dev command locally:
+NestJS では、`app build` で Compute の成果物を確認し、ローカルではフレームワーク自身の開発用コマンドを実行します。
 
 ```bash
 bunx @prisma/cli@latest app build --build-type nestjs
 bun run dev
 ```
 
-With a compute config, pass the target name instead of repeating framework/entry/port flags:
+Compute の設定があれば、フレームワーク・エントリーポイント・ポートのフラグを繰り返さずに、デプロイ先の名前を渡します。
 
 ```bash
 bunx @prisma/cli@latest app build api
 bunx @prisma/cli@latest app run api --port 8080
 ```
 
-`app run --port` sets `PORT` for local development. It does not rewrite an app's explicit host binding, so a local run is not enough to prove the deployed server is reachable from ingress.
+`app run --port` は、ローカルの開発用に `PORT` を設定します。アプリが明示しているホストの待ち受け先は書き換えないので、ローカルで動いても、デプロイしたサーバーに外部からの入り口（ingress）から届くことの証明にはなりません。
 
-`app run --build-type nestjs` is not supported. If a config-backed NestJS target is selected, run the Nest dev server directly instead.
+`app run --build-type nestjs` には対応していません。設定を使う NestJS のデプロイ先を選んだ場合は、代わりに Nest の開発用サーバーを直接実行してください。
 
-## Deploy
+## デプロイ
 
-Deploy with prompts:
+対話しながらデプロイする：
 
 ```bash
 bunx @prisma/cli@latest app deploy
 ```
 
-Agent/script-friendly deploy (do not assume production; add `--prod --yes` only when the user intends a production deploy, and note the first production deploy of an App auto-promotes without `--prod`):
+エージェントやスクリプト向けのデプロイ（本番だと決めつけないこと。ユーザーが本番へのデプロイを意図しているときだけ `--prod --yes` を付ける。App の最初の本番デプロイは `--prod` なしでも自動で本番に昇格することに注意）：
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -247,13 +247,13 @@ bunx @prisma/cli@latest app deploy \
   --env .env
 ```
 
-Build-then-verify path for CI: `--no-promote` builds a candidate deployment without changing the live one; it is reachable at its own candidate URL and promoted later with `app promote <deployment-id>`:
+CI でビルドしてから確かめる方法：`--no-promote` は、今動いているデプロイを変えずに候補のデプロイをビルドします。候補は専用の URL で確認でき、あとで `app promote <deployment-id>` で本番に昇格させます。
 
 ```bash
 bunx @prisma/cli@latest app deploy --no-promote --json --no-interactive
 ```
 
-For preview branches, omit `--prod` unless the user explicitly intends a production deploy:
+プレビューのブランチでは、ユーザーが本番へのデプロイを明示的に意図していない限り、`--prod` を付けないでください。
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -263,15 +263,15 @@ bunx @prisma/cli@latest app deploy \
   --env .env.preview
 ```
 
-After a real deploy, verify the public deployment URL. Do not stop at "deploy succeeded" or a local `app run` check:
+実際にデプロイしたあとは、公開されたデプロイの URL にアクセスして確かめてください。「deploy succeeded」やローカルの `app run` の確認で終わりにしないでください。
 
 ```bash
 curl -i https://<deployment-url>
 ```
 
-If the deploy command returns JSON, parse the URL from the result and request that exact public URL. Do not accidentally test `localhost` or `127.0.0.1` instead of public ingress.
+デプロイのコマンドが JSON を返したら、結果から URL を取り出して、その公開 URL にそのままアクセスしてください。うっかり、公開の入り口ではなく `localhost` や `127.0.0.1` を試さないようにしてください。
 
-Create/link a project during deploy:
+デプロイのときにプロジェクトを作ってつなぎ込む：
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -281,7 +281,7 @@ bunx @prisma/cli@latest app deploy \
   --env .env
 ```
 
-Deploy with framework and port:
+フレームワークとポートを指定してデプロイする：
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -292,7 +292,7 @@ bunx @prisma/cli@latest app deploy \
   --env .env
 ```
 
-Deploy a newly created app in a specific region:
+新しく作るアプリを、特定のリージョンにデプロイする：
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -303,9 +303,9 @@ bunx @prisma/cli@latest app deploy \
   --env .env
 ```
 
-`--region` is a new-app placement hint. It does not move an existing app.
+`--region` は、新しいアプリをどこに置くかの指定です。既存のアプリは移動しません。
 
-Deploy a preview branch with framework and port:
+フレームワークとポートを指定して、プレビューのブランチにデプロイする：
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -317,7 +317,7 @@ bunx @prisma/cli@latest app deploy \
   --env .env.preview
 ```
 
-Bun-style app with explicit entrypoint:
+エントリーポイントを明示した、Bun のようなアプリ：
 
 ```bash
 bunx @prisma/cli@latest app deploy \
@@ -329,26 +329,26 @@ bunx @prisma/cli@latest app deploy \
   --env .env
 ```
 
-`--entry <path>` without `--framework` is treated as a Bun app deploy.
+`--framework` なしで `--entry <path>` を付けると、Bun のアプリのデプロイとして扱われます。
 
-Config-backed Bun-style app:
+設定を使う、Bun のようなアプリ：
 
 ```bash
 bunx @prisma/cli@latest app deploy api --prod --yes --env .env
 ```
 
-Use config for stable app defaults, and flags for one-off project, branch, region, env, and production choices. Keep database setup in explicit database and project-env commands.
+変わらないアプリのデフォルトには設定を、その場限りのプロジェクト、ブランチ、リージョン、環境変数、本番の選択にはフラグを使います。データベースの準備は、データベースとプロジェクトの環境変数のコマンドで明示的に行ってください。
 
-## Operations
+## 運用
 
-Inspect and open:
+確認して開く：
 
 ```bash
 bunx @prisma/cli@latest app show --json
 bunx @prisma/cli@latest app open
 ```
 
-Deployments:
+デプロイ：
 
 ```bash
 bunx @prisma/cli@latest app list-deploys --json
@@ -358,7 +358,7 @@ bunx @prisma/cli@latest app rollback --to <deployment-id> --yes
 bunx @prisma/cli@latest app remove --app my-api --yes
 ```
 
-Logs:
+ログ：
 
 ```bash
 bunx @prisma/cli@latest app logs
@@ -366,7 +366,7 @@ bunx @prisma/cli@latest app logs --deployment <deployment-id>
 bunx @prisma/cli@latest app logs --json
 ```
 
-Build logs for GitHub/Console builds:
+GitHub や Console のビルドのビルドログ：
 
 ```bash
 bunx @prisma/cli@latest build logs <build-id>
@@ -374,9 +374,9 @@ bunx @prisma/cli@latest build logs <build-id> --follow
 bunx @prisma/cli@latest build logs <build-id> --json
 ```
 
-`build logs` streams build output keyed by a Build id from a GitHub/Console build or check run. It is separate from runtime `app logs`, which are keyed by the current app deployment or a deployment id.
+`build logs` は、GitHub や Console のビルド、またはチェックの実行の Build ID を使って、ビルドの出力を流します。これは、今のアプリのデプロイやデプロイ ID を使うランタイムの `app logs` とは別物です。
 
-Domains:
+ドメイン：
 
 ```bash
 bunx @prisma/cli@latest app domain add shop.example.com
@@ -386,18 +386,18 @@ bunx @prisma/cli@latest app domain retry shop.example.com
 bunx @prisma/cli@latest app domain remove shop.example.com
 ```
 
-Custom domain commands target production branch runtime. Do not use a preview branch for production domain setup.
+独自ドメインのコマンドは、本番のブランチのランタイムが対象です。本番のドメインの設定に、プレビューのブランチを使わないでください。
 
-## Output Handling
+## 出力の扱い
 
-When `--json` is available, parse the JSON and summarize:
+`--json` が使えるときは、JSON を読み取って、次の内容をまとめます。
 
-- project id/name
-- branch name
-- app id/name
-- deployment id/status
-- build id when present
-- deployment URL
-- database id/name if one was created
+- プロジェクトの ID と名前
+- ブランチ名
+- アプリの ID と名前
+- デプロイの ID と状態
+- ビルド ID（ある場合）
+- デプロイの URL
+- データベースの ID と名前（作った場合）
 
-Do not print secret env var values.
+秘密の環境変数の値を表示しないでください。

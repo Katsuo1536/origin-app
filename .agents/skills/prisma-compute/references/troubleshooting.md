@@ -1,10 +1,10 @@
-# Troubleshooting Prisma Compute
+# Prisma Compute のトラブルシューティング
 
-Use this reference when setup, build, deploy, env, or runtime behavior fails.
+準備、ビルド、デプロイ、環境変数、ランタイムの動きがうまくいかないときに、このリファレンスを使います。
 
-## First Checks
+## 最初に確認すること
 
-Run:
+実行する：
 
 ```bash
 bunx @prisma/cli@latest --help
@@ -13,7 +13,7 @@ bunx @prisma/cli@latest auth whoami
 bunx @prisma/cli@latest auth workspace list --json
 ```
 
-Then inspect:
+そのあと、次の内容を確認します。
 
 ```bash
 pwd
@@ -22,19 +22,19 @@ find .. -maxdepth 3 \( -name 'prisma.compute.ts' -o -name 'prisma.compute.mts' -
 test -f .env && sed -n 's/=.*/=<redacted>/p' .env
 ```
 
-Do not print unredacted secrets.
+秘密の情報を、伏せ字にしないまま表示しないでください。
 
-## `prisma.compute.ts` Not Picked Up
+## `prisma.compute.ts` が読み込まれない
 
-This only matters when the project is supposed to use a config-backed deploy. A simple app without `prisma.compute.ts` can still deploy with explicit `app deploy` flags.
+これが問題になるのは、プロジェクトが設定を使うデプロイを前提にしているときだけです。`prisma.compute.ts` のないシンプルなアプリでも、`app deploy` のフラグを明示すればデプロイできます。
 
-Symptoms:
+症状：
 
-- deploy ignores the expected framework, entrypoint, port, env file, or app root
-- a monorepo target such as `api` is not recognized
-- local state appears in the wrong `.prisma/` directory
+- 想定したフレームワーク、エントリーポイント、ポート、環境変数ファイル、アプリのルートが、deploy で無視される
+- `api` のようなモノレポのデプロイ先が認識されない
+- ローカルの状態が、間違った `.prisma/` ディレクトリに保存される
 
-Check:
+確認：
 
 ```bash
 pwd
@@ -42,35 +42,35 @@ find .. -maxdepth 4 \( -name 'prisma.compute.ts' -o -name 'prisma.compute.mts' -
 bunx @prisma/cli@latest app deploy --help
 ```
 
-Fix:
+直し方：
 
-- keep exactly one compute config file in the directory where it lives
-- put repo-wide or monorepo config at the repository/workspace root
-- run commands from inside the repo or workspace boundary so discovery can walk up to the config
-- use `[app]` targets from the `apps` keys, such as `bunx @prisma/cli@latest app deploy api`
-- remember that config-relative paths such as `root` and `env.file` resolve from the config file directory
+- Compute の設定ファイルは、置いてあるディレクトリに1つだけにする
+- リポジトリ全体やモノレポの設定は、リポジトリやワークスペースのルートに置く
+- 設定までさかのぼって探せるように、リポジトリやワークスペースの境界の中でコマンドを実行する
+- `bunx @prisma/cli@latest app deploy api` のように、`apps` のキーを `[app]` のデプロイ先として使う
+- `root` や `env.file` のような設定の中の相対パスは、設定ファイルのディレクトリから解決されることを覚えておく
 
-## Compute Config Invalid
+## Compute の設定が正しくない
 
-Symptoms:
+症状：
 
 - `COMPUTE_CONFIG_INVALID`
 - `COMPUTE_CONFIG_TARGET_REQUIRED`
 - `COMPUTE_CONFIG_TARGET_UNKNOWN`
 - "Multiple compute config files found"
 
-Fix:
+直し方：
 
-- export `defineComputeConfig({ app: ... })` or `defineComputeConfig({ apps: ... })`
-- define exactly one of `app` or `apps`
-- remove unknown top-level keys
-- pass a target for multi-app build/run commands, such as `app build web`
-- pass an existing `apps` key for multi-app deploys, such as `app deploy api`
-- for `nuxt`, `astro`, and `nestjs`, prefer strategy defaults unless a custom `build` override is intentional; current configs allow the override
-- for `framework: "custom"`, set both `build.outputDirectory` and `build.entrypoint`
-- when `build.outputDirectory` is set for a configurable framework, also set `build.entrypoint` if the framework needs a configured runtime entrypoint
+- `defineComputeConfig({ app: ... })` か `defineComputeConfig({ apps: ... })` を export する
+- `app` か `apps` のどちらか1つだけを書く
+- 一番上の階層の不明なキーを消す
+- 複数のアプリの build や run のコマンドでは、`app build web` のようにデプロイ先を渡す
+- 複数のアプリのデプロイでは、`app deploy api` のように、存在する `apps` のキーを渡す
+- `nuxt`、`astro`、`nestjs` では、意図して独自の `build` で上書きするのでなければ、方式のデフォルトを使う（今の設定では上書きもできる）
+- `framework: "custom"` では、`build.outputDirectory` と `build.entrypoint` の両方を設定する
+- 設定できるフレームワークで `build.outputDirectory` を設定したとき、そのフレームワークがランタイムのエントリーポイントの設定を必要とするなら、`build.entrypoint` も設定する
 
-Minimal recovery config:
+立て直すための最小限の設定：
 
 ```typescript
 import { defineComputeConfig } from "@prisma/compute-sdk/config";
@@ -84,38 +84,38 @@ export default defineComputeConfig({
 });
 ```
 
-## `create-prisma --yes` Did Not Deploy
+## `create-prisma --yes` でデプロイされなかった
 
-`--yes` skips prompts and does not opt into deploy. Pass `--deploy` explicitly:
+`--yes` は質問を飛ばすだけで、デプロイを選ぶわけではありません。`--deploy` を明示してください。
 
 ```bash
 bunx create-prisma@latest --name my-api --template hono --provider postgresql --deploy
 ```
 
-If the integrated deploy cannot complete, scaffold succeeds but deploy should be reported as failed.
+組み込みのデプロイを最後までできなかった場合は、ひな形の作成は成功していても、デプロイは失敗したと報告してください。
 
-## Accidental Prisma Postgres Provisioning
+## 意図せず Prisma Postgres が用意された
 
-With PostgreSQL, no `--database-url`, and no `--no-prisma-postgres`, setup can provision Prisma Postgres. For local smoke tests, pass:
+PostgreSQL を使い、`--database-url` も `--no-prisma-postgres` もないと、準備の段階で Prisma Postgres が用意されることがあります。ローカルの簡単な動作確認では、次を渡します。
 
 ```bash
 --no-prisma-postgres --database-url "postgresql://USER:PASSWORD@HOST:PORT/DB"
 ```
 
-Use a disposable real database URL if Prisma commands need to run.
+Prisma のコマンドを実行する必要があるなら、使い捨ての本物のデータベースの URL を使ってください。
 
-## Auth Fails
+## 認証に失敗する
 
-Symptoms:
+症状：
 
-- `project list` fails
-- `auth whoami` fails
-- browser login was not completed
-- commands use the wrong workspace after a second login
-- another workspace is stored locally but commands behave signed out
-- `PRISMA_SERVICE_TOKEN` is missing, empty, expired, or lacks workspace/project permissions
+- `project list` が失敗する
+- `auth whoami` が失敗する
+- ブラウザーでのログインが終わっていない
+- 2回目のログインのあと、コマンドが違うワークスペースを使う
+- 別のワークスペースがローカルに保存されているのに、コマンドがログアウトしたような動きをする
+- `PRISMA_SERVICE_TOKEN` がない、空、期限切れ、またはワークスペースやプロジェクトの権限がない
 
-Fix:
+直し方：
 
 ```bash
 bunx @prisma/cli@latest auth login
@@ -123,7 +123,7 @@ bunx @prisma/cli@latest auth whoami
 bunx @prisma/cli@latest auth workspace list --json
 ```
 
-If multiple local OAuth workspaces exist, switch explicitly. Prefer ids from JSON:
+ローカルの OAuth のワークスペースが複数あるときは、明示して切り替えます。JSON の ID を使うのがおすすめです。
 
 ```bash
 bunx @prisma/cli@latest auth workspace use <workspace-id>
@@ -131,21 +131,21 @@ bunx @prisma/cli@latest auth whoami --json
 bunx @prisma/cli@latest project list --json
 ```
 
-For a human terminal, `auth workspace use` with no argument opens an interactive picker or selects the only local OAuth workspace without prompting. In non-interactive or `--json` mode, use `auth workspace use <id-or-name>` instead.
+人が使うターミナルでは、引数なしの `auth workspace use` で、対話の選択画面が開くか、ローカルの OAuth のワークスペースが1つだけなら質問なしでそれが選ばれます。対話なしや `--json` のモードでは、代わりに `auth workspace use <id-or-name>` を使ってください。
 
-If the active workspace was logged out or its token refresh failed, the CLI intentionally stays signed out for OAuth commands rather than falling through to another cached workspace. Recover by running `auth workspace list --json` and then `auth workspace use <workspace-id>`.
+有効なワークスペースがログアウトされた、またはトークンの更新に失敗した場合、CLI は意図して、別の保存済みのワークスペースに切り替えずに、OAuth のコマンドではログアウトした状態のままにします。`auth workspace list --json` を実行してから `auth workspace use <workspace-id>` を実行して、元に戻してください。
 
-To remove only one local OAuth workspace session:
+ローカルの OAuth のワークスペースのセッションを1つだけ消すには：
 
 ```bash
 bunx @prisma/cli@latest auth workspace logout <workspace-id-or-name>
-# or:
+# または：
 bunx @prisma/cli@latest auth logout --workspace <workspace-id-or-name>
 ```
 
-Use plain `auth logout` only when you want to clear all local OAuth workspace sessions.
+引数なしの `auth logout` は、ローカルの OAuth のワークスペースのセッションをすべて消したいときだけ使ってください。
 
-For CI, `@prisma/cli` can authenticate with `PRISMA_SERVICE_TOKEN`:
+CI では、`@prisma/cli` は `PRISMA_SERVICE_TOKEN` で認証できます。
 
 ```bash
 test -n "${PRISMA_SERVICE_TOKEN:-}" && echo "PRISMA_SERVICE_TOKEN is set"
@@ -153,71 +153,71 @@ bunx @prisma/cli@latest auth whoami
 bunx @prisma/cli@latest app deploy --json --no-interactive --prod --yes --env .env
 ```
 
-If `PRISMA_SERVICE_TOKEN` is set and non-empty, it is the active auth source and local OAuth workspace switching is unavailable for command execution. Unset `PRISMA_SERVICE_TOKEN` before using `auth workspace use` to change local OAuth workspace context.
+`PRISMA_SERVICE_TOKEN` が設定されていて空でなければ、それが有効な認証の手段になり、コマンドの実行では、ローカルの OAuth のワークスペースを切り替えられません。`auth workspace use` でローカルの OAuth のワークスペースを変える前に、`PRISMA_SERVICE_TOKEN` を外してください。
 
-If `PRISMA_SERVICE_TOKEN` is set but empty, the CLI errors before trying browser-login credentials. Unset it or provide a valid workspace service token. Never echo, log, or paste the token value; only check whether it is present.
+`PRISMA_SERVICE_TOKEN` が設定されているのに空の場合、CLI はブラウザーでログインした認証情報を試す前にエラーになります。外すか、正しいワークスペースのサービストークンを指定してください。トークンの値を絶対に表示・記録・貼り付けしないでください。確認するのは、あるかどうかだけにします。
 
-Local storage hints for debugging:
+調査のための、ローカルの保存場所についてのヒント：
 
-- Override auth storage with `PRISMA_COMPUTE_AUTH_FILE` when isolating tests.
-- Default macOS OAuth credential file: `~/Library/Application Support/prisma/auth.json`.
-- Active workspace metadata sidecar: `~/Library/Application Support/prisma/auth.context.json`.
-- Project binding: `.prisma/local.json`.
-- Local app/project state: `.prisma/cli/state.json`, usually next to the discovered `prisma.compute.ts`.
+- テストを切り分けるときは、`PRISMA_COMPUTE_AUTH_FILE` で認証の保存場所を上書きする。
+- macOS の OAuth の認証情報のデフォルトのファイル：`~/Library/Application Support/prisma/auth.json`。
+- 有効なワークスペースの情報を入れた横のファイル：`~/Library/Application Support/prisma/auth.context.json`。
+- プロジェクトとのつなぎ込み：`.prisma/local.json`。
+- ローカルのアプリやプロジェクトの状態：`.prisma/cli/state.json`。ふつうは、見つかった `prisma.compute.ts` の横にある。
 
-Do not print credential files or token values into logs.
+認証情報のファイルやトークンの値を、ログに出さないでください。
 
-## Project Setup Fails
+## プロジェクトの準備に失敗する
 
-Symptoms:
+症状：
 
 - `PROJECT_SETUP_REQUIRED`
-- non-interactive deploy cannot choose a Project
-- deploy was expected to create a Project but did not
+- 対話なしのデプロイで Project を選べない
+- デプロイで Project が作られるはずだったのに、作られなかった
 
-Fix:
+直し方：
 
 ```bash
 bunx @prisma/cli@latest app deploy --project <id-or-name> --json --no-interactive
 bunx @prisma/cli@latest app deploy --create-project <name> --yes
 ```
 
-Do not rely on `--yes` alone to choose Project scope. `--project`, `--create-project`, and `PRISMA_PROJECT_ID` are mutually exclusive.
+`--yes` だけで Project の範囲が決まると思わないでください。`--project`、`--create-project`、`PRISMA_PROJECT_ID` は一緒に使えません。
 
-## Missing or Placeholder `DATABASE_URL`
+## `DATABASE_URL` がない、または仮の値のまま
 
-Symptoms:
+症状：
 
-- Prisma Client throws `DATABASE_URL is required`
-- migration scripts fail immediately
-- deploy runs but app fails on database access
+- Prisma Client が `DATABASE_URL is required` のエラーを出す
+- マイグレーションのスクリプトがすぐに失敗する
+- デプロイは動くが、アプリがデータベースにアクセスするときに失敗する
 
-Fix:
+直し方：
 
-1. Put a real production-ready `DATABASE_URL` in `.env` or project env.
-2. Run `prisma generate`.
-3. Run migrations with the project's `db:migrate` or production migration command.
-4. Redeploy with `--env .env` or project env configured.
+1. 本番で使える本物の `DATABASE_URL` を、`.env` かプロジェクトの環境変数に入れる。
+2. `prisma generate` を実行する。
+3. プロジェクトの `db:migrate` か、本番用のマイグレーションのコマンドでマイグレーションを実行する。
+4. `--env .env` を付けるか、プロジェクトの環境変数を設定して、再デプロイする。
 
-If Prisma Client generation or runtime env loading is the concrete failure, then inspect Prisma-specific config:
+はっきりした失敗の原因が、Prisma Client の生成やランタイムでの環境変数の読み込みなら、Prisma に関する設定を確認します。
 
 ```bash
 test -f prisma.config.ts && sed -n '1,160p' prisma.config.ts
 test -f prisma/schema.prisma && sed -n '1,220p' prisma/schema.prisma
 ```
 
-Never deploy `postgresql://USER:PASSWORD@HOST:PORT/DATABASE` placeholder values.
+`postgresql://USER:PASSWORD@HOST:PORT/DATABASE` のような仮の値のまま、絶対にデプロイしないでください。
 
-## Wrong Branch, Env, or Database
+## ブランチ、環境変数、データベースが違う
 
-Symptoms:
+症状：
 
-- preview deploy reads production env
-- branch deploy cannot find `DATABASE_URL`
-- app is deployed to the expected branch but points at the wrong database
-- logs are inspected for the current app while the failing URL belongs to a different deployment id
+- プレビューのデプロイが、本番の環境変数を読む
+- ブランチのデプロイで `DATABASE_URL` が見つからない
+- アプリは想定したブランチにデプロイされているが、違うデータベースを指している
+- 失敗している URL が別のデプロイ ID のものなのに、今のアプリのログを確認している
 
-Check:
+確認：
 
 ```bash
 bunx @prisma/cli@latest project show --json
@@ -228,45 +228,45 @@ bunx @prisma/cli@latest app list-deploys --json
 bunx @prisma/cli@latest app logs --deployment <deployment-id> --json
 ```
 
-Fix:
+直し方：
 
-- pass the same `--branch <git-name>` to `app deploy`, `database create`, and branch-specific `project env` commands
-- use `--role production` for production env and `--role preview` for preview-template env
-- capture the deployment id and URL from deploy JSON, then inspect logs with `app logs --deployment <deployment-id>`
-- `app show`, `app list-deploys`, and `app logs` do not filter by branch; capture and use the deployment id
-- treat `app promote <deployment-id>` as a production action because it rebuilds with production env vars
-- do not expect `prisma.compute.ts` to select Project, Branch, production, or database scope; it only supplies app deploy defaults
+- `app deploy`、`database create`、ブランチごとの `project env` のコマンドに、同じ `--branch <git-name>` を渡す
+- 本番の環境変数には `--role production`、プレビューのひな形の環境変数には `--role preview` を使う
+- デプロイの JSON からデプロイ ID と URL を控えて、`app logs --deployment <deployment-id>` でログを確認する
+- `app show`、`app list-deploys`、`app logs` はブランチで絞り込めないので、デプロイ ID を控えて使う
+- `app promote <deployment-id>` は、本番の環境変数でビルドし直すので、本番に対する操作として扱う
+- `prisma.compute.ts` で Project、Branch、本番、データベースの範囲が選ばれるとは思わない。設定が用意するのは、アプリのデプロイのデフォルトだけ
 
-## Database Wiring or Schema Did Not Apply
+## データベースのつなぎ込みやスキーマが反映されない
 
-Symptoms:
+症状：
 
-- deploy runs but the app cannot find `DATABASE_URL`
-- database env vars exist but the database is empty
-- a deploy-all run points multiple apps at the same branch database
+- デプロイは動くが、アプリが `DATABASE_URL` を見つけられない
+- データベースの環境変数はあるが、データベースが空
+- すべてをデプロイしたときに、複数のアプリが同じブランチのデータベースを指している
 
-Fix:
+直し方：
 
-- read [`app-deploy-cli.md`](app-deploy-cli.md) `Database and Env` for the database/env guardrails
-- create and assign database env vars explicitly for the intended branch/app scope
-- run migrations, seed, or schema push yourself after database setup; Compute never applies schema changes for you
-- for multi-app deploy-all with app-specific database isolation, create and assign those database env vars explicitly before deploy
+- データベースと環境変数についての注意は、[`app-deploy-cli.md`](app-deploy-cli.md) の `Database and Env` を読む
+- 意図したブランチやアプリの範囲に、データベースの環境変数を明示して作成・割り当てする
+- データベースの準備のあとに、マイグレーション、シードデータの投入、スキーマの反映を自分で実行する。Compute がスキーマの変更を反映してくれることはない
+- 複数のアプリをすべてデプロイするときに、アプリごとにデータベースを分けたいなら、デプロイの前に、それぞれのデータベースの環境変数を明示して作成・割り当てする
 
-## Workspace plan limit reached
+## ワークスペースのプランの上限に達した
 
-When the installed CLI returns `PLAN_LIMIT_REACHED`, treat it as a workspace plan restriction rather than a Compute or database outage.
+インストールした CLI が `PLAN_LIMIT_REACHED` を返したら、Compute やデータベースの障害ではなく、ワークスペースのプランによる制限として扱います。
 
-For agent/CI handling, run the relevant database command with `--json` and branch on `error.code === "PLAN_LIMIT_REACHED"`. Read `error.meta.upgradeUrl`, `planName`, `workspaceId`, and `usageBlocked`; optional values may be `null`. This is a workspace plan restriction rather than a Compute/database outage. Use the canonical upgrade URL when returned or direct the user to Prisma Console. Do not retry as an outage or infer a plan limit from status codes or message text.
+エージェントや CI で扱うときは、関係するデータベースのコマンドを `--json` 付きで実行し、`error.code === "PLAN_LIMIT_REACHED"` で処理を分けます。`error.meta.upgradeUrl`、`planName`、`workspaceId`、`usageBlocked` を読み取ります。省略できる値は `null` のことがあります。これは Compute やデータベースの障害ではなく、ワークスペースのプランによる制限です。正式なアップグレードの URL が返されたらそれを使い、なければ Prisma Console をユーザーに案内してください。障害として再試行したり、ステータスコードやメッセージの文章からプランの上限だと推測したりしないでください。
 
-## Next.js Standalone Missing
+## Next.js の standalone がない
 
-Error shape:
+エラーの形：
 
 ```text
 Next.js build did not produce standalone output
 ```
 
-Fix `next.config.ts`:
+`next.config.ts` を直します。
 
 ```typescript
 const nextConfig = {
@@ -276,56 +276,56 @@ const nextConfig = {
 export default nextConfig
 ```
 
-Then reinstall/build if needed and deploy again.
+そのあと、必要ならインストールやビルドをやり直して、もう一度デプロイします。
 
-## Next.js dependency missing after a successful build
+## ビルドは成功したのに Next.js の依存関係が見つからない
 
-Symptoms in pnpm/Bun isolated workspaces can include a deployment that builds successfully but exits before useful runtime logs, often with `Cannot find module` for `styled-jsx` or another traced dependency.
+pnpm や Bun の分離されたワークスペースでは、デプロイのビルドは成功するのに、役に立つランタイムのログが出る前に終了する、という症状が出ることがあります。多くの場合、`styled-jsx` やほかの追跡された依存関係で `Cannot find module` になります。
 
-The current Compute SDK preserves in-artifact package-store symlinks and materializes only safe out-of-tree targets when staging Next standalone output. Do not manually flatten or rewrite `.next/standalone/node_modules` symlinks; that can break the isolated-store layout.
+今の Compute SDK は、Next の standalone の出力を配置するときに、成果物の中のパッケージストアのシンボリックリンクを残し、成果物の外を指す安全なものだけを実体化します。`.next/standalone/node_modules` のシンボリックリンクを手で平らにしたり書き換えたりしないでください。分離されたストアの構成が壊れることがあります。
 
-Fix:
+直し方：
 
-1. Upgrade `@prisma/compute-sdk` and `@prisma/cli` to current versions.
-2. Remove only the generated build artifact/cache appropriate to the project, then rebuild.
-3. Confirm `output: "standalone"`, redeploy, and inspect the new deployment logs.
-4. If it persists, report the package manager, workspace layout, first missing module, and SDK/CLI versions through `@prisma/cli feedback` without secrets.
+1. `@prisma/compute-sdk` と `@prisma/cli` を今のバージョンに上げる。
+2. プロジェクトに合わせて、生成されたビルドの成果物やキャッシュだけを消してから、ビルドし直す。
+3. `output: "standalone"` を確認して再デプロイし、新しいデプロイのログを確認する。
+4. それでも直らなければ、パッケージマネージャー、ワークスペースの構成、最初に見つからなかったモジュール、SDK と CLI のバージョンを、秘密の情報を含めずに `@prisma/cli feedback` で報告する。
 
-## Nitro Entry Missing
+## Nitro のエントリーポイントがない
 
-Nuxt or TanStack Start error shape:
+Nuxt や TanStack Start のエラーの形：
 
 ```text
 .output/server/index.mjs
 ```
 
-General fix:
+全般的な直し方：
 
-- ensure the correct framework plugins are installed
-- run the framework build locally
-- avoid custom Nitro presets that produce a non-Node target
-- use the default Nitro node server preset
+- 正しいフレームワークのプラグインがインストールされていることを確認する
+- フレームワークのビルドをローカルで実行する
+- Node 以外を対象にする、独自の Nitro のプリセットを使わない
+- Nitro のデフォルトの node サーバーのプリセットを使う
 
-For TanStack Start specifically:
+TanStack Start に限った直し方：
 
-- keep `nitro` in `dependencies`
-- keep `import { nitro } from "nitro/vite"` in `vite.config.ts`
-- keep `plugins: [tanstackStart(), nitro(), viteReact()]` or the framework-equivalent plugin order
-- run `bun run build` and verify `.output/server/index.mjs` exists
-- do not replace the production server with `vite preview`
+- `nitro` を `dependencies` に残す
+- `vite.config.ts` に `import { nitro } from "nitro/vite"` を残す
+- `plugins: [tanstackStart(), nitro(), viteReact()]`、またはフレームワークでそれに当たるプラグインの順番を残す
+- `bun run build` を実行して、`.output/server/index.mjs` があることを確認する
+- 本番のサーバーを `vite preview` に置き換えない
 
-Compute detection selects TanStack Start when it sees `@tanstack/react-start` or `@tanstack/solid-start`. If the Nitro entrypoint is missing after that, fix the TanStack/Nitro build output; do not assume Compute will silently use a Bun deployment.
+Compute の検出は、`@tanstack/react-start` か `@tanstack/solid-start` を見つけると TanStack Start を選びます。そのうえで Nitro のエントリーポイントがない場合は、TanStack と Nitro のビルドの出力を直してください。Compute が黙って Bun のデプロイを使ってくれるとは思わないでください。
 
-## Bun Entrypoint Missing
+## Bun のエントリーポイントがない
 
-Error shape:
+エラーの形：
 
 ```text
 Entrypoint is required
 Entrypoint file does not exist
 ```
 
-Fix either:
+次のどちらかで直します。
 
 ```json
 {
@@ -333,37 +333,37 @@ Fix either:
 }
 ```
 
-or deploy with:
+または、次のようにデプロイします。
 
 ```bash
 bunx @prisma/cli@latest app deploy --framework bun --entry src/index.ts
 ```
 
-## Port Mismatch
+## ポートが合っていない
 
-Symptoms:
+症状：
 
-- deploy succeeds but the app is unreachable
-- health checks fail
-- logs show the server listening on a different port
+- デプロイは成功するが、アプリにアクセスできない
+- ヘルスチェックが失敗する
+- ログに、サーバーが別のポートで待ち受けていると出る
 
-Fix:
+直し方：
 
-- read `process.env.PORT`
-- pass `--http-port <port>` when the app has a fixed port
-- use the generated `compute:deploy` script when it exists
-- remember the `@prisma/cli app deploy` default is HTTP `3000`; generated Hono/Elysia projects usually configure `8080` through `prisma.compute.ts` or flag-backed `--http-port 8080` scripts
-- use the template defaults: Hono/Elysia `8080`, Next/TanStack/Nuxt `3000`, Astro `4321`
+- `process.env.PORT` を読む
+- アプリのポートが固定なら、`--http-port <port>` を渡す
+- 生成された `compute:deploy` スクリプトがあれば、それを使う
+- `@prisma/cli app deploy` のデフォルトは HTTP の `3000` であることを覚えておく。生成された Hono や Elysia のプロジェクトは、ふつう `prisma.compute.ts` か、`--http-port 8080` のフラグを使うスクリプトで `8080` を設定している
+- テンプレートのデフォルトを使う：Hono・Elysia は `8080`、Next・TanStack・Nuxt は `3000`、Astro は `4321`
 
-## Public URL Smoke Test Fails
+## 公開 URL での簡単な動作確認に失敗する
 
-Symptoms:
+症状：
 
-- deploy command completed
-- `app show` or deploy output has a URL
-- the public URL times out, returns 5xx, or returns an unexpected page
+- デプロイのコマンドは完了した
+- `app show` かデプロイの出力に URL がある
+- 公開 URL がタイムアウトする、5xx を返す、または想定外のページを返す
 
-Check:
+確認：
 
 ```bash
 curl -i https://<deployment-url>
@@ -371,36 +371,36 @@ curl -i https://<deployment-url>/health
 bunx @prisma/cli@latest app logs --json
 ```
 
-Fix by following the first concrete failure:
+最初に出たはっきりした失敗に沿って直します。
 
-- connection timeout or 5xx: check logs, host binding, and port mapping
-- unexpected status or body: verify the route path and app framework output
-- local URL tested by mistake: rerun against the public deployment URL, not `localhost` or `127.0.0.1`
+- 接続のタイムアウトや 5xx：ログ、ホストの待ち受け先、ポートの割り当てを確認する
+- 想定外のステータスや本文：ルートのパスと、アプリのフレームワークの出力を確認する
+- 間違えてローカルの URL を試していた：`localhost` や `127.0.0.1` ではなく、公開されたデプロイの URL でやり直す
 
-## Localhost Binding
+## localhost で待ち受けている
 
-Symptoms:
+症状：
 
-- deploy says the app started or the port was observed, but the public URL is unreachable
-- logs show a server listening on `localhost` or `127.0.0.1`
-- `app run` works locally, but the deployed app cannot receive external traffic
+- デプロイで、アプリが起動した、またはポートが確認されたと出るのに、公開 URL にアクセスできない
+- ログに、サーバーが `localhost` や `127.0.0.1` で待ち受けていると出る
+- `app run` ではローカルで動くのに、デプロイしたアプリが外部からの通信を受け取れない
 
-Why this happens:
+起きる理由：
 
-Compute's boot watcher polls `/proc/net/tcp` and `/proc/net/tcp6` for configured ports entering `LISTEN`. That readiness signal tracks the port, not whether the app bound `127.0.0.1` or all interfaces. A loopback-only listener can therefore look ready while public ingress still cannot reach it.
+Compute の起動の監視は、`/proc/net/tcp` と `/proc/net/tcp6` を定期的に見て、設定したポートが `LISTEN` になったかを確認しています。この準備完了の判定はポートを見ているだけで、アプリが `127.0.0.1` で待ち受けているか、すべてのネットワークで待ち受けているかは見ていません。そのため、自分のパソコン内（ループバック）だけで待ち受けていても準備完了に見え、公開の入り口からは届かないままになることがあります。
 
-Fix:
+直し方：
 
-- remove hard-coded `localhost` or `127.0.0.1` server host settings
-- bind on `0.0.0.0` or the framework equivalent, such as Astro `server.host: true`
-- for Next.js standalone, do not deploy with `HOSTNAME=localhost`; use `HOSTNAME=0.0.0.0` if the host is overridden
-- keep port and host fixes together: `0.0.0.0:<deployed-http-port>`
+- サーバーのホストに直接書いた `localhost` や `127.0.0.1` を消す
+- `0.0.0.0`、または Astro の `server.host: true` のような、フレームワークでそれに当たる設定で待ち受ける
+- Next.js の standalone では、`HOSTNAME=localhost` でデプロイしない。ホストを上書きするなら `HOSTNAME=0.0.0.0` を使う
+- ポートとホストは一緒に直す：`0.0.0.0:<deployed-http-port>`
 
-## Env Changes Did Not Apply
+## 環境変数の変更が反映されない
 
-Generated `compute:deploy` scripts redeploy using the generated flags and/or `prisma.compute.ts`; they do not run migrations or seed data.
+生成された `compute:deploy` スクリプトは、生成されたフラグや `prisma.compute.ts` を使って再デプロイします。マイグレーションもシードデータの投入もしません。
 
-After env changes:
+環境変数を変えたあと：
 
 ```bash
 bunx @prisma/cli@latest project env list
@@ -409,29 +409,29 @@ bunx @prisma/cli@latest app deploy --prod --yes --env .env
 bunx @prisma/cli@latest app deploy --branch feature/foo --env .env.preview
 ```
 
-If using branch-specific env, confirm the branch name and role.
+ブランチごとの環境変数を使っている場合は、ブランチ名と役割（role）を確認してください。
 
-## Need Logs
+## ログが必要なとき
 
-Runtime logs for the current app:
+今のアプリのランタイムのログ：
 
 ```bash
 bunx @prisma/cli@latest app logs
 ```
 
-Specific deployment:
+特定のデプロイ：
 
 ```bash
 bunx @prisma/cli@latest app logs --deployment <deployment-id>
 ```
 
-Machine-readable:
+プログラムで読める形式：
 
 ```bash
 bunx @prisma/cli@latest app logs --json
 ```
 
-Build logs for GitHub/Console builds:
+GitHub や Console のビルドのビルドログ：
 
 ```bash
 bunx @prisma/cli@latest build logs <build-id>
@@ -439,16 +439,16 @@ bunx @prisma/cli@latest build logs <build-id> --follow
 bunx @prisma/cli@latest build logs <build-id> --json
 ```
 
-Use `build logs` for build output keyed by a Build id from a GitHub check run, Console build page, or Management API build record. Use `app logs` for runtime logs keyed by the current app deployment or a deployment id.
+GitHub のチェックの実行、Console のビルドのページ、Management API のビルドの記録から得た Build ID を使うビルドの出力には `build logs` を、今のアプリのデプロイやデプロイ ID を使うランタイムのログには `app logs` を使います。
 
-Summarize relevant errors. Do not paste secrets.
+関係するエラーをまとめてください。秘密の情報は貼り付けないでください。
 
-## Report Unresolved CLI Issues
+## 解決できない CLI の問題を報告する
 
-When a CLI failure survives the checks above, or a command crashes with `UNEXPECTED_ERROR`, report it to the Prisma team:
+上の確認をしても CLI の失敗が直らないとき、またはコマンドが `UNEXPECTED_ERROR` でクラッシュしたときは、Prisma チームに報告します。
 
 ```bash
 bunx @prisma/cli@latest feedback "app deploy crashed: <first error line>"
 ```
 
-Prefer the pre-filled command from a `--json` crash envelope's `nextActions` verbatim. Anonymous; never put secrets, connection URLs, or tokens in the message.
+`--json` のクラッシュ情報の `nextActions` に入力済みのコマンドがあれば、それをそのまま使うのがおすすめです。報告は匿名です。メッセージに、秘密の情報、接続 URL、トークンを絶対に含めないでください。

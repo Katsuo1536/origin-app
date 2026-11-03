@@ -1,17 +1,17 @@
-# Prisma 7 Client Instantiation
+# Prisma 7 の Client のインスタンスの作り方
 
-Prisma 7 changed how PrismaClient connects to databases. The CLI (`prisma db push`, `prisma migrate`) reads the URL from `prisma.config.ts`. But at **runtime**, you must provide a driver adapter to PrismaClient explicitly.
+Prisma 7 では、PrismaClient がデータベースにつなぐ方法が変わりました。CLI（`prisma db push`、`prisma migrate`）は、URL を `prisma.config.ts` から読みます。しかし**実行時**には、PrismaClient にドライバーアダプターを明示して渡す必要があります。
 
-## Required packages
+## 必要なパッケージ
 
 ```bash
 npm install @prisma/client @prisma/adapter-pg pg
 ```
 
-- `@prisma/adapter-pg` — the Prisma adapter for the `pg` PostgreSQL driver
-- `pg` — the underlying Node.js PostgreSQL driver
+- `@prisma/adapter-pg`：`pg` の PostgreSQL のドライバー用の、Prisma のアダプター
+- `pg`：下で使われる、Node.js の PostgreSQL のドライバー
 
-## Basic instantiation
+## 基本のインスタンスの作り方
 
 ```typescript
 import 'dotenv/config'
@@ -24,17 +24,17 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 ```
 
-## Key rules
+## 大事なルール
 
-1. **Import path**: Always `./generated/prisma/client.js` — not `./generated/prisma` and not `@prisma/client`.
+1. **import のパス**：必ず `./generated/prisma/client.js` にする。`./generated/prisma` でも `@prisma/client` でもない。
 
-2. **Adapter is mandatory**: `new PrismaClient()` with no arguments throws. `new PrismaClient({ datasourceUrl: '...' })` also throws — `datasourceUrl` does not exist in Prisma 7.
+2. **アダプターは必須**：引数なしの `new PrismaClient()` はエラーになる。`new PrismaClient({ datasourceUrl: '...' })` もエラーになる。`datasourceUrl` は Prisma 7 にはない。
 
-3. **ESM required**: The generated client uses ESM. Ensure `package.json` has `"type": "module"`.
+3. **ESM が必要**：生成される Client は ESM を使う。`package.json` に `"type": "module"` があることを確認する。
 
-4. **Pool lifecycle**: Call `await pool.end()` when shutting down (after `prisma.$disconnect()`).
+4. **プールのライフサイクル**：終了するときは（`prisma.$disconnect()` のあとに）`await pool.end()` を呼ぶ。
 
-## Usage in application code
+## アプリのコードでの使い方
 
 ```typescript
 import 'dotenv/config'
@@ -46,37 +46,37 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
-// Create
+// 作成する
 const user = await prisma.user.create({
   data: { email: 'alice@example.com', name: 'Alice' },
 })
 
-// Read with relations
+// リレーションも含めて読み取る
 const posts = await prisma.post.findMany({
   where: { published: true },
   include: { author: true },
 })
 
-// Update
+// 更新する
 await prisma.post.update({
   where: { id: 1 },
   data: { published: true },
 })
 
-// Delete
+// 削除する
 await prisma.post.delete({ where: { id: 1 } })
 
-// Cleanup
+// 後片付け
 await prisma.$disconnect()
 await pool.end()
 ```
 
-## Common mistakes
+## よくある間違い
 
-| Mistake | Error | Fix |
+| 間違い | エラー | 直し方 |
 |---|---|---|
-| `import { PrismaClient } from './generated/prisma'` | `Cannot find module` | Use `./generated/prisma/client.js` |
-| `new PrismaClient()` | `PrismaClient needs non-empty options` | Pass `{ adapter }` |
-| `new PrismaClient({ datasourceUrl: url })` | `Unknown property datasourceUrl` | Use adapter pattern instead |
-| Missing `"type": "module"` in package.json | ESM import errors | Add `"type": "module"` |
-| `import { PrismaClient } from '@prisma/client'` | Wrong export | Use `./generated/prisma/client.js` |
+| `import { PrismaClient } from './generated/prisma'` | `Cannot find module` | `./generated/prisma/client.js` を使う |
+| `new PrismaClient()` | `PrismaClient needs non-empty options` | `{ adapter }` を渡す |
+| `new PrismaClient({ datasourceUrl: url })` | `Unknown property datasourceUrl` | 代わりにアダプターのパターンを使う |
+| package.json に `"type": "module"` がない | ESM の import のエラー | `"type": "module"` を追加する |
+| `import { PrismaClient } from '@prisma/client'` | 間違った export | `./generated/prisma/client.js` を使う |

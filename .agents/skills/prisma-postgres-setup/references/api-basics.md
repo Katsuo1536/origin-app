@@ -1,18 +1,18 @@
 # api-basics
 
-Core conventions for the Prisma Management API. All three `prisma-postgres-*` skills share these patterns.
+Prisma Management API の基本の決まりごと。3つの `prisma-postgres-*` スキルは、どれもこのパターンを共有しています。
 
-## Base URL
+## ベース URL
 
 ```
 https://api.prisma.io/v1
 ```
 
-API documentation: https://api.prisma.io/v1/doc
+API のドキュメント：https://api.prisma.io/v1/doc
 
-## Response Envelope
+## 返ってくる内容の包み（envelope）
 
-### Single resource
+### 1つのリソース
 
 ```json
 {
@@ -25,7 +25,7 @@ API documentation: https://api.prisma.io/v1/doc
 }
 ```
 
-### Collection
+### 一覧
 
 ```json
 {
@@ -40,38 +40,38 @@ API documentation: https://api.prisma.io/v1/doc
 }
 ```
 
-## Resource ID Prefixes
+## リソースの ID の接頭辞
 
-Every resource ID carries a type prefix:
+すべてのリソースの ID には、種類を表す接頭辞が付いています。
 
-| Prefix | Resource |
+| 接頭辞 | リソース |
 |---|---|
 | `proj_` | Project |
 | `db_` | Database |
 | `con_` | Connection |
 | `wksp_` | Workspace |
 
-Always include the prefix when sending IDs in API requests.
+API のリクエストで ID を送るときは、必ず接頭辞を含めてください。
 
-## Pagination
+## ページ分け
 
-Collection endpoints use cursor-based pagination:
+一覧のエンドポイントは、カーソルを使ったページ分けを使います。
 
 ```
 GET /v1/projects?limit=10
 GET /v1/projects?cursor=clx7abc123&limit=10
 ```
 
-| Parameter | Type | Default | Description |
+| パラメーター | 型 | デフォルト | 説明 |
 |---|---|---|---|
-| `cursor` | string | — | Opaque cursor from `nextCursor` |
-| `limit` | number | 100 | Maximum items per page |
+| `cursor` | string | — | `nextCursor` から得た、中身を気にしなくてよいカーソル |
+| `limit` | number | 100 | 1ページあたりの最大の件数 |
 
-Continue fetching while `pagination.hasMore` is `true`, using `pagination.nextCursor` as the `cursor` parameter.
+`pagination.hasMore` が `true` の間は、`pagination.nextCursor` を `cursor` のパラメーターにして、取得を続けます。
 
-## Error Responses
+## エラーのとき返ってくる内容
 
-All errors follow this shape:
+すべてのエラーは、次の形になります。
 
 ```json
 {
@@ -82,21 +82,21 @@ All errors follow this shape:
 }
 ```
 
-### Error codes by HTTP status
+### HTTP のステータスごとのエラーコード
 
-| HTTP Status | Error Code | Meaning |
+| HTTP のステータス | エラーコード | 意味 |
 |---|---|---|
-| 400 | `client-error` | Malformed request |
-| 401 | `authentication-failed` | Missing or invalid token |
-| 403 | `permission-denied` | Token lacks required access |
-| 404 | `resource-not-found` | Resource does not exist or is not accessible |
-| 422 | `validation-error` | Request body failed validation |
-| 429 | `rate-limit-exceeded` | Too many requests |
-| 500 | `internal-server-error` | Server error — retry after a delay |
+| 400 | `client-error` | リクエストの形が正しくない |
+| 401 | `authentication-failed` | トークンがない、または正しくない |
+| 403 | `permission-denied` | トークンに必要な権限がない |
+| 404 | `resource-not-found` | リソースが存在しない、またはアクセスできない |
+| 422 | `validation-error` | リクエストの本文が検証に通らなかった |
+| 429 | `rate-limit-exceeded` | リクエストが多すぎる |
+| 500 | `internal-server-error` | サーバーのエラー。少し待ってからもう一度試す |
 
-### Self-correction patterns
+### 自分で直すときのパターン
 
-- **401**: Token is invalid or expired. Create a new service token in Console → Workspace Settings → Service Tokens.
-- **404**: Verify the resource ID includes the correct prefix (`proj_`, `db_`, `con_`). Use `GET /v1/projects` or `GET /v1/databases` to list available resources.
-- **422**: Check the request body against the endpoint schema. Common issues: missing required fields, invalid region ID, empty `name`.
-- **429**: Wait 2–5 seconds and retry. If repeated, increase the backoff interval.
+- **401**：トークンが正しくないか、期限切れ。Console → Workspace Settings → Service Tokens で、新しいサービストークンを作る。
+- **404**：リソースの ID に正しい接頭辞（`proj_`、`db_`、`con_`）が付いているかを確認する。使えるリソースの一覧は、`GET /v1/projects` か `GET /v1/databases` で取得する。
+- **422**：リクエストの本文を、エンドポイントのスキーマと照らし合わせる。よくある問題：必須の項目がない、リージョンの ID が正しくない、`name` が空。
+- **429**：2〜5秒待ってから、もう一度試す。繰り返し起きるなら、待つ間隔を長くする。

@@ -1,48 +1,48 @@
 # prisma format
 
-Formats your Prisma schema file.
+Prismaのスキーマファイルを整形します。
 
-## Command
+## コマンド
 
 ```bash
 prisma format [options]
 ```
 
-## What It Does
+## できること
 
-- Fixes formatting (indentation, spacing)
-- Adds missing back-relations (e.g., adds the other side of a relation)
-- Adds missing relation arguments (e.g., `fields`, `references`)
-- Sorts fields and attributes (opinionated)
+- 書き方の見た目（インデント・スペース）を整える
+- 抜けている逆側のリレーションを追加する（例：リレーションのもう片方を書き足す）
+- 抜けているリレーションの引数（`fields`、`references` など）を追加する
+- フィールドと属性を並べ替える（Prisma独自のルールで）
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--schema` | Path to schema file |
-| `--config` | Custom path to your Prisma config file |
+| `--schema` | スキーマファイルのパス |
+| `--config` | Prismaの設定ファイルの場所を指定する |
 
-## Examples
+## 使用例
 
-### Format default schema
+### デフォルトのスキーマを整形する
 
 ```bash
 prisma format
 ```
 
-### Format specific schema
+### 指定したスキーマを整形する
 
 ```bash
 prisma format --schema=./custom/schema.prisma
 ```
 
-## Behavior
+## 動き方
 
-`prisma format` modifies the file in place. It is equivalent to "Prettier for Prisma schemas" but also has semantic understanding to fix/add missing schema definitions.
+`prisma format` は、ファイルを直接書き換えます。「Prismaスキーマ用のPrettier」のようなものですが、スキーマの意味も理解しているので、抜けている定義を直したり書き足したりもします。
 
-## Use in Editor
+## エディタでの使い方
 
-Most Prisma editor extensions (VS Code, WebStorm) run `prisma format` automatically on save. This command is useful for:
-- CI pipelines (check formatting)
-- CLI-based workflows
-- Fixing large schema refactors
+Prismaのエディタ拡張（VS Code、WebStorm）の多くは、保存するときに自動で `prisma format` を実行します。このコマンドを手で使うのは、次のような場面です。
+- CIのパイプライン（整形されているかのチェック）
+- コマンドラインで作業するとき
+- スキーマを大きく書き換えたあとに整えるとき

@@ -1,15 +1,15 @@
-# SQL Server Setup
+# SQL Server の準備
 
-Configure Prisma with Microsoft SQL Server.
+Microsoft SQL Server で Prisma を設定します。
 
-## Prerequisites
+## 前提条件
 
-- SQL Server 2017, 2019, 2022, or Azure SQL
-- TCP/IP enabled
+- SQL Server 2017、2019、2022、または Azure SQL
+- TCP/IP が有効になっている
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
@@ -22,9 +22,9 @@ generator client {
 }
 ```
 
-## 2. Config Configuration
+## 2. 設定ファイルの設定
 
-In `prisma.config.ts`:
+`prisma.config.ts` に書きます。
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -37,33 +37,33 @@ export default defineConfig({
 })
 ```
 
-## 3. Environment Variable
+## 3. 環境変数
 
-In `.env`:
+`.env` に書きます。
 
 ```env
 DATABASE_URL="sqlserver://localhost:1433;database=mydb;user=sa;password=Password123;encrypt=true;trustServerCertificate=true"
 ```
 
-### Connection String Format
+### 接続文字列の形式
 
 ```
 sqlserver://HOST:PORT;database=DB;user=USER;password=PASS;encrypt=true;trustServerCertificate=true
 ```
 
-- **encrypt**: Required for Azure (true).
-- **trustServerCertificate**: True for self-signed certs (local dev).
+- **encrypt**：Azure では必須（true）。
+- **trustServerCertificate**：自己署名の証明書（ローカルでの開発）では true。
 
-## Driver Adapter
+## ドライバーアダプター
 
-Use a driver adapter for the standard SQL workflow.
+標準の SQL の流れでは、ドライバーアダプターを使います。
 
-1. Install adapter and driver:
+1. アダプターとドライバーをインストールする：
    ```bash
    npm install @prisma/adapter-mssql mssql
    ```
 
-2. Instantiate Prisma Client with the adapter:
+2. アダプターを使って Prisma Client のインスタンスを作る：
    ```typescript
    import 'dotenv/config'
    import { PrismaClient } from '../generated/client'
@@ -84,11 +84,11 @@ Use a driver adapter for the standard SQL workflow.
    const prisma = new PrismaClient({ adapter })
    ```
 
-## Common Issues
+## よくある問題
 
 ### "Login failed for user"
-- SQL Server auth vs Windows auth. Prisma typically uses SQL Server authentication (username/password).
-- Ensure TCP/IP is enabled in SQL Server Configuration Manager.
+- SQL Server の認証か Windows の認証かを確認する。Prisma は、ふつう SQL Server の認証（ユーザー名とパスワード）を使う。
+- SQL Server Configuration Manager で TCP/IP が有効になっていることを確認する。
 
-### "Table not found" (dbo schema)
-Prisma assumes `dbo` schema by default. If using another schema, update the model or connection string? SQL Server provider mostly sticks to default schema.
+### "Table not found"（dbo スキーマ）
+Prisma は、デフォルトで `dbo` スキーマを前提にしています。別のスキーマを使っているなら、モデルか接続文字列を直す必要があるかもしれません（元の文書でも疑問形で書かれています）。SQL Server のプロバイダーは、ほとんどの場合デフォルトのスキーマを使います。

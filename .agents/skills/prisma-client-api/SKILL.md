@@ -1,51 +1,51 @@
 ---
 name: prisma-client-api
-description: Prisma Client API reference covering model queries, filters, operators, and client methods. Use when writing database queries, using CRUD operations, filtering data, or configuring Prisma Client. Triggers on "prisma query", "findMany", "create", "update", "delete", "$transaction".
+description: Prisma Client の API リファレンス。モデルのクエリ、絞り込み、演算子、Client のメソッドを扱う。データベースのクエリを書く、CRUD 操作をする、データを絞り込む、Prisma Client を設定するときに使う。"prisma query"、"findMany"、"create"、"update"、"delete"、"$transaction" で起動する。
 license: MIT
 metadata:
   author: prisma
   version: "7.9.1"
 ---
 
-# Prisma Client API Reference
+# Prisma Client API リファレンス
 
-Complete API reference for Prisma Client. This skill provides guidance on model queries, filtering, relations, and client methods for current Prisma projects.
+Prisma Client の API の総合リファレンスです。このスキルでは、現在の Prisma プロジェクトでの、モデルのクエリ、絞り込み、リレーション、Client のメソッドについて説明します。
 
-## When to Apply
+## 使う場面
 
-Reference this skill when:
-- Writing database queries with Prisma Client
-- Performing CRUD operations (create, read, update, delete)
-- Filtering and sorting data
-- Working with relations
-- Using transactions
-- Configuring client options
+次のようなときに、このスキルを参照します。
+- Prisma Client でデータベースのクエリを書く
+- CRUD 操作（作成・読み取り・更新・削除）をする
+- データを絞り込んだり並べ替えたりする
+- リレーションを扱う
+- トランザクションを使う
+- Client のオプションを設定する
 
-## Rule Categories by Priority
+## 優先度別のルールの分類
 
-| Priority | Category | Impact | Prefix |
+| 優先度 | 分類 | 影響 | 接頭辞 |
 |----------|----------|--------|--------|
-| 1 | Client Construction | HIGH | `constructor` |
-| 2 | Model Queries | CRITICAL | `model-queries` |
-| 3 | Query Shape | HIGH | `query-options` |
-| 4 | Filtering | HIGH | `filters` |
-| 5 | Relations | HIGH | `relations` |
-| 6 | Transactions | CRITICAL | `transactions` |
-| 7 | Raw SQL | CRITICAL | `raw-queries` |
-| 8 | Client Methods | MEDIUM | `client-methods` |
+| 1 | Client の作成 | 高 | `constructor` |
+| 2 | モデルのクエリ | 最重要 | `model-queries` |
+| 3 | クエリの形 | 高 | `query-options` |
+| 4 | 絞り込み | 高 | `filters` |
+| 5 | リレーション | 高 | `relations` |
+| 6 | トランザクション | 最重要 | `transactions` |
+| 7 | 生の SQL | 最重要 | `raw-queries` |
+| 8 | Client のメソッド | 中 | `client-methods` |
 
-## Quick Reference
+## クイックリファレンス
 
-- `constructor` - `PrismaClient` setup, adapter wiring, logging, and SQL commenter plugins
-- `model-queries` - CRUD operations and bulk operations
-- `query-options` - `select`, `include`, `omit`, sort, pagination
-- `filters` - scalar and logical filter operators
-- `relations` - relation reads and nested writes
-- `transactions` - array and interactive transaction patterns
-- `raw-queries` - `$queryRaw` and `$executeRaw` safety
-- `client-methods` - lifecycle methods, extensions, and `satisfies` patterns for `prisma-client`
+- `constructor` - `PrismaClient` の設定、アダプターの接続、ログ、SQL commenter プラグイン
+- `model-queries` - CRUD 操作と一括操作
+- `query-options` - `select`、`include`、`omit`、並べ替え、ページ分け
+- `filters` - 値の絞り込みと論理演算子
+- `relations` - リレーションの読み取りと、入れ子の書き込み
+- `transactions` - 配列形式と対話形式のトランザクションの書き方
+- `raw-queries` - `$queryRaw` と `$executeRaw` を安全に使う
+- `client-methods` - ライフサイクルのメソッド、拡張、`prisma-client` での `satisfies` の書き方
 
-## Client Instantiation
+## Client の作成
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -58,65 +58,65 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-## Model Query Methods
+## モデルのクエリのメソッド
 
-| Method | Description |
+| メソッド | 説明 |
 |--------|-------------|
-| `findUnique()` | Find one record by unique field |
-| `findUniqueOrThrow()` | Find one or throw error |
-| `findFirst()` | Find first matching record |
-| `findFirstOrThrow()` | Find first or throw error |
-| `findMany()` | Find multiple records |
-| `create()` | Create a new record |
-| `createMany()` | Create multiple records |
-| `createManyAndReturn()` | Create multiple and return them |
-| `update()` | Update one record |
-| `updateMany()` | Update multiple records |
-| `updateManyAndReturn()` | Update multiple and return them |
-| `upsert()` | Update or create record |
-| `delete()` | Delete one record |
-| `deleteMany()` | Delete multiple records |
-| `count()` | Count matching records |
-| `aggregate()` | Aggregate values (sum, avg, etc.) |
-| `groupBy()` | Group and aggregate |
+| `findUnique()` | 一意のフィールドで1件探す |
+| `findUniqueOrThrow()` | 1件探し、なければエラーを投げる |
+| `findFirst()` | 条件に合う最初の1件を探す |
+| `findFirstOrThrow()` | 最初の1件を探し、なければエラーを投げる |
+| `findMany()` | 複数件を探す |
+| `create()` | 新しいレコードを作成する |
+| `createMany()` | 複数のレコードを作成する |
+| `createManyAndReturn()` | 複数作成して、作成したものを返す |
+| `update()` | 1件を更新する |
+| `updateMany()` | 複数件を更新する |
+| `updateManyAndReturn()` | 複数更新して、更新したものを返す |
+| `upsert()` | 更新、なければ作成する |
+| `delete()` | 1件を削除する |
+| `deleteMany()` | 複数件を削除する |
+| `count()` | 条件に合うレコードを数える |
+| `aggregate()` | 値を集計する（合計、平均など） |
+| `groupBy()` | グループ化して集計する |
 
-## Query Options
+## クエリのオプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `where` | Filter conditions |
-| `select` | Fields to include |
-| `include` | Relations to load |
-| `omit` | Fields to exclude |
-| `orderBy` | Sort order |
-| `take` | Limit results |
-| `skip` | Skip results (pagination) |
-| `cursor` | Cursor-based pagination |
-| `distinct` | Unique values only |
+| `where` | 絞り込みの条件 |
+| `select` | 取得するフィールド |
+| `include` | 読み込むリレーション |
+| `omit` | 除外するフィールド |
+| `orderBy` | 並び順 |
+| `take` | 取得する件数の上限 |
+| `skip` | とばす件数（ページ分け） |
+| `cursor` | カーソルを使ったページ分け |
+| `distinct` | 重複しない値だけ |
 
-## Client Methods
+## Client のメソッド
 
-| Method | Description |
+| メソッド | 説明 |
 |--------|-------------|
-| `$connect()` | Explicitly connect to database |
-| `$disconnect()` | Disconnect from database |
-| `$transaction()` | Execute transaction |
-| `$queryRaw()` | Execute raw SQL query |
-| `$executeRaw()` | Execute raw SQL command |
-| `$on()` | Subscribe to events |
-| `$extends()` | Add extensions |
+| `$connect()` | データベースに明示的に接続する |
+| `$disconnect()` | データベースとの接続を切る |
+| `$transaction()` | トランザクションを実行する |
+| `$queryRaw()` | 生の SQL のクエリを実行する |
+| `$executeRaw()` | 生の SQL のコマンドを実行する |
+| `$on()` | イベントを受け取る |
+| `$extends()` | 拡張を追加する |
 
-## Quick Examples
+## 簡単な例
 
-### Find records
+### レコードを探す
 
 ```typescript
-// Find by unique field
+// 一意のフィールドで探す
 const user = await prisma.user.findUnique({
   where: { email: 'alice@prisma.io' }
 })
 
-// Find with filter
+// 条件で絞り込んで探す
 const users = await prisma.user.findMany({
   where: { role: 'ADMIN' },
   orderBy: { createdAt: 'desc' },
@@ -124,7 +124,7 @@ const users = await prisma.user.findMany({
 })
 ```
 
-### Create records
+### レコードを作成する
 
 ```typescript
 const user = await prisma.user.create({
@@ -139,7 +139,7 @@ const user = await prisma.user.create({
 })
 ```
 
-### Update records
+### レコードを更新する
 
 ```typescript
 const user = await prisma.user.update({
@@ -148,7 +148,7 @@ const user = await prisma.user.update({
 })
 ```
 
-### Delete records
+### レコードを削除する
 
 ```typescript
 await prisma.user.delete({
@@ -156,7 +156,7 @@ await prisma.user.delete({
 })
 ```
 
-### Transactions
+### トランザクション
 
 ```typescript
 const [user, post] = await prisma.$transaction([
@@ -165,52 +165,52 @@ const [user, post] = await prisma.$transaction([
 ])
 ```
 
-## Rule Files
+## ルールファイル
 
-Detailed API documentation:
+API の詳しい説明：
 
 ```
-references/constructor.md        - PrismaClient constructor options
-references/model-queries.md      - CRUD operations
-references/query-options.md      - select, include, omit, where, orderBy
-references/filters.md            - Filter conditions and operators
-references/relations.md          - Relation queries and nested operations
-references/transactions.md       - Transaction API
-references/raw-queries.md        - $queryRaw, $executeRaw
-references/client-methods.md     - $connect, $disconnect, $on, $extends
+references/constructor.md        - PrismaClient のコンストラクターのオプション
+references/model-queries.md      - CRUD 操作
+references/query-options.md      - select、include、omit、where、orderBy
+references/filters.md            - 絞り込みの条件と演算子
+references/relations.md          - リレーションのクエリと入れ子の操作
+references/transactions.md       - トランザクションの API
+references/raw-queries.md        - $queryRaw、$executeRaw
+references/client-methods.md     - $connect、$disconnect、$on、$extends
 ```
 
-## Filter Operators
+## 絞り込みの演算子
 
-| Operator | Description |
+| 演算子 | 説明 |
 |----------|-------------|
-| `equals` | Exact match |
-| `not` | Not equal |
-| `in` | In array |
-| `notIn` | Not in array |
-| `lt`, `lte` | Less than |
-| `gt`, `gte` | Greater than |
-| `contains` | String contains |
-| `startsWith` | String starts with |
-| `endsWith` | String ends with |
-| `mode` | Case sensitivity |
+| `equals` | 完全に一致する |
+| `not` | 等しくない |
+| `in` | 配列のどれかに含まれる |
+| `notIn` | 配列のどれにも含まれない |
+| `lt`, `lte` | より小さい（以下） |
+| `gt`, `gte` | より大きい（以上） |
+| `contains` | 文字列を含む |
+| `startsWith` | 文字列で始まる |
+| `endsWith` | 文字列で終わる |
+| `mode` | 大文字・小文字を区別するか |
 
-## Relation Filters
+## リレーションの絞り込み
 
-| Operator | Description |
+| 演算子 | 説明 |
 |----------|-------------|
-| `some` | At least one related record matches |
-| `every` | All related records match |
-| `none` | No related records match |
-| `is` | Related record matches (1-to-1) |
-| `isNot` | Related record doesn't match |
+| `some` | 関連するレコードのうち、1件以上が条件に合う |
+| `every` | 関連するレコードがすべて条件に合う |
+| `none` | 関連するレコードが1件も条件に合わない |
+| `is` | 関連するレコードが条件に合う（1対1） |
+| `isNot` | 関連するレコードが条件に合わない |
 
-## Resources
+## 参考資料
 
-- [Prisma Client API Reference](https://www.prisma.io/docs/orm/reference/prisma-client-reference)
-- [CRUD Operations](https://www.prisma.io/docs/orm/prisma-client/queries/crud)
-- [Filtering and Sorting](https://www.prisma.io/docs/orm/prisma-client/queries/filtering-and-sorting)
+- [Prisma Client API リファレンス](https://www.prisma.io/docs/orm/reference/prisma-client-reference)
+- [CRUD 操作](https://www.prisma.io/docs/orm/prisma-client/queries/crud)
+- [絞り込みと並べ替え](https://www.prisma.io/docs/orm/prisma-client/queries/filtering-and-sorting)
 
-## How to Use
+## 使い方
 
-Pick the category from the table above, then open the matching reference file for implementation details and examples.
+上の表で分類を選んでから、対応するリファレンスファイルを開いて、実装の詳しい説明と例を見てください。

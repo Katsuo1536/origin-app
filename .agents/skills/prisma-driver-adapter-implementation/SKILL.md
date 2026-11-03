@@ -1,24 +1,24 @@
 ---
 name: prisma-driver-adapter-implementation
-description: Required reference for Prisma ORM 7 SQL driver adapter work. Use when implementing or modifying adapters, adding database drivers, or touching SqlDriverAdapter, Transaction, savepoint, result mapping, or DriverAdapterError behavior. Covers current transaction lifecycle, optional savepoint hooks, original database-error preservation, and verification.
+description: Prisma ORM 7 の SQL のドライバーアダプターの作業に欠かせないリファレンス。アダプターの実装・変更、データベースのドライバーの追加、SqlDriverAdapter・Transaction・セーブポイント・結果の対応付け・DriverAdapterError の動きに手を入れるときに使う。今のトランザクションのライフサイクル、省略できるセーブポイントのフック、元のデータベースのエラーを残すこと、確認の方法を扱う。
 license: MIT
 metadata:
   author: prisma
   version: "7.9.1"
 ---
 
-# Prisma SQL Driver Adapter Implementation
+# Prisma の SQL のドライバーアダプターの実装
 
-Use this guide with the exact `@prisma/driver-adapter-utils` version installed by the target Prisma release. Driver adapters are a protocol boundary: type-compatible code can still corrupt values, leak connections, or break transactions.
+このガイドは、対象の Prisma のリリースでインストールされる、正確な `@prisma/driver-adapter-utils` のバージョンと一緒に使ってください。ドライバーアダプターは、通信の取り決め（プロトコル）の境界です。型が合っているコードでも、値を壊したり、接続を漏らしたり、トランザクションを壊したりすることがあります。
 
-## When to Apply
+## 使う場面
 
-- Implementing `SqlDriverAdapterFactory`, `SqlMigrationAwareDriverAdapterFactory`, `SqlDriverAdapter`, or `Transaction`
-- Adding nested-transaction/savepoint support
-- Mapping driver values, column metadata, bind arguments, or database errors
-- Debugging `P2039`, transaction leaks, shadow-database failures, or adapter-specific query behavior
+- `SqlDriverAdapterFactory`、`SqlMigrationAwareDriverAdapterFactory`、`SqlDriverAdapter`、`Transaction` を実装する
+- 入れ子のトランザクションやセーブポイントへの対応を追加する
+- ドライバーの値、列の情報、バインドする引数、データベースのエラーを対応付ける
+- `P2039`、トランザクションの漏れ、シャドーデータベースの失敗、アダプター固有のクエリの動きを調べる
 
-## Contract snapshot
+## 取り決め（インターフェース）の概要
 
 ```typescript
 interface SqlDriverAdapterFactory extends AdapterInfo {
@@ -50,23 +50,23 @@ interface Transaction extends AdapterInfo {
 }
 ```
 
-`IsolationLevel` currently includes `READ UNCOMMITTED`, `READ COMMITTED`, `REPEATABLE READ`, `SNAPSHOT`, and `SERIALIZABLE`; validate what the concrete database supports.
+`IsolationLevel` には、今のところ `READ UNCOMMITTED`、`READ COMMITTED`、`REPEATABLE READ`、`SNAPSHOT`、`SERIALIZABLE` があります。実際のデータベースがどれに対応しているかを確認してください。
 
-## Priority rules
+## 優先度別のルール
 
-| Priority | Rule | Impact |
+| 優先度 | ルール | 効果 |
 |----------|------|--------|
-| CRITICAL | One dedicated connection per transaction | Prevents interleaving and leaks |
-| CRITICAL | `commit`/`rollback` are lifecycle cleanup hooks | Prevents duplicate COMMIT/ROLLBACK |
-| CRITICAL | Savepoints live on `Transaction`, not adapter-global depth | Makes nested scopes connection-local |
-| CRITICAL | Preserve original database error code/message | Enables useful `P2039` fallback |
-| HIGH | Map arguments and result metadata exactly | Prevents silent value corruption |
-| HIGH | Shadow databases are isolated and always cleaned up | Makes Migrate safe |
-| HIGH | Dispose only resources the adapter owns | Prevents shutting down caller-owned pools |
+| 最重要 | トランザクションごとに専用の接続を1つ使う | 処理が混ざることや漏れを防ぐ |
+| 最重要 | `commit`・`rollback` は、ライフサイクルの後片付けのフック | COMMIT・ROLLBACK の重複を防ぐ |
+| 最重要 | セーブポイントは、アダプター全体の深さではなく `Transaction` が持つ | 入れ子の範囲を、接続ごとに閉じたものにする |
+| 最重要 | データベースの元のエラーコードとメッセージを残す | 役に立つ `P2039` のフォールバックができる |
+| 高 | 引数と結果の情報を正確に対応付ける | 気づかないうちに値が壊れるのを防ぐ |
+| 高 | シャドーデータベースは分離し、必ず後片付けする | Migrate を安全にする |
+| 高 | アダプターが持っているリソースだけを破棄する | 呼び出し元が持っているプールを止めてしまうのを防ぐ |
 
-## Query implementation
+## クエリの実装
 
-`SqlQuery` contains `sql`, `args`, and parallel `argTypes`. Map each argument using both value and `ArgType`; do not discard type/arity information. Execute in the driver's array/tuple row mode so column order is stable.
+`SqlQuery` には、`sql`、`args`、それと並んだ `argTypes` が入っています。それぞれの引数は、値と `ArgType` の両方を使って対応付けてください。型や個数の情報を捨てないでください。列の順番が変わらないように、ドライバーの配列（タプル）の行の形式で実行します。
 
 ```typescript
 class ExampleQueryable {
@@ -109,26 +109,26 @@ class ExampleQueryable {
 }
 ```
 
-### Result mapping
+### 結果の対応付け
 
-Return `columnNames`, `columnTypes`, and `rows` with identical lengths/order. Map driver metadata to `ColumnTypeEnum` deliberately:
+`columnNames`、`columnTypes`、`rows` は、長さと順番を揃えて返します。ドライバーの情報は、よく考えて `ColumnTypeEnum` に対応付けてください。
 
-- signed integer widths to `Int32`/`Int64`; preserve 64-bit values without JS number truncation
-- decimal/numeric to `Numeric` using the representation expected by Prisma
-- binary to `Uint8Array`/`Bytes`
-- date-only, time-only, and timestamp to `Date`, `Time`, and `DateTime`
-- UUID, JSON, enum, arrays, and provider-specific unknown values to their explicit types
-- unsupported native types to `DriverAdapterError({ kind: 'UnsupportedNativeDataType', type })`
+- 符号付きの整数の幅は `Int32`・`Int64` に。64ビットの値は、JS の number で切り捨てずに残す
+- decimal・numeric は、Prisma が想定する表し方で `Numeric` に
+- バイナリは `Uint8Array`・`Bytes` に
+- 日付だけ、時刻だけ、タイムスタンプは、それぞれ `Date`、`Time`、`DateTime` に
+- UUID、JSON、enum、配列、プロバイダー固有の不明な値は、それぞれの明示的な型に
+- 対応していないネイティブの型は `DriverAdapterError({ kind: 'UnsupportedNativeDataType', type })` に
 
-Test `null`, empty arrays, array element types, big integers, decimals, byte arrays, JSON, dates, and user-defined/unknown native types.
+`null`、空の配列、配列の要素の型、大きな整数、小数、バイト配列、JSON、日付、ユーザー定義や不明なネイティブの型をテストしてください。
 
-### Script execution
+### スクリプトの実行
 
-`executeScript` must execute a migration script as the provider expects. Prefer the driver's native multi-statement/script facility or a real SQL parser. Naively splitting on `;` breaks functions, triggers, quoted strings, and dialect-specific blocks.
+`executeScript` は、マイグレーションのスクリプトを、プロバイダーが想定するとおりに実行する必要があります。ドライバー自身の複数の文やスクリプトを実行する機能か、本物の SQL のパーサーを使うのがおすすめです。単純に `;` で区切ると、関数、トリガー、引用符で囲んだ文字列、SQL の方言ごとのブロックが壊れます。
 
-## Transaction protocol
+## トランザクションの取り決め
 
-`startTransaction` must acquire one dedicated connection, start the database transaction, apply the requested isolation level, and return a `Transaction` bound to that same connection. If setup fails, release it immediately.
+`startTransaction` は、専用の接続を1つ確保し、データベースのトランザクションを始め、指定された分離レベルを適用して、その同じ接続に結びついた `Transaction` を返す必要があります。準備に失敗したら、すぐに接続を解放してください。
 
 ```typescript
 async startTransaction(level?: IsolationLevel): Promise<Transaction> {
@@ -151,9 +151,9 @@ async startTransaction(level?: IsolationLevel): Promise<Transaction> {
 }
 ```
 
-### Commit and rollback
+### コミットとロールバック
 
-Prisma coordinates the SQL `COMMIT`/`ROLLBACK` through `executeRaw`. The transaction object's `commit()` and `rollback()` methods are lifecycle hooks: detach listeners and release the dedicated connection exactly once. They must not issue a second SQL commit/rollback.
+SQL の `COMMIT`・`ROLLBACK` は、Prisma が `executeRaw` を通して管理します。トランザクションのオブジェクトの `commit()` と `rollback()` のメソッドは、ライフサイクルのフックです。リスナーを外し、専用の接続をちょうど1回だけ解放します。SQL のコミットやロールバックを、もう一度発行してはいけません。
 
 ```typescript
 class ExampleTransaction extends ExampleQueryable implements Transaction {
@@ -191,15 +191,15 @@ class ExampleTransaction extends ExampleQueryable implements Transaction {
 }
 ```
 
-Implement the optional savepoint methods only where the provider supports them. Validate/quote savepoint identifiers. For providers whose savepoints are intentionally no-ops, document and test that limitation.
+省略できるセーブポイントのメソッドは、プロバイダーが対応している場合だけ実装します。セーブポイントの識別子は、検証するか引用符で囲んでください。セーブポイントが意図して何もしないプロバイダーでは、その制限を文書に書き、テストしてください。
 
-Never keep transaction depth on the shared adapter. Parallel transactions make adapter-global depth incorrect; nested state belongs to the returned transaction connection and Prisma's savepoint calls.
+トランザクションの深さを、共有のアダプターに持たせないでください。トランザクションが並行して動くと、アダプター全体の深さは正しくなくなります。入れ子の状態は、返したトランザクションの接続と、Prisma のセーブポイントの呼び出しが持つものです。
 
-## Error mapping
+## エラーの対応付け
 
-Wrap recognized driver failures in `DriverAdapterError`. Map known conditions to `MappedError` kinds such as constraint violations, authentication/reachability, missing table/column/database, timeouts, closed transactions, invalid input, value range, and write conflicts.
+認識できたドライバーの失敗は、`DriverAdapterError` で包みます。制約違反、認証や接続できるかどうか、テーブル・列・データベースがない、タイムアウト、閉じたトランザクション、正しくない入力、値の範囲、書き込みの競合など、分かっている状況は `MappedError` の種類（kind）に対応付けてください。
 
-For database errors, preserve `originalCode` and `originalMessage` even when falling back to the provider-specific raw variant:
+データベースのエラーでは、プロバイダー固有の生の形にフォールバックするときでも、`originalCode` と `originalMessage` を残してください。
 
 ```typescript
 import {
@@ -237,34 +237,34 @@ function throwAdapterError(error: unknown): never {
 }
 ```
 
-Prisma uses preserved original details when an unmapped driver error becomes `P2039`. Do not replace every unknown exception with a fabricated `GenericJs` id; rethrow genuinely unexpected non-driver errors so programming bugs remain visible.
+対応付けられていないドライバーのエラーが `P2039` になるとき、Prisma は残しておいた元の詳細を使います。不明な例外を、すべて作り上げた `GenericJs` の ID に置き換えないでください。プログラムのバグが見えるように、ドライバー以外の本当に想定外のエラーは、そのまま投げ直してください。
 
-## Factory, ownership, and shadow database
+## ファクトリー、持ち主、シャドーデータベース
 
-- `connect()` returns a fresh usable adapter connection/pool wrapper.
-- Track whether the factory created the pool. `dispose()` closes owned pools and only detaches listeners from caller-owned pools unless an explicit option transfers ownership.
-- Implement `SqlMigrationAwareDriverAdapterFactory` only when `connectToShadowDb()` can create an isolated shadow database, connect to it, and drop it during disposal/failure cleanup.
-- Never point the shadow adapter at the primary database. Quote generated identifiers and use cryptographically unique names.
-- `getConnectionInfo()` should accurately report `schemaName`, `maxBindValues` when applicable, and `supportsRelationJoins`.
+- `connect()` は、すぐに使える新しいアダプターの接続やプールのラッパーを返す。
+- プールをファクトリーが作ったかどうかを記録しておく。`dispose()` は、自分が持っているプールを閉じる。呼び出し元が持っているプールでは、オプションで持ち主を明示的に移していない限り、リスナーを外すだけにする。
+- `SqlMigrationAwareDriverAdapterFactory` は、`connectToShadowDb()` が分離したシャドーデータベースを作り、それに接続し、破棄や失敗の後片付けのときに削除できる場合だけ実装する。
+- シャドー用のアダプターを、絶対に本来のデータベースに向けない。生成した識別子は引用符で囲み、暗号的に重複しない名前を使う。
+- `getConnectionInfo()` は、`schemaName`、当てはまる場合は `maxBindValues`、`supportsRelationJoins` を正確に返すようにする。
 
-## Verification checklist
+## 確認のチェックリスト
 
-- [ ] Typecheck against the exact target `@prisma/driver-adapter-utils` version
-- [ ] `queryRaw` preserves column order, types, nulls, and precision
-- [ ] `executeRaw` reports affected rows correctly
-- [ ] `executeScript` handles provider-specific multi-statement syntax
-- [ ] Concurrent interactive transactions use distinct dedicated connections
-- [ ] Success commits and releases once; failure rolls back and releases once
-- [ ] Nested transaction tests exercise create/rollback/release savepoint hooks
-- [ ] Unsupported isolation levels fail as `InvalidIsolationLevel`
-- [ ] Known constraints map to structured errors
-- [ ] Unmapped database errors retain original code/message and surface useful `P2039`
-- [ ] Dispose ownership is tested for internal and external pools
-- [ ] Shadow database creation, use, failure cleanup, and disposal are isolated
-- [ ] Run Prisma Client integration/E2E tests, not only adapter unit tests
+- [ ] 対象の正確な `@prisma/driver-adapter-utils` のバージョンで型チェックする
+- [ ] `queryRaw` が、列の順番、型、null、精度を保つ
+- [ ] `executeRaw` が、影響を受けた行の数を正しく返す
+- [ ] `executeScript` が、プロバイダー固有の複数の文の書き方を扱える
+- [ ] 同時に動く対話型のトランザクションが、それぞれ別の専用の接続を使う
+- [ ] 成功したら1回コミットして解放し、失敗したら1回ロールバックして解放する
+- [ ] 入れ子のトランザクションのテストで、セーブポイントの作成・ロールバック・解放のフックを試す
+- [ ] 対応していない分離レベルが `InvalidIsolationLevel` として失敗する
+- [ ] 分かっている制約が、構造化されたエラーに対応付けられる
+- [ ] 対応付けられていないデータベースのエラーが、元のコードとメッセージを残し、役に立つ `P2039` として出てくる
+- [ ] 内部と外部のプールで、破棄のときの持ち主の扱いをテストする
+- [ ] シャドーデータベースの作成、使用、失敗の後片付け、破棄が分離されている
+- [ ] アダプターの単体テストだけでなく、Prisma Client の結合テストや E2E テストも実行する
 
-## Source references
+## ソースの参考
 
-- [Driver adapter interfaces](https://github.com/prisma/prisma/blob/v7/packages/driver-adapter-utils/src/types.ts)
-- [PostgreSQL adapter transaction implementation](https://github.com/prisma/prisma/blob/v7/packages/adapter-pg/src/pg.ts)
-- [PostgreSQL adapter error mapping](https://github.com/prisma/prisma/blob/v7/packages/adapter-pg/src/errors.ts)
+- [ドライバーアダプターのインターフェース](https://github.com/prisma/prisma/blob/v7/packages/driver-adapter-utils/src/types.ts)
+- [PostgreSQL のアダプターのトランザクションの実装](https://github.com/prisma/prisma/blob/v7/packages/adapter-pg/src/pg.ts)
+- [PostgreSQL のアダプターのエラーの対応付け](https://github.com/prisma/prisma/blob/v7/packages/adapter-pg/src/errors.ts)

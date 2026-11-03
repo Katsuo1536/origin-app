@@ -1,57 +1,57 @@
 # prisma migrate resolve
 
-Resolves issues with database migrations, such as failed migrations or baselining.
+失敗したマイグレーションやベースライン作成など、マイグレーションの問題を解決します。
 
-## Command
+## コマンド
 
 ```bash
 prisma migrate resolve [options]
 ```
 
-## What It Does
+## できること
 
-Updates the `_prisma_migrations` table to manually change the state of a migration. This is a recovery tool.
+`_prisma_migrations` テーブルを更新して、マイグレーションの状態を手動で変えます。復旧用のツールです。
 
-## Options
+## オプション
 
-You must provide exactly one of `--applied` or `--rolled-back`.
+`--applied` と `--rolled-back` のどちらか1つだけを必ず指定します。
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--applied <name>` | Mark a migration as **applied** (success) |
-| `--rolled-back <name>` | Mark a migration as **rolled back** (ignored/failed) |
-| `--schema` | Path to schema file |
-| `--config` | Custom path to your Prisma config file |
+| `--applied <name>` | マイグレーションを**適用済み**（成功）にする |
+| `--rolled-back <name>` | マイグレーションを**ロールバック済み**（無視・失敗）にする |
+| `--schema` | スキーマファイルの場所 |
+| `--config` | Prisma の設定ファイルの場所を指定する |
 
-## Examples
+## 使用例
 
-### Mark as Applied (Baselining)
+### 適用済みにする（ベースライン作成）
 
-If you have existing tables and want to initialize migrations without running the SQL:
+テーブルがすでにあり、SQL を実行せずにマイグレーションを始めたいとき：
 
 ```bash
 prisma migrate resolve --applied 20240101000000_initial_migration
 ```
 
-This tells Prisma "Assume this migration has already run".
+これで Prisma に「このマイグレーションはもう実行済みとみなして」と伝えます。
 
-### Mark as Rolled Back (Fixing Failures)
+### ロールバック済みにする（失敗の修正）
 
-If a migration failed (e.g., syntax error) and you fixed the SQL or want to retry:
+マイグレーションが失敗して（構文エラーなど）、SQL を直した、またはもう一度試したいとき：
 
 ```bash
 prisma migrate resolve --rolled-back 20240115120000_failed_migration
 ```
 
-This tells Prisma "Forget this migration run, let me try applying it again".
+これで Prisma に「このマイグレーションの実行は忘れて、もう一度適用させて」と伝えます。
 
-## Use Cases
+## 使いどころ
 
-1. **Baselining**: Adopting Prisma Migrate on an existing production database.
-2. **Failed Migrations**: Recovering from a failed `migrate deploy` in production.
-3. **Hotfixes**: reconciling manual database changes (rare).
+1. **ベースライン作成**：既存の本番データベースに Prisma Migrate を導入する。
+2. **失敗したマイグレーション**：本番で失敗した `migrate deploy` から復旧する。
+3. **緊急の修正**：データベースを手で変更した内容と整合させる（まれ）。
 
-## References
+## 参考
 
-- [Baselining](https://www.prisma.io/docs/guides/database/developing-with-prisma-migrate/baselining)
-- [Troubleshooting](https://www.prisma.io/docs/guides/database/production-troubleshooting)
+- [ベースライン作成](https://www.prisma.io/docs/guides/database/developing-with-prisma-migrate/baselining)
+- [トラブルシューティング](https://www.prisma.io/docs/guides/database/production-troubleshooting)

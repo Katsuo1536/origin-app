@@ -1,6 +1,6 @@
 # prisma complete
 
-Prints a shell completion script.
+シェルの補完スクリプトを出力します。
 
 ```bash
 prisma complete zsh
@@ -9,14 +9,14 @@ prisma complete fish
 prisma complete powershell
 ```
 
-For a direct global CLI installation, load the output using the shell's normal startup mechanism. For example, in zsh:
+CLIをグローバルに直接インストールしている場合は、そのシェルのいつもの起動時の仕組みで出力を読み込みます。たとえば zsh なら次のとおりです。
 
 ```bash
 source <(prisma complete zsh)
 ```
 
-Prisma also integrates with supported package-manager completion flows. `npx` and `bunx` do not themselves provide completion; invoke the installed binary or the package manager's supported execution form such as `npm exec` or `bun x`.
+Prismaは、対応しているパッケージマネージャーの補完の仕組みとも連携します。`npx` と `bunx` は、それ自体では補完に対応していません。インストール済みのバイナリを直接実行するか、`npm exec` や `bun x` など、パッケージマネージャーが対応している実行方法を使ってください。
 
-## Reference
+## 参考
 
-- [Prisma ORM 7.9.0 release](https://github.com/prisma/prisma/releases/tag/7.9.0)
+- [Prisma ORM 7.9.0 リリース](https://github.com/prisma/prisma/releases/tag/7.9.0)
