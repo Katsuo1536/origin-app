@@ -1,112 +1,112 @@
 # prisma migrate deploy
 
-Applies pending migrations in production/staging environments.
+本番やステージングの環境で、まだ適用していないマイグレーションを適用します。
 
-## Command
+## コマンド
 
 ```bash
 prisma migrate deploy
 ```
 
-## What It Does
+## できること
 
-- Applies all pending migrations from `prisma/migrations/`
-- Updates `_prisma_migrations` table
-- Does NOT generate new migrations
-- Does NOT run seed scripts
-- Safe for CI/CD and production
+- `prisma/migrations/` にある、まだ適用していないマイグレーションをすべて適用する
+- `_prisma_migrations` テーブルを更新する
+- 新しいマイグレーションは作成しない
+- シードスクリプトは実行しない
+- CI/CD や本番環境でも安全に使える
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--schema` | Custom path to your Prisma schema |
-| `--config` | Custom path to your Prisma config file |
+| `--schema` | Prisma スキーマの場所を指定する |
+| `--config` | Prisma の設定ファイルの場所を指定する |
 
-## When to Use
+## 使う場面
 
-- Production deployments
-- Staging environments  
-- CI/CD pipelines
-- Any non-development environment
+- 本番環境へのデプロイ
+- ステージング環境
+- CI/CD のパイプライン
+- 開発環境以外のすべての環境
 
-## Examples
+## 使用例
 
-### Basic deployment
+### 基本のデプロイ
 
 ```bash
 prisma migrate deploy
 ```
 
-### In CI/CD pipeline
+### CI/CD のパイプラインで使う
 
 ```yaml
-# GitHub Actions example
+# GitHub Actions の例
 - name: Apply migrations
   run: npx prisma migrate deploy
   env:
     DATABASE_URL: ${{ secrets.DATABASE_URL }}
 ```
 
-### Docker deployment
+### Docker でのデプロイ
 
 ```dockerfile
-# Run migrations before starting app
+# アプリを起動する前にマイグレーションを実行する
 CMD npx prisma migrate deploy && node dist/index.js
 ```
 
-## Comparison with migrate dev
+## migrate dev との比較
 
-| Feature | migrate dev | migrate deploy |
+| 機能 | migrate dev | migrate deploy |
 |---------|-------------|----------------|
-| Creates migrations | Yes | No |
-| Applies migrations | Yes | Yes |
-| Detects drift | Yes | No |
-| Prompts for input | Yes | No |
-| Uses shadow database | Yes | No |
-| Safe for production | No | Yes |
-| Resets on issues | Prompts | Fails |
+| マイグレーションを作成する | する | しない |
+| マイグレーションを適用する | する | する |
+| ずれ（ドリフト）を検出する | する | しない |
+| 入力を求める | 求める | 求めない |
+| シャドーデータベースを使う | 使う | 使わない |
+| 本番環境で安全に使える | いいえ | はい |
+| 問題があったとき | リセットするか確認してくる | 失敗して止まる |
 
-## Production Workflow
+## 本番での作業の流れ
 
-1. **Development**: Create migrations locally
+1. **開発**：ローカルでマイグレーションを作成する
    ```bash
    prisma migrate dev --name add_feature
    ```
 
-2. **Commit**: Include migration files in version control
+2. **コミット**：マイグレーションのファイルをバージョン管理に含める
    ```bash
    git add prisma/migrations
    git commit -m "Add feature migration"
    ```
 
-3. **Deploy**: Apply in production
+3. **デプロイ**：本番環境で適用する
    ```bash
    prisma migrate deploy
    ```
 
-## Error Handling
+## エラーへの対処
 
-### Failed migration
+### マイグレーションが失敗したとき
 
-If a migration fails, `migrate deploy` exits with error. The failed migration is marked as failed in `_prisma_migrations`.
+マイグレーションが失敗すると、`migrate deploy` はエラーで終了します。失敗したマイグレーションは、`_prisma_migrations` に失敗として記録されます。
 
-To fix:
-1. Resolve the issue (fix SQL, database state, etc.)
-2. Mark as resolved: `prisma migrate resolve --applied <migration_name>`
-3. Re-run: `prisma migrate deploy`
+直し方：
+1. 原因を解決する（SQL やデータベースの状態を直すなど）
+2. 解決済みにする：`prisma migrate resolve --applied <migration_name>`
+3. もう一度実行する：`prisma migrate deploy`
 
-### Check status first
+### 先に状態を確認する
 
 ```bash
 prisma migrate status
 ```
 
-Shows pending and applied migrations before deploying.
+デプロイの前に、まだ適用していないマイグレーションと、適用済みのマイグレーションを表示します。
 
-## Configuration
+## 設定
 
-Ensure `prisma.config.ts` has the production database URL:
+`prisma.config.ts` に、本番のデータベースの URL が設定されていることを確認してください。
 
 ```typescript
 import 'dotenv/config'
@@ -119,9 +119,9 @@ export default defineConfig({
 })
 ```
 
-## Best Practices
+## おすすめの使い方
 
-1. Always run `migrate status` before `migrate deploy` in CI
-2. Have a rollback plan (backup before migrations)
-3. Test migrations in staging first
-4. Never use `migrate dev` in production
+1. CI では、`migrate deploy` の前に必ず `migrate status` を実行する
+2. 元に戻す手段を用意しておく（マイグレーションの前にバックアップを取る）
+3. マイグレーションは、先にステージング環境で試す
+4. 本番環境では、`migrate dev` を絶対に使わない

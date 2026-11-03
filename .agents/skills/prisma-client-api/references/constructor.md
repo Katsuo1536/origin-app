@@ -1,8 +1,8 @@
-# PrismaClient Constructor
+# PrismaClient のコンストラクター
 
-Configure Prisma Client when instantiating.
+インスタンスを作るときに、Prisma Client を設定します。
 
-## Basic Instantiation
+## 基本の作り方
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -15,11 +15,11 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-## Constructor Options
+## コンストラクターのオプション
 
-### adapter (Required for the SQL provider workflow)
+### adapter（SQL のプロバイダーを使う場合は必須）
 
-Driver adapter instance:
+ドライバーアダプターのインスタンス：
 
 ```typescript
 import { PrismaPg } from '@prisma/adapter-pg'
@@ -31,19 +31,19 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-### accelerateUrl (For Accelerate users)
+### accelerateUrl（Accelerate を使う場合）
 
 ```typescript
 import { withAccelerate } from '@prisma/extension-accelerate'
 
 const prisma = new PrismaClient({
-  accelerateUrl: process.env.DATABASE_URL,  // prisma:// URL
+  accelerateUrl: process.env.DATABASE_URL,  // prisma:// の URL
 }).$extends(withAccelerate())
 ```
 
 ### log
 
-Configure logging:
+ログを設定します。
 
 ```typescript
 const prisma = new PrismaClient({
@@ -52,16 +52,16 @@ const prisma = new PrismaClient({
 })
 ```
 
-#### Log levels
+#### ログのレベル
 
-| Level | Description |
+| レベル | 説明 |
 |-------|-------------|
-| `query` | All SQL queries |
-| `info` | Informational messages |
-| `warn` | Warnings |
-| `error` | Errors |
+| `query` | すべての SQL のクエリ |
+| `info` | お知らせのメッセージ |
+| `warn` | 警告 |
+| `error` | エラー |
 
-#### Log to events
+#### ログをイベントとして受け取る
 
 ```typescript
 const prisma = new PrismaClient({
@@ -80,7 +80,7 @@ prisma.$on('query', (e) => {
 
 ### errorFormat
 
-Control error formatting:
+エラーの表示の形式を決めます。
 
 ```typescript
 const prisma = new PrismaClient({
@@ -91,7 +91,7 @@ const prisma = new PrismaClient({
 
 ### comments
 
-Attach SQL commenter plugins for observability, tracing, or query insights:
+監視、トレース、クエリの分析のために、SQL commenter プラグインを付けます。
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -110,18 +110,18 @@ await withQueryTags({ route: '/api/users', requestId: 'req-123' }, () =>
 )
 ```
 
-Use `comments` only for SQL providers. This is the clean way to add trace or query-shape metadata without changing your query calls.
+`comments` は SQL のプロバイダーでだけ使います。クエリの呼び出し方を変えずに、トレースやクエリの形の情報を付け加えられる、すっきりした方法です。
 
 ### transactionOptions
 
-Default transaction settings:
+トランザクションのデフォルトの設定です。
 
 ```typescript
 const prisma = new PrismaClient({
   adapter,
   transactionOptions: {
-    maxWait: 5000,      // Max wait to acquire transaction (ms)
-    timeout: 10000,     // Max transaction duration (ms)
+    maxWait: 5000,      // トランザクションを始められるまで待つ最大時間（ミリ秒）
+    timeout: 10000,     // トランザクションの最大の長さ（ミリ秒）
     isolationLevel: 'Serializable',
   },
 })
@@ -129,7 +129,7 @@ const prisma = new PrismaClient({
 
 ### queryPlanCacheMaxSize
 
-Use `queryPlanCacheMaxSize` to limit the in-memory query-plan cache:
+`queryPlanCacheMaxSize` で、メモリ上のクエリプランのキャッシュの大きさを制限します。
 
 ```typescript
 const prisma = new PrismaClient({
@@ -138,11 +138,11 @@ const prisma = new PrismaClient({
 })
 ```
 
-The value must be a non-negative integer. Set it to `0` to disable query-plan caching; omit it to use Prisma's default. Treat this as a process-local memory/performance control, not a database prepared-statement setting.
+値は 0 以上の整数にします。`0` にするとクエリプランのキャッシュを使わなくなり、指定しなければ Prisma のデフォルトが使われます。これはプロセスごとのメモリと性能の調整で、データベースのプリペアドステートメントの設定ではありません。
 
-## Singleton Pattern
+## シングルトンの書き方
 
-Prevent multiple client instances in development:
+開発中に Client のインスタンスがいくつも作られるのを防ぎます。
 
 ```typescript
 // lib/prisma.ts
@@ -167,7 +167,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-## Next.js Pattern
+## Next.js での書き方
 
 ```typescript
 // lib/prisma.ts
@@ -195,9 +195,9 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-## Query Events
+## クエリのイベント
 
-Listen to query events:
+クエリのイベントを受け取ります。
 
 ```typescript
 const prisma = new PrismaClient({
@@ -212,7 +212,7 @@ prisma.$on('query', (e) => {
 })
 ```
 
-## Log Events
+## ログのイベント
 
 ```typescript
 prisma.$on('info', (e) => console.log(e.message))

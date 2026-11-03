@@ -1,17 +1,17 @@
-# Prisma Client Setup
+# Prisma Client の準備
 
-Generate and instantiate Prisma Client for Prisma's standard SQL provider workflow. For MongoDB, follow the provider-specific notes in `references/mongodb.md` instead of copying the SQL adapter example below.
+Prisma の標準の SQL のプロバイダーの流れで、Prisma Client を生成してインスタンスを作ります。MongoDB では、下の SQL のアダプターの例を写さずに、`references/mongodb.md` のプロバイダー専用の説明に従ってください。
 
-## 1. Install dependencies
+## 1. 依存関係をインストールする
 
 ```bash
 npm install prisma --save-dev
 npm install @prisma/client
 ```
 
-## 2. Add generator block
+## 2. generator ブロックを追加する
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 generator client {
@@ -20,17 +20,17 @@ generator client {
 }
 ```
 
-`prisma-client` requires an explicit `output` path and does not generate into `node_modules` by default.
+`prisma-client` には `output` のパスの明示が必要で、デフォルトでは `node_modules` に生成しません。
 
-## 3. Generate Prisma Client
+## 3. Prisma Client を生成する
 
 ```bash
 npx prisma generate
 ```
 
-Re-run `prisma generate` after every schema change to keep the client in sync.
+Client をスキーマと揃えておくために、スキーマを変えるたびに `prisma generate` をもう一度実行してください。
 
-## 4. Instantiate Prisma Client
+## 4. Prisma Client のインスタンスを作る
 
 ```typescript
 import { PrismaClient } from '../generated/client'
@@ -40,8 +40,8 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 ```
 
-If you change the generator `output`, update the import path to match. For the SQL provider workflow, replace `PrismaPg` with the adapter for your database.
+generator の `output` を変えたら、import のパスもそれに合わせて直してください。SQL のプロバイダーの流れでは、`PrismaPg` を使うデータベースのアダプターに置き換えます。
 
-## 5. Use a single instance
+## 5. インスタンスは1つにする
 
-Each `PrismaClient` instance creates a connection pool. Reuse a single instance per app process to avoid exhausting database connections.
+`PrismaClient` のインスタンスは、それぞれコネクションプールを作ります。データベースの接続を使い切らないように、アプリのプロセスごとにインスタンスを1つだけ作って使い回してください。

@@ -1,74 +1,74 @@
 # prisma generate
 
-Generates assets based on the generator blocks in your Prisma schema, most commonly Prisma Client.
+Prismaスキーマに書いたgeneratorブロックをもとに、必要なファイルを生成します。生成するのは、ほとんどの場合 Prisma Client です。
 
-## Command
+## コマンド
 
 ```bash
 prisma generate [options]
 ```
 
-## Bun Runtime
+## Bunを使う場合
 
-If you're using Bun, run Prisma with `bunx --bun` so it doesn't fall back to Node.js:
+Bunを使っているときは、Node.jsで実行されないように `bunx --bun` でPrismaを実行します。
 
 ```bash
 bunx --bun prisma generate
 ```
 
-## What It Does
+## できること
 
-1. Reads your `schema.prisma` file
-2. Generates a customized Prisma Client based on your models
-3. Outputs to the directory specified in the generator block
+1. `schema.prisma` ファイルを読み込む
+2. モデルに合わせた Prisma Client を生成する
+3. generatorブロックで指定したフォルダに出力する
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--schema` | Custom path to your Prisma schema |
-| `--config` | Custom path to your Prisma config file |
-| `--sql` | Generate typed sql module |
-| `--watch` | Watch the Prisma schema and rerun after a change |
-| `--generator` | Generator to use (may be provided multiple times) |
-| `--no-hints` | Hides the hint messages but still outputs errors and warnings |
-| `--require-models` | Do not allow generating a client without models |
+| `--schema` | Prismaスキーマの場所を指定する |
+| `--config` | Prismaの設定ファイルの場所を指定する |
+| `--sql` | 型つきSQLのモジュールを生成する |
+| `--watch` | Prismaスキーマを監視して、変更されたらもう一度実行する |
+| `--generator` | 使うgeneratorを指定する（複数指定できる） |
+| `--no-hints` | ヒントのメッセージを隠す（エラーと警告は表示される） |
+| `--require-models` | モデルがないときはクライアントを生成しない |
 
-## Examples
+## 使用例
 
-### Basic generation
+### 基本の生成
 
 ```bash
 prisma generate
 ```
 
-### Watch mode (development)
+### 監視モード（開発中）
 
 ```bash
 prisma generate --watch
 ```
 
-Auto-regenerates when `schema.prisma` changes.
+`schema.prisma` が変わると、自動で生成し直します。
 
-### Specific generator
+### generatorを指定する
 
 ```bash
 prisma generate --generator client
 ```
 
-### Multiple generators
+### 複数のgeneratorを使う
 
 ```bash
 prisma generate --generator client --generator zod_schemas
 ```
 
-### Typed SQL generation
+### 型つきSQLを生成する
 
 ```bash
 prisma generate --sql
 ```
 
-## Schema Configuration
+## スキーマの設定
 
 ```prisma
 generator client {
@@ -77,22 +77,22 @@ generator client {
 }
 ```
 
-### Current Generator Behavior
+### 今のgeneratorの仕様
 
-- `prisma-client` is the standard generator
-- `output` is required when using `prisma-client`
-- `prisma-client` supports both ESM and CommonJS via `moduleFormat`
-- `compilerBuild` supports `fast` and `small` query compiler artifacts
-- Use TypeScript `satisfies` for typed query fragments with `prisma-client`
-- Import Prisma Client from your generated output path, for example:
+- 標準のgeneratorは `prisma-client`
+- `prisma-client` を使うときは `output` の指定が必須
+- `prisma-client` は、`moduleFormat` でESMとCommonJSの両方に対応している
+- `compilerBuild` では、クエリコンパイラの成果物を `fast` か `small` から選べる
+- `prisma-client` で型つきのクエリの一部を書くときは、TypeScriptの `satisfies` を使う
+- Prisma Clientは、生成先のパスからimportする。たとえば次のとおり
 
 ```typescript
 import { PrismaClient } from '../generated/prisma/client'
 ```
 
-### Compiler Build Tuning
+### コンパイラのビルドの調整
 
-Use `compilerBuild` when you need to trade artifact size against the default build:
+デフォルトのビルドより成果物のサイズを優先したいときは、`compilerBuild` を使います。
 
 ```prisma
 generator client {
@@ -102,30 +102,30 @@ generator client {
 }
 ```
 
-- `fast` is the default build for most targets
-- `small` is useful for size-constrained targets
-- Prisma defaults `vercel-edge` targets to `small`
+- `fast` は、ほとんどの環境でのデフォルト
+- `small` は、サイズに制限がある環境で役立つ
+- `vercel-edge` 向けでは、Prismaが自動で `small` にする
 
-## Common Patterns
+## よくある使い方
 
-### After schema changes
+### スキーマを変えたあと
 
 ```bash
 prisma migrate dev --name my_migration
 prisma generate
 ```
 
-Run `prisma generate` whenever you need refreshed client code after schema-changing commands.
+スキーマを変えるコマンドのあと、クライアントのコードを最新にしたいときは `prisma generate` を実行します。
 
-### CI/CD pipeline
+### CI/CDのパイプライン
 
 ```bash
 prisma generate
 ```
 
-Run before building your application.
+アプリをビルドする前に実行します。
 
-### Multiple generators
+### 複数のgenerator
 
 ```prisma
 generator client {
@@ -140,12 +140,12 @@ generator zod {
 ```
 
 ```bash
-prisma generate  # Runs all generators
+prisma generate  # すべてのgeneratorを実行する
 ```
 
-## Output Structure
+## 出力されるフォルダの中身
 
-After running `prisma generate`, your output directory contains:
+`prisma generate` を実行すると、出力先のフォルダは次のようになります。
 
 ```
 generated/
@@ -158,13 +158,13 @@ generated/
 └── ...
 ```
 
-Import the client:
+クライアントをimportするときは次のとおりです。
 
 ```typescript
 import { PrismaClient, Prisma } from '../generated/prisma/client'
 ```
 
-Import browser-safe types:
+ブラウザで使っても安全な型をimportするときは次のとおりです。
 
 ```typescript
 import { Prisma } from '../generated/prisma/browser'

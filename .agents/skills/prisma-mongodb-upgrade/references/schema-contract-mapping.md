@@ -1,52 +1,47 @@
 # schema-contract-mapping
 
-How v6 MongoDB schema concepts map onto Prisma Next's contract model.
+v6 の MongoDB のスキーマの概念が、Prisma Next の contract のモデルにどう対応するか。
 
-## Priority
+## 優先度
 
-HIGH
+高（HIGH）
 
-## Why It Matters
+## なぜ大事か
 
-Prisma Next does not consume the v6 `schema.prisma` as-is: the schema becomes a *contract*
-(authored in PSL or TypeScript via the contract builder), and several v6 MongoDB idioms have
-different — or deliberately absent — equivalents. Translating mechanically without knowing
-the mapping produces contracts that fail verification or, worse, silently change collection
-addressing.
+Prisma Next は、v6 の `schema.prisma` をそのままでは使いません。スキーマは *contract*
+（PSL か、contract のビルダーを使った TypeScript で書く）になり、v6 の MongoDB のいくつかの書き方には、別の置き換えがあるか、意図して置き換えがありません。対応を知らずに機械的に書き換えると、確認に通らない contract ができたり、もっと悪い場合には、コレクションの指し方が気づかないうちに変わったりします。
 
-## The mapping
+## 対応表
 
-| v6 concept | Prisma Next equivalent | Notes |
+| v6 の概念 | Prisma Next での置き換え | 注意 |
 |------------|------------------------|-------|
-| `datasource db { provider = "mongodb" }` + `url = env(...)` ([v6 docs](https://www.prisma.io/docs/orm/overview/databases/mongodb#example)) | `defineConfig` from `@prisma-next/mongo/config` wiring the mongo family/target/adapter/driver descriptors | Next selects MongoDB by importing the `@prisma-next/mongo` façade, not by a provider string in the schema; `prisma-next init` accepts `mongodb` as a target name |
-| `@id @default(auto()) @map("_id") @db.ObjectId` ([using ObjectId](https://www.prisma.io/docs/orm/overview/databases/mongodb#using-objectid)) | ObjectId-typed id field in the Next contract (PSL or TS builder) | Verify the exact attribute surface against the installed Next version's `prisma-next-contract` skill — the contract builder also exposes `index` and `valueObject` |
-| Composite (embedded) types — MongoDB-only in v6 ([composite types](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/composite-types)) | Value objects / embedded shapes in the Next contract (`valueObject` in the Mongo contract builder) | Same conceptual role: documents embedded in a parent document |
-| Model names address the client (`prisma.user`) | **Collection storage names** address the ORM: `db.orm.users`, i.e. the `@@map(...)` name or the lowercased model name — not `db.orm.User` | prisma-next `skills/prisma-next/SKILL.md`, `skills/prisma-next-quickstart/SKILL.md`; the most common porting mistake |
-| Indexes declared in schema, applied by `db push` | Indexes are contract-declared and applied through migrations (`createIndex`/`dropIndex` factories) | See `migrations-mapping.md` |
-| No native polymorphism | No schema-layer polymorphism on Mongo either: `@@base`/`@@discriminator` are SQL-only in Next; model an explicit `discriminator` field | prisma-next `skills/prisma-next-contract/SKILL.md` |
+| `datasource db { provider = "mongodb" }` + `url = env(...)`（[v6 のドキュメント](https://www.prisma.io/docs/orm/overview/databases/mongodb#example)） | `@prisma-next/mongo/config` の `defineConfig` で、mongo の family・target・adapter・driver の記述子をつなぐ | Next は、スキーマのプロバイダーの文字列ではなく、`@prisma-next/mongo` の窓口（façade）を import することで MongoDB を選ぶ。`prisma-next init` は、対象の名前として `mongodb` を受け付ける |
+| `@id @default(auto()) @map("_id") @db.ObjectId`（[ObjectId を使う](https://www.prisma.io/docs/orm/overview/databases/mongodb#using-objectid)） | Next の contract での、ObjectId 型の ID の項目（PSL か TS のビルダー） | 正確な属性の書き方は、インストールした Next のバージョンの `prisma-next-contract` スキルで確認する。contract のビルダーには `index` と `valueObject` もある |
+| 複合（埋め込み）型：v6 では MongoDB 専用（[複合型](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/composite-types)） | Next の contract での値オブジェクトや埋め込みの形（Mongo の contract のビルダーの `valueObject`） | 考え方の役割は同じ：親のドキュメントに埋め込まれたドキュメント |
+| モデル名で Client を指す（`prisma.user`） | **コレクションの保存先の名前**で ORM を指す：`db.orm.users`。つまり `@@map(...)` の名前か、小文字にしたモデル名で、`db.orm.User` ではない | prisma-next の `skills/prisma-next/SKILL.md`、`skills/prisma-next-quickstart/SKILL.md`。書き換えで一番よくある間違い |
+| インデックスをスキーマで宣言し、`db push` で適用する | インデックスは contract で宣言し、マイグレーション（`createIndex`/`dropIndex` のファクトリー）で適用する | `migrations-mapping.md` を見る |
+| ネイティブの多態性（ポリモーフィズム）はない | Mongo でも、スキーマの層での多態性はない。Next では `@@base`/`@@discriminator` は SQL 専用。明示的な `discriminator` の項目でモデルを作る | prisma-next の `skills/prisma-next-contract/SKILL.md` |
 
-## Bad
+## 悪い例
 
 ```typescript
-// Ported from v6 and addressed by model name:
-const user = await db.orm.User.first(); // undefined — Mongo ORM keys are storage names
+// v6 から書き換えて、モデル名で指している：
+const user = await db.orm.User.first(); // undefined になる。Mongo の ORM のキーは保存先の名前
 ```
 
-## Good
+## 良い例
 
 ```typescript
-// Mongo ORM keys are collection storage names (@@map or lowercased model name):
+// Mongo の ORM のキーは、コレクションの保存先の名前（@@map か、小文字にしたモデル名）：
 const user = await db.orm.users.first();
 ```
 
-## Environment requirements
+## 環境の条件
 
-Prisma Next's Mongo target requires MongoDB 8.0+ and `mongodb@^7` installed by the user as a
-peer dependency (prisma-next `CHANGELOG.md`, 0.11→0.12). v6 supports older MongoDB servers,
-so check the server version before planning a migration.
+Prisma Next の Mongo の対象には、MongoDB 8.0 以上と、利用者が peer dependency としてインストールした `mongodb@^7` が必要です（prisma-next の `CHANGELOG.md`、0.11→0.12）。v6 はもっと古い MongoDB のサーバーにも対応しているので、移行を計画する前にサーバーのバージョンを確認してください。
 
-## References
+## 参考
 
-- [v6 MongoDB schema documentation](https://www.prisma.io/docs/orm/overview/databases/mongodb)
-- [v6 composite types (MongoDB-only)](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/composite-types)
-- Prisma Next contract skill (`skills/prisma-next-contract`) in the prisma-next repository — authoritative for the Next side
+- [v6 の MongoDB のスキーマのドキュメント](https://www.prisma.io/docs/orm/overview/databases/mongodb)
+- [v6 の複合型（MongoDB 専用）](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/composite-types)
+- prisma-next のリポジトリにある、Prisma Next の contract のスキル（`skills/prisma-next-contract`）。Next 側についての正式な情報

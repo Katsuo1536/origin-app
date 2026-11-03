@@ -1,41 +1,41 @@
-# Prisma Postgres Setup
+# Prisma Postgres の準備
 
-Configure Prisma with Prisma Postgres (Managed).
+Prisma Postgres（管理されたデータベース）で Prisma を設定します。
 
-## Overview
+## 概要
 
-Prisma Postgres is a serverless, managed PostgreSQL database optimized for Prisma.
+Prisma Postgres は、Prisma 向けに最適化された、サーバーレスで管理された PostgreSQL のデータベースです。
 
-## Setup via CLI
+## CLI で準備する
 
-You can provision a Prisma Postgres instance directly via the CLI:
+CLI から直接、Prisma Postgres のインスタンスを用意できます。
 
 ```bash
 prisma init --db
 ```
 
-This will:
-1. Log you into Prisma Data Platform.
-2. Create a new project and database instance.
-3. Update your `.env` with the connection string.
+このコマンドは次のことをします。
+1. Prisma Data Platform にログインする。
+2. 新しいプロジェクトとデータベースのインスタンスを作る。
+3. `.env` を接続文字列で更新する。
 
-## Connection String
+## 接続文字列
 
-For Prisma CLI flows and Accelerate-style usage, you may see a `prisma+postgres://` URL.
+Prisma CLI の流れや Accelerate のような使い方では、`prisma+postgres://` の URL を見かけることがあります。
 
-For Prisma Client with a driver adapter in Node.js, prefer the direct TCP connection string from the Prisma Postgres dashboard:
+Node.js でドライバーアダプターと一緒に Prisma Client を使うときは、Prisma Postgres のダッシュボードにある、TCP で直接つなぐ接続文字列を使うのがおすすめです。
 
 ```env
 DATABASE_URL="postgres://identifier:key@db.prisma.io:5432/postgres?sslmode=require"
 ```
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
-  provider = "postgresql" // Use postgresql provider
+  provider = "postgresql" // postgresql のプロバイダーを使う
 }
 
 generator client {
@@ -44,9 +44,9 @@ generator client {
 }
 ```
 
-## 2. Config Configuration
+## 2. 設定ファイルの設定
 
-In `prisma.config.ts`:
+`prisma.config.ts` に書きます。
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -59,18 +59,18 @@ export default defineConfig({
 })
 ```
 
-## Driver Adapter
+## ドライバーアダプター
 
-Use a driver adapter for Prisma Postgres in the standard SQL workflow.
+標準の SQL の流れでは、Prisma Postgres でもドライバーアダプターを使います。
 
-### Recommended for standard Node.js apps
+### ふつうの Node.js のアプリにおすすめの方法
 
-1. Install adapter and driver:
+1. アダプターとドライバーをインストールする：
    ```bash
    npm install @prisma/adapter-pg pg
    ```
 
-2. Use the direct TCP connection string from Prisma Console:
+2. Prisma Console にある、TCP で直接つなぐ接続文字列を使う：
    ```typescript
    import 'dotenv/config'
    import { PrismaClient } from '../generated/client'
@@ -80,14 +80,14 @@ Use a driver adapter for Prisma Postgres in the standard SQL workflow.
    const prisma = new PrismaClient({ adapter })
    ```
 
-`PrismaPg` also accepts the connection string directly:
+`PrismaPg` は、接続文字列を直接受け取ることもできます。
 
 ```typescript
 const adapter = new PrismaPg(process.env.DATABASE_URL!)
 const prisma = new PrismaClient({ adapter })
 ```
 
-For PostgreSQL prepared statement naming, pass adapter options as the second argument:
+PostgreSQL のプリペアドステートメントの名前の付け方を指定するには、2つ目の引数にアダプターのオプションを渡します。
 
 ```typescript
 import { createHash } from 'node:crypto'
@@ -98,9 +98,9 @@ const adapter = new PrismaPg(process.env.DATABASE_URL!, {
 })
 ```
 
-### Edge/serverless option
+### エッジ・サーバーレス向けの方法
 
-Use the Prisma Postgres serverless driver only when you need HTTP/WebSocket transport in environments like Workers or Edge Functions:
+Prisma Postgres のサーバーレスのドライバーは、Workers や Edge Functions のような環境で、HTTP や WebSocket での通信が必要なときだけ使ってください。
 
 ```bash
 npm install @prisma/adapter-ppg @prisma/ppg
@@ -117,14 +117,14 @@ const prisma = new PrismaClient({
 })
 ```
 
-This serverless driver is the specialized path for HTTP/WebSocket-based edge and serverless runtimes, not the default recommendation for standard Node.js apps.
+このサーバーレスのドライバーは、HTTP や WebSocket を使うエッジ・サーバーレスのランタイム向けの特別な方法で、ふつうの Node.js のアプリに対するデフォルトのおすすめではありません。
 
-## Features
+## 機能
 
-- **Serverless**: Scales to zero.
-- **Caching**: Integrated query caching (Accelerate).
-- **Real-time**: Database events (Pulse).
+- **サーバーレス**：使っていないときはゼロまで縮小する。
+- **キャッシュ**：クエリのキャッシュが組み込まれている（Accelerate）。
+- **リアルタイム**：データベースのイベント（Pulse）。
 
-## Using with Prisma Client
+## Prisma Client と一緒に使う
 
-Use the Prisma Postgres adapter shown above when instantiating Prisma Client.
+Prisma Client のインスタンスを作るときは、上の Prisma Postgres のアダプターを使ってください。

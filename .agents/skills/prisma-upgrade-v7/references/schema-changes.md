@@ -1,27 +1,10 @@
-# Schema Changes
+# スキーマの変更
 
-Prisma v7 promotes `prisma-client` to the default generator. Update your generator block, output path, and imports accordingly.
+Prisma v7 では、`prisma-client` がデフォルトのジェネレーターになりました。それに合わせて、generator ブロック、出力先のパス、import を更新します。
 
-This guide is for projects that are actually migrating to Prisma 7. Do not apply these schema changes to MongoDB projects; keep those on Prisma 6.x.
+このガイドは、実際に Prisma 7 に移行するプロジェクト向けです。これらのスキーマの変更を MongoDB のプロジェクトに当てはめないでください。MongoDB のプロジェクトは Prisma 6.x のままにします。
 
-## Generator Block (v7)
-
-```prisma
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-```
-
-## Key Changes
-
-### 1. Provider name
-
-Use `prisma-client` in Prisma v7. The older `prisma-client-js` generator still exists in the repo for legacy setups, but `prisma-client` is the default path for current projects.
-
-### 2. Output is required
-
-The `output` field is mandatory when using `prisma-client`. Prisma Client no longer generates to `node_modules` with this generator.
+## generator ブロック（v7）
 
 ```prisma
 generator client {
@@ -30,9 +13,26 @@ generator client {
 }
 ```
 
-### 3. engineType changed
+## 主な変更
 
-Legacy Rust engine settings are gone. With `prisma-client`, the relevant value is `engineType = "client"` if you want to state it explicitly, although it is typically inferred and can be omitted.
+### 1. プロバイダー名
+
+Prisma v7 では `prisma-client` を使います。以前の構成のために、古い `prisma-client-js` ジェネレーターもリポジトリに残っていますが、今のプロジェクトでは `prisma-client` がデフォルトの道です。
+
+### 2. output が必須
+
+`prisma-client` を使うときは、`output` の項目が必須です。このジェネレーターでは、Prisma Client は `node_modules` に生成されなくなりました。
+
+```prisma
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+```
+
+### 3. engineType が変わった
+
+以前の Rust のエンジンの設定はなくなりました。`prisma-client` で明示したいときの値は `engineType = "client"` ですが、ふつうは推測されるので省略できます。
 
 ```prisma
 generator client {
@@ -42,9 +42,9 @@ generator client {
 }
 ```
 
-### 4. moduleFormat is explicit when needed
+### 4. 必要なら moduleFormat を明示する
 
-If you must stay on CommonJS:
+CommonJS のままにする必要があるなら：
 
 ```prisma
 generator client {
@@ -54,15 +54,15 @@ generator client {
 }
 ```
 
-## Example Output Paths
+## 出力先のパスの例
 
-### Standard project
+### ふつうのプロジェクト
 
 ```prisma
 output = "../generated/prisma"
 ```
 
-Creates files like:
+次のようなファイルが作られます。
 
 ```text
 generated/prisma/
@@ -73,23 +73,23 @@ generated/prisma/
   models/
 ```
 
-### Monorepo
+### モノレポ
 
 ```prisma
 output = "../../packages/database/generated/prisma"
 ```
 
-### Same directory as schema
+### スキーマと同じディレクトリ
 
 ```prisma
 output = "./generated/prisma"
 ```
 
-Creates: `prisma/generated/prisma/client.ts`
+作られるファイル：`prisma/generated/prisma/client.ts`
 
-## Datasource Block
+## datasource ブロック
 
-The `url`, `directUrl`, and `shadowDatabaseUrl` fields in the `datasource` block are deprecated in Prisma v7. Move them to `prisma.config.ts` and keep only the provider in `schema.prisma`:
+Prisma v7 では、`datasource` ブロックの `url`、`directUrl`、`shadowDatabaseUrl` の項目は非推奨です。これらを `prisma.config.ts` に移し、`schema.prisma` にはプロバイダーだけを残します。
 
 ```prisma
 datasource db {
@@ -107,24 +107,24 @@ export default defineConfig({
 })
 ```
 
-## After Schema Changes
+## スキーマを変えたあと
 
-1. Run `prisma generate`:
+1. `prisma generate` を実行する：
    ```bash
    npx prisma generate
    ```
 
-2. Update imports throughout your codebase:
+2. コード全体の import を更新する：
    ```typescript
    import { PrismaClient } from '../generated/prisma/client'
    ```
 
-3. Update `.gitignore` if you manage this manually:
+3. 手で管理しているなら、`.gitignore` を更新する：
    ```
    /generated/prisma
    ```
 
-4. Replace `Prisma.validator()` with TypeScript `satisfies` when using `prisma-client`:
+4. `prisma-client` を使うときは、`Prisma.validator()` を TypeScript の `satisfies` に置き換える：
    ```typescript
    import { Prisma } from '../generated/prisma/client'
 
@@ -134,16 +134,16 @@ export default defineConfig({
    } satisfies Prisma.UserSelect
    ```
 
-## Generated Entrypoints
+## 生成される入り口（エントリーポイント）
 
-- `client` - server-side Prisma Client and Prisma namespace
-- `browser` - browser-safe types and enums without a real `PrismaClient`
-- `enums` - slim enum-only entrypoint
-- `models` - model types and derived helper types
+- `client` - サーバー側の Prisma Client と Prisma の名前空間
+- `browser` - 本物の `PrismaClient` を含まない、ブラウザーで使っても安全な型と enum
+- `enums` - enum だけの軽い入り口
+- `models` - モデルの型と、そこから作られる補助の型
 
-## Preview Features
+## プレビュー機能
 
-Preview features still work as before:
+プレビュー機能は、これまでどおり使えます。
 
 ```prisma
 generator client {
@@ -153,7 +153,7 @@ generator client {
 }
 ```
 
-Recent preview-feature examples also include `partialIndexes` for PostgreSQL, SQLite, SQL Server, and CockroachDB:
+最近のプレビュー機能の例には、PostgreSQL、SQLite、SQL Server、CockroachDB 向けの `partialIndexes` もあります。
 
 ```prisma
 generator client {

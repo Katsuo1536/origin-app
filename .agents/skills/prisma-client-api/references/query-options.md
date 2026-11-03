@@ -1,10 +1,10 @@
-# Query Options
+# クエリのオプション
 
-Options for controlling query behavior.
+クエリの動きを決めるオプションです。
 
 ## select
 
-Choose specific fields to return:
+返すフィールドを選びます。
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -13,13 +13,13 @@ const user = await prisma.user.findUnique({
     id: true,
     name: true,
     email: true,
-    // password: false (excluded by not including)
+    // password: false（書かなければ含まれない）
   }
 })
-// Returns: { id: 1, name: 'Alice', email: 'alice@prisma.io' }
+// 戻り値：{ id: 1, name: 'Alice', email: 'alice@prisma.io' }
 ```
 
-### Select relations
+### リレーションを選ぶ
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -36,7 +36,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-### Select with include inside
+### select の中で include を使う
 
 ```typescript
 const user = await prisma.user.findMany({
@@ -51,7 +51,7 @@ const user = await prisma.user.findMany({
 })
 ```
 
-### Select relation count
+### リレーションの件数を選ぶ
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -62,12 +62,12 @@ const users = await prisma.user.findMany({
     }
   }
 })
-// Returns: { name: 'Alice', _count: { posts: 5 } }
+// 戻り値：{ name: 'Alice', _count: { posts: 5 } }
 ```
 
 ## include
 
-Include related records:
+関連するレコードを含めます。
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -79,7 +79,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-### Filtered include
+### 絞り込んだ include
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -94,7 +94,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-### Nested include
+### 入れ子の include
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -113,7 +113,7 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-### Include relation count
+### リレーションの件数を含める
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -127,7 +127,7 @@ const users = await prisma.user.findMany({
 
 ## omit
 
-Exclude specific fields:
+特定のフィールドを除外します。
 
 ```typescript
 const user = await prisma.user.findUnique({
@@ -136,10 +136,10 @@ const user = await prisma.user.findUnique({
     password: true
   }
 })
-// Returns all fields except password
+// password 以外のすべてのフィールドを返す
 ```
 
-### Omit in relations
+### リレーションの中で omit を使う
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -152,11 +152,11 @@ const users = await prisma.user.findMany({
 })
 ```
 
-**Note:** Cannot use `select` and `omit` together.
+**注意：** `select` と `omit` は一緒に使えません。
 
 ## where
 
-Filter records:
+レコードを絞り込みます。
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -167,19 +167,19 @@ const users = await prisma.user.findMany({
 })
 ```
 
-See `filters.md` for detailed filter operators.
+絞り込みの演算子の詳細は `filters.md` を見てください。
 
 ## orderBy
 
-Sort results:
+結果を並べ替えます。
 
 ```typescript
-// Single field
+// 1つのフィールド
 const users = await prisma.user.findMany({
   orderBy: { name: 'asc' }
 })
 
-// Multiple fields
+// 複数のフィールド
 const users = await prisma.user.findMany({
   orderBy: [
     { role: 'desc' },
@@ -188,7 +188,7 @@ const users = await prisma.user.findMany({
 })
 ```
 
-### Order by relation
+### リレーションで並べ替える
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -198,7 +198,7 @@ const users = await prisma.user.findMany({
 })
 ```
 
-### Null handling
+### null の扱い
 
 ```typescript
 const users = await prisma.user.findMany({
@@ -208,49 +208,49 @@ const users = await prisma.user.findMany({
 })
 ```
 
-## take & skip
+## take と skip
 
-Pagination:
+ページ分け：
 
 ```typescript
-// First page
+// 1ページ目
 const users = await prisma.user.findMany({
   take: 10,
   skip: 0
 })
 
-// Second page
+// 2ページ目
 const users = await prisma.user.findMany({
   take: 10,
   skip: 10
 })
 ```
 
-### Negative take (reverse)
+### マイナスの take（逆向き）
 
 ```typescript
 const lastUsers = await prisma.user.findMany({
   take: -10,
   orderBy: { id: 'asc' }
 })
-// Returns last 10 users
+// 最後の10人を返す
 ```
 
 ## cursor
 
-Cursor-based pagination:
+カーソルを使ったページ分け：
 
 ```typescript
-// First page
+// 1ページ目
 const firstPage = await prisma.user.findMany({
   take: 10,
   orderBy: { id: 'asc' }
 })
 
-// Next page using cursor
+// カーソルを使って次のページ
 const nextPage = await prisma.user.findMany({
   take: 10,
-  skip: 1,  // Skip the cursor record
+  skip: 1,  // カーソルのレコード自体はとばす
   cursor: { id: firstPage[firstPage.length - 1].id },
   orderBy: { id: 'asc' }
 })
@@ -258,7 +258,7 @@ const nextPage = await prisma.user.findMany({
 
 ## distinct
 
-Return unique values:
+重複しない値を返します。
 
 ```typescript
 const cities = await prisma.user.findMany({
@@ -267,7 +267,7 @@ const cities = await prisma.user.findMany({
 })
 ```
 
-### Multiple distinct fields
+### 複数のフィールドで distinct
 
 ```typescript
 const locations = await prisma.user.findMany({

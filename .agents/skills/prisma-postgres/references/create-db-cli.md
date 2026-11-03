@@ -1,16 +1,16 @@
 # create-db-cli
 
-Use `create-db` for instant Prisma Postgres provisioning from the terminal.
+ターミナルからすぐに Prisma Postgres を用意するには、`create-db` を使います。
 
-## Priority
+## 優先度
 
-CRITICAL
+最重要（CRITICAL）
 
-## Why It Matters
+## なぜ大事か
 
-`create-db` is the fastest way to get a working Prisma Postgres instance for development, demos, and CI previews. It can also emit machine-readable output and write env variables directly.
+`create-db` は、開発、デモ、CI のプレビューのために、動く Prisma Postgres のインスタンスを手に入れる一番早い方法です。プログラムで読める形式で出力したり、環境変数を直接書き込んだりもできます。
 
-## Commands
+## コマンド
 
 ```bash
 npx create-db@latest
@@ -18,16 +18,16 @@ npx create-db@latest create [options]
 npx create-db@latest regions
 ```
 
-Aliases:
+別名：
 
 ```bash
 npx create-pg@latest
 npx create-postgres@latest
 ```
 
-## Command discovery (`--help`)
+## コマンドを調べる（`--help`）
 
-Always use `--help` first when integrating CLI commands:
+CLI のコマンドを組み込むときは、必ず最初に `--help` を使ってください。
 
 ```bash
 npx create-db@latest --help
@@ -35,43 +35,43 @@ npx create-db@latest create --help
 npx create-db@latest regions --help
 ```
 
-Top-level commands currently exposed:
+今ある一番上の階層のコマンド：
 
-- `create` (default) to provision a database
-- `regions` to list available regions
+- `create`（デフォルト）：データベースを用意する
+- `regions`：使えるリージョンを一覧にする
 
-## `create` options
+## `create` のオプション
 
-| Flag | Shorthand | Description |
+| フラグ | 短い形 | 説明 |
 |---|---|---|
-| `--region [string]` | `-r` | Region choice: `ap-southeast-1`, `ap-northeast-1`, `eu-central-1`, `eu-west-3`, `us-east-1`, `us-west-1` |
-| `--interactive [boolean]` | `-i` | Open region selector |
-| `--json [boolean]` | `-j` | Output machine-readable JSON |
-| `--env [string]` | `-e` | Write `DATABASE_URL` and `CLAIM_URL` into a target `.env` |
-| `--ttl [string]` | `-t` | Auto-delete after a TTL like `30m` or `1h-24h` |
-| `--copy [boolean]` | `-c` | Copy the connection string to the clipboard |
-| `--quiet [boolean]` | `-q` | Only print the connection string |
-| `--open [boolean]` | `-o` | Open the claim URL in your browser |
+| `--region [string]` | `-r` | リージョンの選択：`ap-southeast-1`、`ap-northeast-1`、`eu-central-1`、`eu-west-3`、`us-east-1`、`us-west-1` |
+| `--interactive [boolean]` | `-i` | リージョンの選択画面を開く |
+| `--json [boolean]` | `-j` | プログラムで読める JSON で出力する |
+| `--env [string]` | `-e` | 指定した `.env` に、`DATABASE_URL` と `CLAIM_URL` を書き込む |
+| `--ttl [string]` | `-t` | `30m` や `1h-24h` のような有効期間（TTL）のあとに自動で削除する |
+| `--copy [boolean]` | `-c` | 接続文字列をクリップボードにコピーする |
+| `--quiet [boolean]` | `-q` | 接続文字列だけを表示する |
+| `--open [boolean]` | `-o` | 引き取り（claim）の URL をブラウザーで開く |
 
-## Lifecycle and claim flow
+## ライフサイクルと引き取りの流れ
 
-- Databases are temporary by default.
-- Unclaimed databases are auto-deleted after ~24 hours.
-- Claim the database using the URL shown in command output to keep it permanently.
+- データベースは、デフォルトでは一時的なもの。
+- 引き取られていないデータベースは、約24時間後に自動で削除される。
+- ずっと残すには、コマンドの出力に表示された URL でデータベースを引き取る。
 
-## Programmatic usage (library API)
+## プログラムから使う（ライブラリの API）
 
-You can also use `create-db` programmatically in Node.js/Bun instead of shelling out to the CLI.
+CLI をシェルから呼ぶ代わりに、Node.js や Bun のプログラムから `create-db` を使うこともできます。
 
-Install:
+インストール：
 
 ```bash
 npm install create-db
-# or
+# または
 bun add create-db
 ```
 
-Create a database:
+データベースを作る：
 
 ```ts
 import { create, isDatabaseSuccess, isDatabaseError } from "create-db";
@@ -92,7 +92,7 @@ if (isDatabaseError(result)) {
 }
 ```
 
-List regions programmatically:
+プログラムからリージョンを一覧にする：
 
 ```ts
 import { regions } from "create-db";
@@ -101,36 +101,36 @@ const available = await regions();
 console.log(available);
 ```
 
-Programmatic `create()` defaults to `us-east-1` if no region is passed.
+プログラムから使う `create()` は、リージョンを渡さなければ `us-east-1` を使います。
 
-## Common patterns
+## よくあるパターン
 
 ```bash
-# quick database
+# すぐにデータベースを作る
 npx create-db@latest
 
-# region-specific database
+# リージョンを指定したデータベース
 npx create-db@latest --region eu-central-1
 
-# interactive region selection
+# 対話でリージョンを選ぶ
 npx create-db@latest --interactive
 
-# write env vars for app bootstrap
+# アプリの立ち上げ用に環境変数を書き込む
 npx create-db@latest --env .env
 
-# auto-delete sooner
+# もっと早く自動で削除する
 npx create-db@latest --ttl 2h
 
-# copy connection string to clipboard
+# 接続文字列をクリップボードにコピーする
 npx create-db@latest --copy
 
-# print only the connection string
+# 接続文字列だけを表示する
 npx create-db@latest --quiet
 
-# CI-friendly output
+# CI 向けの出力
 npx create-db@latest --json
 ```
 
-## References
+## 参考
 
-- [npx create-db docs](https://www.prisma.io/docs/postgres/introduction/npx-create-db)
+- [npx create-db のドキュメント](https://www.prisma.io/docs/postgres/introduction/npx-create-db)

@@ -1,10 +1,10 @@
-# Transactions
+# トランザクション
 
-Execute multiple operations atomically.
+複数の操作を、ひとまとまり（アトミック）で実行します。
 
-## Sequential Transactions
+## 順番に実行するトランザクション
 
-Array of operations executed in order:
+操作の配列を、順番に実行します。
 
 ```typescript
 const [user, post] = await prisma.$transaction([
@@ -13,39 +13,39 @@ const [user, post] = await prisma.$transaction([
 ])
 ```
 
-### All or nothing
+### 全部成功するか、全部取り消すか
 
-If any operation fails, all are rolled back:
+どれか1つでも失敗すると、すべて取り消されます（ロールバック）。
 
 ```typescript
 try {
   await prisma.$transaction([
     prisma.user.create({ data: { email: 'alice@prisma.io' } }),
-    prisma.user.create({ data: { email: 'alice@prisma.io' } }) // Duplicate!
+    prisma.user.create({ data: { email: 'alice@prisma.io' } }) // 重複！
   ])
 } catch (e) {
-  // Both operations rolled back
+  // 両方の操作が取り消される
 }
 ```
 
-## Interactive Transactions
+## 対話形式のトランザクション
 
-For complex logic and dependent operations:
+複雑な処理や、前の結果に応じて変わる操作向けです。
 
 ```typescript
 await prisma.$transaction(async (tx) => {
-  // Decrement sender balance
+  // 送金する人の残高を減らす
   const sender = await tx.account.update({
     where: { id: senderId },
     data: { balance: { decrement: amount } }
   })
   
-  // Check balance
+  // 残高を確認する
   if (sender.balance < 0) {
     throw new Error('Insufficient funds')
   }
   
-  // Increment recipient balance
+  // 受け取る人の残高を増やす
   await tx.account.update({
     where: { id: recipientId },
     data: { balance: { increment: amount } }
@@ -53,36 +53,36 @@ await prisma.$transaction(async (tx) => {
 })
 ```
 
-### Transaction options
+### トランザクションのオプション
 
 ```typescript
 await prisma.$transaction(
   async (tx) => {
-    // operations
+    // 操作
   },
   {
-    maxWait: 5000,    // Max wait to acquire lock (ms)
-    timeout: 10000,   // Max transaction duration (ms)
-    isolationLevel: 'Serializable'  // Isolation level
+    maxWait: 5000,    // ロックを取れるまで待つ最大時間（ミリ秒）
+    timeout: 10000,   // トランザクションの最大の長さ（ミリ秒）
+    isolationLevel: 'Serializable'  // 分離レベル
   }
 )
 ```
 
-### Isolation levels
+### 分離レベル
 
-| Level | Description |
+| レベル | 説明 |
 |-------|-------------|
-| `ReadUncommitted` | Lowest isolation, can read uncommitted changes |
-| `ReadCommitted` | Only read committed changes |
-| `RepeatableRead` | Consistent reads within transaction |
-| `Serializable` | Highest isolation, serialized execution |
+| `ReadUncommitted` | いちばん分離が弱い。まだ確定していない変更も読める |
+| `ReadCommitted` | 確定した変更だけを読む |
+| `RepeatableRead` | トランザクションの中で、読み取りの結果が変わらない |
+| `Serializable` | いちばん分離が強い。順番に実行したのと同じ結果になる |
 
-## Nested Writes
+## 入れ子の書き込み
 
-Automatic transactions for nested operations:
+入れ子の操作は、自動でトランザクションになります。
 
 ```typescript
-// This is automatically a transaction
+// これは自動でトランザクションになる
 const user = await prisma.user.create({
   data: {
     email: 'alice@prisma.io',
@@ -99,28 +99,28 @@ const user = await prisma.user.create({
 })
 ```
 
-## Transaction Client
+## トランザクション用の Client
 
-The `tx` parameter is a Prisma Client scoped to the transaction:
+`tx` の引数は、そのトランザクションの中だけで使う Prisma Client です。
 
 ```typescript
 await prisma.$transaction(async (tx) => {
-  // Use tx instead of prisma
+  // prisma ではなく tx を使う
   await tx.user.create({ ... })
   await tx.post.create({ ... })
   
-  // Can call methods
+  // メソッドも呼べる
   const count = await tx.user.count()
 })
 ```
 
-## OrThrow in Transactions
+## トランザクションの中で OrThrow を使う
 
-Use with interactive transactions:
+対話形式のトランザクションと一緒に使います。
 
 ```typescript
 await prisma.$transaction(async (tx) => {
-  // If not found, throws and rolls back entire transaction
+  // 見つからなければエラーを投げて、トランザクション全体を取り消す
   const user = await tx.user.findUniqueOrThrow({
     where: { id: 1 }
   })
@@ -131,54 +131,54 @@ await prisma.$transaction(async (tx) => {
 })
 ```
 
-## Best Practices
+## おすすめの使い方
 
-### Keep transactions short
+### トランザクションは短くする
 
 ```typescript
-// Good - only DB operations in transaction
-const data = prepareData() // Outside transaction
+// 良い例：トランザクションの中はデータベースの操作だけ
+const data = prepareData() // トランザクションの外で準備する
 await prisma.$transaction(async (tx) => {
   await tx.user.create({ data })
 })
 ```
 
-### Handle errors
+### エラーを処理する
 
 ```typescript
 try {
   await prisma.$transaction(async (tx) => {
-    // operations
+    // 操作
   })
 } catch (e) {
   if (e.code === 'P2002') {
-    // Handle unique constraint violation
+    // 一意制約の違反を処理する
   }
   throw e
 }
 ```
 
-### Use appropriate isolation
+### ちょうどよい分離レベルを使う
 
 ```typescript
-// Default is fine for most cases
+// ほとんどの場合はデフォルトで十分
 await prisma.$transaction(async (tx) => {
-  // operations
+  // 操作
 })
 
-// Use Serializable for strict consistency
+// 厳密な一貫性が必要なら Serializable を使う
 await prisma.$transaction(
   async (tx) => { /* operations */ },
   { isolationLevel: 'Serializable' }
 )
 ```
 
-## Sequential vs Interactive
+## 順番に実行する形式と対話形式の比較
 
-| Feature | Sequential | Interactive |
+| 項目 | 順番に実行 | 対話形式 |
 |---------|------------|-------------|
-| Syntax | Array | Async function |
-| Dependent ops | No | Yes |
-| Conditional logic | No | Yes |
-| Performance | Better | More flexible |
-| Use case | Simple batch | Complex logic |
+| 書き方 | 配列 | async 関数 |
+| 前の結果に応じた操作 | できない | できる |
+| 条件による分岐 | できない | できる |
+| 性能 | 良い | 柔軟 |
+| 使いどころ | 単純なまとめ処理 | 複雑な処理 |

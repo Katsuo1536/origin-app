@@ -1,79 +1,79 @@
 # management-api
 
-Use Prisma Management API for programmatic provisioning and workspace/project/database management.
+プログラムからの用意や、ワークスペース・プロジェクト・データベースの管理には、Prisma Management API を使います。
 
-## Priority
+## 優先度
 
-CRITICAL
+最重要（CRITICAL）
 
-## Why It Matters
+## なぜ大事か
 
-When you need backend automation, multi-tenant onboarding flows, or controlled resource provisioning, the Management API is the source of truth and is more reliable than interactive workflows.
+バックエンドの自動化、複数の利用者（マルチテナント）の受け入れの流れ、管理されたリソースの用意が必要なときは、Management API が正しい情報のもとになり、対話での作業よりも確実です。
 
-## Base URL
+## ベース URL
 
 ```text
 https://api.prisma.io/v1
 ```
 
-## API exploration
+## API を調べる
 
-- OpenAPI docs: `https://api.prisma.io/v1/doc`
-- Swagger Editor: `https://api.prisma.io/v1/swagger-editor`
+- OpenAPI のドキュメント：`https://api.prisma.io/v1/doc`
+- Swagger Editor：`https://api.prisma.io/v1/swagger-editor`
 
-## Authentication methods
+## 認証の方法
 
-- Service token: best for server-to-server operations in your own workspace
-- OAuth 2.0: best for acting on behalf of users across workspaces
+- サービストークン：自分のワークスペースでの、サーバー同士の操作に一番向いている
+- OAuth 2.0：複数のワークスペースにまたがって、ユーザーの代わりに操作するのに一番向いている
 
-## Service token flow
+## サービストークンの流れ
 
-1. Create token in Prisma Console workspace settings.
-2. Send token as Bearer auth:
+1. Prisma Console のワークスペースの設定でトークンを作る。
+2. トークンを Bearer の認証として送る：
 
 ```text
 Authorization: Bearer $TOKEN
 ```
 
-## OAuth flow summary
+## OAuth の流れのまとめ
 
-1. Redirect user to `https://auth.prisma.io/authorize` with `client_id`, `redirect_uri`, `response_type=code`, and scopes.
-2. Receive `code` on callback.
-3. Exchange code at `https://auth.prisma.io/token`.
-4. Use returned access token in Management API requests.
+1. ユーザーを、`client_id`、`redirect_uri`、`response_type=code` とスコープを付けて、`https://auth.prisma.io/authorize` にリダイレクトする。
+2. コールバックで `code` を受け取る。
+3. `https://auth.prisma.io/token` で、コードを交換する。
+4. 返ってきたアクセストークンを、Management API のリクエストで使う。
 
-## Resource model
+## リソースの構成
 
-Workspace -> Project -> Branch -> Database. Branches are a first-class resource: databases attach to a Branch, and branch-scoped env/databases are how preview isolation works.
+Workspace -> Project -> Branch -> Database。Branch はれっきとしたリソースです。データベースは Branch に属し、ブランチの範囲の環境変数やデータベースによって、プレビューの分離が実現されています。
 
-## Current resource inventory
+## 今あるリソースの一覧
 
-The 1.55 OpenAPI surface includes:
+1.55 の OpenAPI には、次のものがあります。
 
-- workspaces, subscriptions, workspace integrations, workspace service tokens, and current-user metadata
-- projects, transfers, project databases, and project/branch environment variables
-- branches under a project plus branch get/update/delete operations
-- databases, usage, backups, restore, connections, and connection rotation
-- apps, deployments, promotion/rollback, runtime logs, domains, and build logs
-- buckets and bucket keys
-- source repositories, SCM installations/install intents, and repositories
-- integrations and regions
+- ワークスペース、サブスクリプション、ワークスペースの連携、ワークスペースのサービストークン、今のユーザーの情報
+- プロジェクト、移管、プロジェクトのデータベース、プロジェクトやブランチの環境変数
+- プロジェクトの下のブランチと、ブランチの取得・更新・削除の操作
+- データベース、利用状況、バックアップ、復元、接続、接続の入れ替え
+- アプリ、デプロイ、昇格・ロールバック、ランタイムのログ、ドメイン、ビルドログ
+- バケットとバケットのキー
+- ソースのリポジトリ、SCM のインストールとインストールの意図、リポジトリ
+- 連携とリージョン
 
-App/deployment, branch mutation, SCM, and bucket routes include experimental surfaces. Read the installed SDK types or live OpenAPI before building durable automation around them.
+App・Deployment、ブランチの変更、SCM、バケットのルートには、試験的な部分があります。これらを中心に長く使う自動化を作る前に、インストールした SDK の型か、今の OpenAPI を読んでください。
 
-Connection create/rotate responses reveal credentials once. Later reads redact or omit the secret, so store the URL immediately. Use the structured direct/pooled endpoint returned by the concrete operation; do not assume a historical flat response shape.
+接続の作成・入れ替えの返り値は、認証情報を一度だけ見せます。そのあとの読み取りでは秘密の情報は伏せられるか省かれるので、URL はすぐに保存してください。実際の操作が返した、構造化された direct・pooled のエンドポイントを使ってください。昔の平らな返り値の形を前提にしないでください。
 
-Workspace service-token creation also returns the complete token value exactly once. List calls expose only metadata and a `valueHint`; delete revokes the token. Keep workspace and token ids opaque, and never log a create response.
+ワークスペースのサービストークンの作成も、トークンの値の全体を一度だけ返します。一覧の呼び出しは、情報と `valueHint` しか返しません。削除はトークンを取り消します。ワークスペースとトークンの ID は中身を気にしない値として扱い、作成の返り値を絶対にログに出さないでください。
 
-Database create supports explicit project, region, branch, and source context. A source may be empty, a backup, or another database. Backup records are incremental; rely on current fields and documented units rather than old full-backup examples.
+データベースの作成では、プロジェクト、リージョン、ブランチ、ソースを明示して指定できます。ソースは、空、バックアップ、または別のデータベースにできます。バックアップの記録は増分です。古い完全バックアップの例ではなく、今の項目と、ドキュメントに書かれた単位を使ってください。
 
-## Notes
+## 注意
 
-- Management API mutation responses may include direct connection credentials; treat the entire response as secret until redacted.
-- Prefer an API-provided connection string over manually assembling one from fields.
+- Management API の変更の返り値には、直接つなぐための認証情報が入っていることがあります。伏せ字にするまで、返り値の全体を秘密の情報として扱ってください。
+- 項目から接続文字列を手で組み立てるよりも、API が返す接続文字列を使ってください。
 
-## References
+## 参考
 
-- [Management API docs](https://www.prisma.io/docs/postgres/introduction/management-api)
-- [OpenAPI docs](https://api.prisma.io/v1/doc)
+- [Management API のドキュメント](https://www.prisma.io/docs/postgres/introduction/management-api)
+- [OpenAPI のドキュメント](https://api.prisma.io/v1/doc)
 - [Swagger Editor](https://api.prisma.io/v1/swagger-editor)

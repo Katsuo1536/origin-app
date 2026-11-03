@@ -1,29 +1,29 @@
 # prisma db seed
 
-Runs your database seed script to populate data.
+シードスクリプトを実行して、データベースにデータを入れます。
 
-## Command
+## コマンド
 
 ```bash
 prisma db seed [options]
 ```
 
-## What It Does
+## できること
 
-- Executes your configured seed script
-- Populates database with initial/test data
-- Runs independently (not auto-run by migrations in v7)
+- 設定したシードスクリプトを実行する
+- 初期データやテスト用のデータをデータベースに入れる
+- 単独で実行する（v7では、マイグレーションのときに自動では実行されない）
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--config` | Custom path to your Prisma config file |
-| `--` | Pass custom arguments to seed script |
+| `--config` | Prismaの設定ファイルの場所を指定する |
+| `--` | シードスクリプトに好きな引数を渡す |
 
-## Configuration
+## 設定
 
-Configure seed script in `prisma.config.ts`:
+`prisma.config.ts` でシードスクリプトを設定します。
 
 ```typescript
 import 'dotenv/config'
@@ -33,7 +33,7 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
-    seed: 'tsx prisma/seed.ts',  // Your seed command
+    seed: 'tsx prisma/seed.ts',  // シードを実行するコマンド
   },
   datasource: {
     url: env('DATABASE_URL'),
@@ -41,20 +41,20 @@ export default defineConfig({
 })
 ```
 
-### Common seed commands
+### よく使うシードコマンド
 
 ```typescript
-// TypeScript with tsx
+// TypeScript（tsx を使う場合）
 seed: 'tsx prisma/seed.ts'
 
-// TypeScript with ts-node
+// TypeScript（ts-node を使う場合）
 seed: 'ts-node prisma/seed.ts'
 
 // JavaScript
 seed: 'node prisma/seed.js'
 ```
 
-## Seed Script Example
+## シードスクリプトの例
 
 ```typescript
 // prisma/seed.ts
@@ -63,7 +63,7 @@ import { PrismaClient } from '../generated/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  // Create users
+  // ユーザーを作成する
   const alice = await prisma.user.upsert({
     where: { email: 'alice@prisma.io' },
     update: {},
@@ -102,71 +102,71 @@ main()
   })
 ```
 
-## Examples
+## 使用例
 
-### Run seed
+### シードを実行する
 
 ```bash
 prisma db seed
 ```
 
-### With custom arguments
+### 引数を渡して実行する
 
 ```bash
 prisma db seed -- --environment development
 ```
 
-Arguments after `--` are passed to your seed script.
+`--` のあとに書いた引数が、シードスクリプトに渡されます。
 
-## Current Workflow
+## 今の進め方
 
-Run seeding explicitly after migrations when you need seed data:
+シードデータが必要なときは、マイグレーションのあとに自分で実行します。
 
 ```bash
 prisma migrate dev --name init
 prisma generate
-prisma db seed  # Must run explicitly
+prisma db seed  # 自分で実行する必要がある
 ```
 
-## Idempotent Seeding
+## 何度実行しても同じ結果になるシード
 
-Use `upsert` to make seeds re-runnable:
+`upsert` を使うと、シードを何回でも実行し直せます。
 
 ```typescript
-// Good: Can run multiple times
+// 良い例：何回実行しても大丈夫
 await prisma.user.upsert({
   where: { email: 'alice@prisma.io' },
-  update: {},  // Don't change existing
+  update: {},  // すでにあるデータは変えない
   create: { email: 'alice@prisma.io', name: 'Alice' },
 })
 
-// Bad: Fails on second run
+// 悪い例：2回目の実行で失敗する
 await prisma.user.create({
   data: { email: 'alice@prisma.io', name: 'Alice' },
 })
 ```
 
-## Common Patterns
+## よくある使い方
 
-### Development reset
+### 開発中のリセット
 
 ```bash
 prisma migrate reset --force
 prisma db seed
 ```
 
-### Conditional seeding
+### 条件つきのシード
 
 ```typescript
 // prisma/seed.ts
 const count = await prisma.user.count()
 if (count === 0) {
-  // Only seed if empty
+  // 空のときだけシードする
   await seedUsers()
 }
 ```
 
-### Environment-specific seeds
+### 環境ごとにシードを分ける
 
 ```typescript
 // prisma/seed.ts
@@ -179,10 +179,10 @@ if (env === 'development') {
 }
 ```
 
-## Best Practices
+## おすすめのやり方
 
-1. Use `upsert` for idempotent seeds
-2. Keep seeds focused and minimal
-3. Use realistic but fake data
-4. Document required seed data
-5. Version control your seed scripts
+1. 何度実行しても同じ結果になるよう、`upsert` を使う
+2. シードは目的をしぼって、必要最小限にする
+3. 本物らしいけれど架空のデータを使う
+4. どんなシードデータが必要かを書き残しておく
+5. シードスクリプトもGitで管理する

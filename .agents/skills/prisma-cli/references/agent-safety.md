@@ -1,27 +1,27 @@
-# AI safety checkpoint for destructive commands
+# 破壊的なコマンドに対するAIセーフティチェック
 
-Prisma detects common AI-agent environments and blocks these commands until the user gives explicit consent:
+Prismaは一般的なAIエージェントの実行環境を検知し、ユーザーから明確な同意が得られるまで、次のコマンドの実行をブロックします。
 
 - `prisma migrate reset`
 - `prisma db push --force-reset`
 - `prisma db push --accept-data-loss`
 
-## Required workflow
+## 必須の手順
 
-1. Inspect the target database/config and explain exactly what can be deleted or reset.
-2. Ask the user for explicit consent immediately before the action.
-3. Run the command only after that consent.
+1. 対象のデータベースと設定を確認し、何が削除・リセットされる可能性があるかを具体的に説明する。
+2. 実行する直前に、ユーザーから明確な同意を得る。
+3. 同意を得たあとでのみ、コマンドを実行する。
 
-For an agent-run subprocess, Prisma accepts the exact consent text through:
+エージェントがサブプロセスとして実行する場合、Prismaは次の形で、ユーザーの同意文をそのまま受け付けます。
 
 ```bash
-PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='<exact user consent message>' prisma migrate reset --force
+PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION='<ユーザーの同意メッセージ（原文そのまま）>' prisma migrate reset --force
 ```
 
-The value must match the user's message exactly and must not contain added quotes or newlines. Never fabricate consent, reuse an old unrelated approval, or bypass the checkpoint by hiding agent-detection environment variables.
+この値はユーザーのメッセージと完全に一致している必要があり、引用符や改行を付け足してはいけません。同意をでっち上げたり、関係のない過去の承認を使い回したり、エージェント検知用の環境変数を隠してチェックをすり抜けたりしてはいけません。
 
-The MCP server has no `migrate-reset` tool. Use the shell command only after consent.
+MCPサーバーには `migrate-reset` ツールがありません。シェルのコマンドは、同意を得たあとでのみ使ってください。
 
-## Reference
+## 参考
 
-- [Prisma ORM 7.9.0 release](https://github.com/prisma/prisma/releases/tag/7.9.0)
+- [Prisma ORM 7.9.0 リリース](https://github.com/prisma/prisma/releases/tag/7.9.0)

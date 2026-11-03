@@ -1,14 +1,14 @@
-# SQLite Setup
+# SQLite の準備
 
-Configure Prisma with SQLite.
+SQLite で Prisma を設定します。
 
-## Prerequisites
+## 前提条件
 
-- None (file-based)
+- なし（ファイルを使う）
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
@@ -21,9 +21,9 @@ generator client {
 }
 ```
 
-## 2. Config Configuration
+## 2. 設定ファイルの設定
 
-In `prisma.config.ts`:
+`prisma.config.ts` に書きます。
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -36,32 +36,32 @@ export default defineConfig({
 })
 ```
 
-## 3. Environment Variable
+## 3. 環境変数
 
-In `.env`:
+`.env` に書きます。
 
 ```env
 DATABASE_URL="file:./dev.db"
 ```
 
-### Connection String Format
+### 接続文字列の形式
 
 ```
 file:PATH
 ```
 
-- **PATH**: Relative path to the database file. Check `prisma.config.ts` if you need to confirm how your app resolves it.
+- **PATH**：データベースのファイルへの相対パス。アプリがどう解決するかを確かめたいときは、`prisma.config.ts` を確認してください。
 
-## Driver Adapter
+## ドライバーアダプター
 
-Use a driver adapter for the standard SQL workflow.
+標準の SQL の流れでは、ドライバーアダプターを使います。
 
-1. Install adapter and driver:
+1. アダプターとドライバーをインストールする：
    ```bash
    npm install @prisma/adapter-better-sqlite3 better-sqlite3
    ```
 
-2. Instantiate Prisma Client with the adapter:
+2. アダプターを使って Prisma Client のインスタンスを作る：
    ```typescript
    import { PrismaClient } from '../generated/client'
    import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
@@ -73,16 +73,16 @@ Use a driver adapter for the standard SQL workflow.
    const prisma = new PrismaClient({ adapter })
    ```
 
-## Using Driver Adapter (LibSQL / Turso)
+## ドライバーアダプターを使う（LibSQL / Turso）
 
-For edge compatibility or Turso:
+エッジ環境との互換性や Turso のために使います。
 
-1. Install:
+1. インストールする：
    ```bash
    npm install @prisma/adapter-libsql @libsql/client
    ```
 
-2. Instantiate:
+2. インスタンスを作る：
    ```typescript
    import { PrismaClient } from '../generated/client'
    import { PrismaLibSql } from '@prisma/adapter-libsql'
@@ -94,13 +94,13 @@ For edge compatibility or Turso:
    const prisma = new PrismaClient({ adapter })
    ```
 
-## Limitations
+## 制限
 
-- **No Enums**: SQLite doesn't support enums (Prisma polyfills them or treats as String).
-- **No Scalar Lists**: `String[]` is not supported directly.
-- **Concurrency**: Write operations lock the file.
+- **enum がない**：SQLite は enum に対応していません（Prisma が代わりの仕組みで補うか、String として扱います）。
+- **スカラーのリストがない**：`String[]` は直接は使えません。
+- **同時実行**：書き込みの操作では、ファイルがロックされます。
 
-## Common Issues
+## よくある問題
 
 ### "Database file not found"
-Ensure the path in `DATABASE_URL` is correct relative to where Prisma is running or the schema file. `file:./dev.db` creates it next to schema.
+`DATABASE_URL` のパスが、Prisma を実行している場所やスキーマファイルからの相対パスとして正しいことを確認してください。`file:./dev.db` なら、スキーマの横に作られます。

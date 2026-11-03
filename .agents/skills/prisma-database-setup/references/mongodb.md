@@ -1,20 +1,20 @@
-# MongoDB Setup
+# MongoDB の準備
 
-MongoDB projects should stay on the latest Prisma 6.x release. Do not upgrade a MongoDB app to Prisma 7's SQL client path.
+MongoDB のプロジェクトは、最新の Prisma 6.x のリリースのままにしてください。MongoDB のアプリを、Prisma 7 の SQL の Client の流れに上げないでください。
 
-## Prerequisites
+## 前提条件
 
-- MongoDB 4.2+
-- Replica Set configured (required for transactions)
-- Latest Prisma 6.x release, or your team's pinned Prisma 6 version
-- Node.js 20.19.0+
-- TypeScript 5.4.0+
+- MongoDB 4.2 以上
+- レプリカセットの設定（トランザクションに必要）
+- 最新の Prisma 6.x のリリース、またはチームで固定している Prisma 6 のバージョン
+- Node.js 20.19.0 以上
+- TypeScript 5.4.0 以上
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-Use the standard Prisma 6 MongoDB setup with `prisma-client-js`.
+`prisma-client-js` を使う、標準の Prisma 6 の MongoDB の構成を使います。
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
@@ -27,13 +27,13 @@ generator client {
 }
 ```
 
-### Driver Adapters
+### ドライバーアダプター
 
-Do **not** apply the Prisma 7 SQL adapter setup here. MongoDB does not use a SQL `@prisma/adapter-*` package.
+ここでは、Prisma 7 の SQL のアダプターの構成を当てはめ**ない**でください。MongoDB は、SQL 用の `@prisma/adapter-*` パッケージを使いません。
 
-### ID Field Requirement
+### ID の項目の条件
 
-MongoDB models **must** have a mapped `_id` field using `@id` and `@map("_id")`, usually of type `String` with `auto()` and `db.ObjectId`.
+MongoDB のモデルには、`@id` と `@map("_id")` を使って `_id` に対応付けた項目が**必要**です。ふつうは、`auto()` と `db.ObjectId` を使った `String` 型にします。
 
 ```prisma
 model User {
@@ -43,9 +43,9 @@ model User {
 }
 ```
 
-### Relations
+### リレーション
 
-Relations in MongoDB expect IDs to be `db.ObjectId` type.
+MongoDB のリレーションでは、ID が `db.ObjectId` 型であることが前提です。
 
 ```prisma
 model Post {
@@ -55,36 +55,36 @@ model Post {
 }
 ```
 
-## 2. Environment Variable
+## 2. 環境変数
 
-In `.env`:
+`.env` に書きます。
 
 ```env
 DATABASE_URL="mongodb+srv://user:password@cluster.mongodb.net/mydb?retryWrites=true&w=majority"
 ```
 
-## Migrations vs Introspection
+## マイグレーションと取り込み（イントロスペクション）
 
-- **No Migrations**: MongoDB is schema-less. `prisma migrate` commands **do not work**.
-- **db push**: Use `prisma db push` to sync indexes and constraints.
-- **db pull**: Use `prisma db pull` to generate schema from existing data (sampling).
+- **マイグレーションはない**：MongoDB にはスキーマがありません。`prisma migrate` のコマンドは**動きません**。
+- **db push**：インデックスと制約を同期するには、`prisma db push` を使います。
+- **db pull**：既存のデータから（サンプリングして）スキーマを生成するには、`prisma db pull` を使います。
 
-## Current Verification Notes
+## 現時点での確認結果
 
-- `prisma init --datasource-provider mongodb` is still implemented in Prisma's CLI source.
-- Prisma's upstream repo still contains MongoDB fixtures and tests.
-- Local verification shows Prisma 7 can still recognize MongoDB inputs, but the generated client path does not provide a supported MongoDB upgrade path.
-- Local verification shows Prisma 6.x works end to end with `prisma-client-js`, `prisma db push`, and `new PrismaClient()` against a MongoDB replica set.
+- `prisma init --datasource-provider mongodb` は、今も Prisma の CLI のソースに実装されている。
+- Prisma の本家のリポジトリには、今も MongoDB のテスト用データ（fixtures）とテストがある。
+- ローカルで確かめたところ、Prisma 7 は今も MongoDB の入力を認識できるが、生成された Client の流れには、対応している MongoDB のバージョンアップの方法がない。
+- ローカルで確かめたところ、Prisma 6.x は、MongoDB のレプリカセットに対して、`prisma-client-js`、`prisma db push`、`new PrismaClient()` で最初から最後まで動く。
 
-## Version Guidance
+## バージョンについての案内
 
-- For MongoDB, stay on the latest available Prisma 6.x release.
-- Treat Prisma 7 MongoDB migration attempts as unsupported until Prisma ships a real MongoDB upgrade path.
+- MongoDB では、使える最新の Prisma 6.x のリリースのままにする。
+- Prisma が本当の MongoDB のバージョンアップの方法を出すまでは、Prisma 7 への MongoDB の移行は対応していないものとして扱う。
 
-## Common Issues
+## よくある問題
 
 ### "Transactions not supported"
-Ensure your MongoDB instance is a **Replica Set**. Standalone instances do not support transactions. Atlas clusters are replica sets by default.
+MongoDB のインスタンスが**レプリカセット**であることを確認してください。単独（standalone）のインスタンスは、トランザクションに対応していません。Atlas のクラスターは、デフォルトでレプリカセットです。
 
 ### "Invalid ObjectID"
-Ensure fields referencing IDs are decorated with `@db.ObjectId` if the target is an ObjectID.
+参照先が ObjectID なら、ID を参照する項目に `@db.ObjectId` が付いていることを確認してください。

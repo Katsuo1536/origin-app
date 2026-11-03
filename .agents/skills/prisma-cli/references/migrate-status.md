@@ -1,45 +1,45 @@
 # prisma migrate status
 
-Checks the status of your database migrations.
+データベースのマイグレーションの状態を確認します。
 
-## Command
+## コマンド
 
 ```bash
 prisma migrate status [options]
 ```
 
-## What It Does
+## できること
 
-- Connects to the database
-- Checks the `_prisma_migrations` table
-- Compares applied migrations with local migration files
-- Reports:
-    - **Status**: Database is up-to-date or behind
-    - **Unapplied migrations**: Count of pending migrations
-    - **Missing migrations**: Migrations present in DB but missing locally
-    - **Failed migrations**: Any migrations that failed to apply
+- データベースに接続する
+- `_prisma_migrations` テーブルを確認する
+- 適用済みのマイグレーションと、ローカルのマイグレーションのファイルを比べる
+- 次の内容を報告する：
+    - **状態**：データベースが最新か、遅れているか
+    - **未適用のマイグレーション**：まだ適用していないマイグレーションの数
+    - **見つからないマイグレーション**：データベースにはあるが、ローカルにないマイグレーション
+    - **失敗したマイグレーション**：適用に失敗したマイグレーション
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--schema` | Path to schema file |
-| `--config` | Custom path to your Prisma config file |
+| `--schema` | スキーマファイルの場所 |
+| `--config` | Prisma の設定ファイルの場所を指定する |
 
-## Examples
+## 使用例
 
-### Check status
+### 状態を確認する
 
 ```bash
 prisma migrate status
 ```
 
-Output example (Up to date):
+出力の例（最新の場合）：
 ```
 Database schema is up to date!
 ```
 
-Output example (Pending):
+出力の例（未適用がある場合）：
 ```
 Following migration have not yet been applied:
   20240115120000_add_user
@@ -51,15 +51,15 @@ To apply migrations in production, run:
   prisma migrate deploy
 ```
 
-## When to Use
+## 使う場面
 
-- **Debugging**: Why is `migrate dev` complaining about drift?
-- **CI/CD**: Verify database state before deploying
-- **Production**: Check if migrations are needed (`migrate deploy`) or if a deployment failed
+- **デバッグ**：`migrate dev` がずれ（ドリフト）があると言ってくる理由を調べる
+- **CI/CD**：デプロイの前にデータベースの状態を確認する
+- **本番**：マイグレーション（`migrate deploy`）が必要か、デプロイが失敗していないかを確認する
 
-## Exit Codes
+## 終了コード
 
-- `0`: Success (may have pending migrations, but command ran successfully)
-- `1`: Error
+- `0`：成功（未適用のマイグレーションがあっても、コマンド自体が正常に動けば 0）
+- `1`：エラー
 
-To check for pending migrations programmatically, you might need to parse the output or use `migrate diff` with exit code flags.
+未適用のマイグレーションがあるかをプログラムで判定したいときは、出力を解析するか、終了コードのフラグを付けた `migrate diff` を使う必要があるかもしれません。

@@ -1,10 +1,10 @@
-# Raw Queries
+# 生のクエリ
 
-Execute raw SQL when Prisma's query API isn't sufficient.
+Prisma のクエリ API で足りないときに、生の SQL を実行します。
 
 ## $queryRaw
 
-Execute SELECT queries and get typed results:
+SELECT のクエリを実行して、型付きの結果を受け取ります。
 
 ```typescript
 const users = await prisma.$queryRaw`
@@ -12,7 +12,7 @@ const users = await prisma.$queryRaw`
 `
 ```
 
-### With type
+### 型を付ける
 
 ```typescript
 type User = { id: number; email: string; name: string | null }
@@ -22,9 +22,9 @@ const users = await prisma.$queryRaw<User[]>`
 `
 ```
 
-### Dynamic table/column names
+### テーブル名・列名を動的にする
 
-Use `Prisma.raw()` for identifiers (not safe for user input):
+識別子には `Prisma.raw()` を使います（ユーザーの入力に使うのは危険です）。
 
 ```typescript
 import { Prisma } from '../generated/client'
@@ -35,9 +35,9 @@ const users = await prisma.$queryRaw`
 `
 ```
 
-### With Prisma.sql
+### Prisma.sql を使う
 
-Build queries dynamically:
+クエリを動的に組み立てます。
 
 ```typescript
 import { Prisma } from '../generated/client'
@@ -47,7 +47,7 @@ const query = Prisma.sql`SELECT * FROM "User" WHERE email = ${email}`
 const users = await prisma.$queryRaw(query)
 ```
 
-### Join multiple SQL fragments
+### 複数の SQL の部品をつなげる
 
 ```typescript
 import { Prisma } from '../generated/client'
@@ -65,7 +65,7 @@ const users = await prisma.$queryRaw`
 
 ## $executeRaw
 
-Execute INSERT, UPDATE, DELETE (returns affected count):
+INSERT、UPDATE、DELETE を実行します（影響した件数を返します）。
 
 ```typescript
 const count = await prisma.$executeRaw`
@@ -74,7 +74,7 @@ const count = await prisma.$executeRaw`
 console.log(`Updated ${count} users`)
 ```
 
-### Delete example
+### 削除の例
 
 ```typescript
 const deleted = await prisma.$executeRaw`
@@ -82,7 +82,7 @@ const deleted = await prisma.$executeRaw`
 `
 ```
 
-### Insert example
+### 追加の例
 
 ```typescript
 const inserted = await prisma.$executeRaw`
@@ -93,10 +93,10 @@ const inserted = await prisma.$executeRaw`
 
 ## $queryRawUnsafe / $executeRawUnsafe
 
-For fully dynamic queries (use with caution!):
+完全に動的なクエリ向けです（注意して使ってください！）。
 
 ```typescript
-// ⚠️ SQL injection risk - only use with trusted input
+// ⚠️ SQL インジェクションの危険あり。信頼できる入力だけに使う
 const table = 'User'
 const users = await prisma.$queryRawUnsafe(
   `SELECT * FROM "${table}" WHERE id = $1`,
@@ -104,7 +104,7 @@ const users = await prisma.$queryRawUnsafe(
 )
 ```
 
-### Parameterized unsafe query
+### パラメーターを使った unsafe のクエリ
 
 ```typescript
 const result = await prisma.$executeRawUnsafe(
@@ -114,39 +114,39 @@ const result = await prisma.$executeRawUnsafe(
 )
 ```
 
-## SQL Injection Prevention
+## SQL インジェクションを防ぐ
 
-### Safe (parameterized)
+### 安全（パラメーター化）
 
 ```typescript
-// ✅ User input is parameterized
+// ✅ ユーザーの入力はパラメーターとして渡される
 const email = userInput
 const users = await prisma.$queryRaw`
   SELECT * FROM "User" WHERE email = ${email}
 `
 ```
 
-### Unsafe (concatenation)
+### 危険（文字列の連結）
 
 ```typescript
-// ❌ SQL injection vulnerability!
+// ❌ SQL インジェクションの脆弱性あり！
 const email = userInput
 const users = await prisma.$queryRawUnsafe(
   `SELECT * FROM "User" WHERE email = '${email}'`
 )
 ```
 
-## Database-Specific Features
+## データベースごとの機能
 
 ### PostgreSQL
 
 ```typescript
-// Array operations
+// 配列の操作
 const users = await prisma.$queryRaw`
   SELECT * FROM "User" WHERE 'admin' = ANY(roles)
 `
 
-// JSON operations
+// JSON の操作
 const users = await prisma.$queryRaw`
   SELECT * FROM "User" WHERE metadata->>'theme' = 'dark'
 `
@@ -155,13 +155,13 @@ const users = await prisma.$queryRaw`
 ### MySQL
 
 ```typescript
-// Full-text search
+// 全文検索
 const posts = await prisma.$queryRaw`
   SELECT * FROM Post WHERE MATCH(title, content) AGAINST(${searchTerm})
 `
 ```
 
-## Transactions with Raw Queries
+## 生のクエリでトランザクションを使う
 
 ```typescript
 await prisma.$transaction(async (tx) => {
@@ -170,11 +170,11 @@ await prisma.$transaction(async (tx) => {
 })
 ```
 
-## Handling Results
+## 結果の扱い
 
-### BigInt handling
+### BigInt の扱い
 
-PostgreSQL returns BigInt for COUNT:
+PostgreSQL は、COUNT の結果を BigInt で返します。
 
 ```typescript
 const result = await prisma.$queryRaw<[{ count: bigint }]>`
@@ -183,16 +183,16 @@ const result = await prisma.$queryRaw<[{ count: bigint }]>`
 const count = Number(result[0].count)
 ```
 
-### Date handling
+### 日付の扱い
 
 ```typescript
 type Result = { createdAt: Date }
 const users = await prisma.$queryRaw<Result[]>`
   SELECT "createdAt" FROM "User"
 `
-// createdAt is already a Date object
+// createdAt はすでに Date オブジェクトになっている
 ```
 
-Invalid JavaScript `Date` values passed to raw queries fail validation instead of being silently serialized as `null`. Validate date input at the application boundary; do not rely on `new Date(badValue)` reaching the database.
+生のクエリに渡した JavaScript の `Date` が不正な値だと、黙って `null` に変換されるのではなく、検証でエラーになります。日付の入力はアプリの入り口で検証し、`new Date(badValue)` がそのままデータベースに届くことを当てにしないでください。
 
-When a driver adapter returns an unmapped database-specific error, Prisma surfaces `P2039` with the adapter's preserved original code/message. If those details are missing, fix the adapter mapping rather than parsing rendered error text.
+ドライバーアダプターが、対応付けられていないデータベース固有のエラーを返したときは、Prisma はアダプターが保持していた元のコードとメッセージ付きで `P2039` を返します。その情報が欠けている場合は、表示されたエラーの文を解析するのではなく、アダプターの対応付けを直してください。

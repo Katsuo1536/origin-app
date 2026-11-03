@@ -1,20 +1,20 @@
-# Prisma Compute Config
+# Prisma Compute の設定
 
-Use this reference when creating or updating `prisma.compute.ts`, especially for monorepos, multi-app deploys, reusable framework defaults, env inputs, ports, entrypoints, or build settings.
+`prisma.compute.ts` を作成・更新するときに、このリファレンスを使います。特に、モノレポ、複数のアプリのデプロイ、使い回すフレームワークのデフォルト、環境変数の入力、ポート、エントリーポイント、ビルドの設定を扱うときに使います。
 
-`prisma.compute.ts` is not required for every deploy. A simple app can deploy with `@prisma/cli app deploy --framework ... --entry ... --http-port ... --env ...`. The config file exists to make those app-level defaults typed and repeatable.
+`prisma.compute.ts` は、すべてのデプロイで必須ではありません。シンプルなアプリなら、`@prisma/cli app deploy --framework ... --entry ... --http-port ... --env ...` でデプロイできます。設定ファイルは、こうしたアプリ単位のデフォルトに型を付けて、何度でも同じように使えるようにするためのものです。
 
-For monorepos or multi-app repositories, use `prisma.compute.ts`: it is the practical way to tell Compute which app target lives at which `root` and which framework/entry/env defaults belong to each target.
+モノレポや複数のアプリのリポジトリでは、`prisma.compute.ts` を使います。どのアプリのデプロイ先がどの `root` にあり、それぞれのデプロイ先にどのフレームワーク・エントリーポイント・環境変数のデフォルトを使うかを Compute に伝える、現実的な方法だからです。
 
-## Generating a Config with `init`
+## `init` で設定を生成する
 
-Prefer `bunx @prisma/cli@latest init` over hand-writing a fresh single-app config. It detects the framework from the same registry deploy uses, pins `name`, `framework`, and `httpPort` (plus `entry` for Bun and Hono), previews every value with its source, offers the `@prisma/compute-sdk` devDependency for editor types, and offers the Project link. Useful flags: `--framework`, `--entry`, `--http-port`, `--name`, `--no-link`, `--json`.
+単一のアプリの新しい設定は、手で書くよりも `bunx @prisma/cli@latest init` で生成するのがおすすめです。deploy と同じ仕組みでフレームワークを検出し、`name`、`framework`、`httpPort`（Bun と Hono では `entry` も）を固定し、それぞれの値とその根拠を事前に表示します。エディターで型を使うための `@prisma/compute-sdk` の devDependency の追加と、Project とのつなぎ込みも提案してくれます。便利なフラグは、`--framework`、`--entry`、`--http-port`、`--name`、`--no-link`、`--json` です。
 
-`--format json` writes a dependency-free static `prisma.compute.json` instead of the TypeScript config; a later explicit `init --format ts` converts it in place when the config needs to become programmatic. `init` fails with `INIT_CONFIG_EXISTS` when any compute config already exists, never scaffolds application code, and never deploys. Multi-app monorepo configs are still written by hand.
+`--format json` を付けると、TypeScript の設定ではなく、依存関係のない静的な `prisma.compute.json` を書き出します。あとで設定をプログラムで書く必要が出てきたら、`init --format ts` を明示して実行すると、その場で変換されます。`init` は、Compute の設定がすでにあると `INIT_CONFIG_EXISTS` で失敗し、アプリのコードのひな形は作らず、デプロイもしません。複数のアプリのモノレポの設定は、今も手で書きます。
 
-## File Names and Discovery
+## ファイル名と検出
 
-The canonical file is `prisma.compute.ts`. The loader also accepts:
+正式なファイル名は `prisma.compute.ts` です。読み込みの仕組みは、次のファイル名も受け付けます。
 
 ```text
 prisma.compute.mts
@@ -24,17 +24,17 @@ prisma.compute.cjs
 prisma.compute.json
 ```
 
-`prisma.compute.json` is the static, dependency-free variant of the same config; it is discovered and loaded like the others.
+`prisma.compute.json` は、同じ設定を静的に、依存関係なしで書いたものです。ほかのファイルと同じように検出され、読み込まれます。
 
-Keep exactly one compute config file in a directory. If multiple names exist together, the CLI reports `COMPUTE_CONFIG_INVALID`.
+1つのディレクトリには、Compute の設定ファイルを1つだけ置いてください。複数の名前のファイルが一緒にあると、CLI は `COMPUTE_CONFIG_INVALID` を報告します。
 
-The CLI searches from the invocation directory up to the repository or workspace boundary. Boundaries include `.git`, `pnpm-workspace.yaml`, `bun.lock`, `bun.lockb`, or `package.json#workspaces`. Config-relative paths such as `root` and `env.file` resolve from the config file directory. `--env` flag paths still resolve from the invocation directory.
+CLI は、実行したディレクトリから、リポジトリやワークスペースの境界まで、上にさかのぼって探します。境界になるのは、`.git`、`pnpm-workspace.yaml`、`bun.lock`、`bun.lockb`、`package.json#workspaces` です。`root` や `env.file` のような設定の中の相対パスは、設定ファイルのディレクトリから解決されます。`--env` フラグのパスは、これまでどおり実行したディレクトリから解決されます。
 
-When a config is discovered, its directory becomes the Compute project directory for local state: `.prisma/local.json` and `.prisma/cli/state.json` live beside that config, not necessarily inside the app root.
+設定が見つかると、そのディレクトリがローカルの状態を保存する Compute のプロジェクトのディレクトリになります。`.prisma/local.json` と `.prisma/cli/state.json` は、アプリのルートの中とは限らず、その設定ファイルの横に置かれます。
 
-## Basic Shape
+## 基本の形
 
-Import `defineComputeConfig` from `@prisma/compute-sdk/config`. The CLI aliases this helper when loading the config, so the command can evaluate the config without a local SDK install solely for runtime loading.
+`@prisma/compute-sdk/config` から `defineComputeConfig` を import します。CLI は設定を読み込むときにこのヘルパーを置き換えるので、実行時に読み込むためだけにローカルに SDK を入れなくても、コマンドは設定を評価できます。
 
 ```typescript
 import { defineComputeConfig } from "@prisma/compute-sdk/config";
@@ -49,31 +49,31 @@ export default defineComputeConfig({
 });
 ```
 
-JavaScript configs can default-export a plain object, but prefer `prisma.compute.ts` for type checking.
+JavaScript の設定では、ふつうのオブジェクトを default export してもかまいませんが、型チェックのために `prisma.compute.ts` を使うのがおすすめです。
 
-Define exactly one of:
+次のどちらか1つだけを書きます。
 
-- `app` for a single deploy target
-- `apps` for a monorepo or multi-app repository
+- デプロイ先が1つなら `app`
+- モノレポや複数のアプリのリポジトリなら `apps`
 
-Do not define both. Besides `app`/`apps`, the only other allowed top-level key is `region`: a project-level default region applied when deploy creates new apps, overridable per app and by `--region`.
+両方を書かないでください。`app`・`apps` のほかに一番上の階層に書けるキーは `region` だけです。これは、deploy で新しいアプリを作るときに使われるプロジェクト単位のデフォルトのリージョンで、アプリごとの設定や `--region` で上書きできます。
 
-## App Fields
+## アプリの項目
 
-Each app target accepts:
+それぞれのアプリのデプロイ先には、次の項目を書けます。
 
-| Field | Meaning |
+| 項目 | 意味 |
 |-------|---------|
-| `name` | Deployed app name. Defaults to the `apps` key, then CLI inference. |
-| `region` | Compute region id used only when deploy creates a new app. Existing apps keep their current region. |
-| `root` | App directory relative to the config file. Defaults to the config directory. |
-| `framework` | Deploy framework: `nextjs`, `nuxt`, `astro`, `hono`, `nestjs`, `tanstack-start`, `custom`, or `bun`. |
-| `entry` | Entrypoint path for Bun/Hono-style deploys, relative to the app root. |
-| `httpPort` | Deployed HTTP port. Use this for fixed-port apps. |
-| `env` | Dotenv file path string, or `{ file, vars }`. Paths resolve from the config directory. |
-| `build` | `{ command, outputDirectory, entrypoint }`. Present means the config owns build settings for that target. |
+| `name` | デプロイするアプリの名前。省略すると `apps` のキー、それもなければ CLI の推測が使われる。 |
+| `region` | deploy で新しいアプリを作るときにだけ使う、Compute のリージョンの ID。既存のアプリは今のリージョンのまま。 |
+| `root` | 設定ファイルからの相対パスで書く、アプリのディレクトリ。省略すると設定ファイルのディレクトリ。 |
+| `framework` | デプロイのフレームワーク：`nextjs`、`nuxt`、`astro`、`hono`、`nestjs`、`tanstack-start`、`custom`、`bun`。 |
+| `entry` | Bun や Hono のようなデプロイでの、アプリのルートからの相対パスで書くエントリーポイント。 |
+| `httpPort` | デプロイ先の HTTP のポート。ポートが固定のアプリで使う。 |
+| `env` | dotenv ファイルのパスの文字列、または `{ file, vars }`。パスは設定ファイルのディレクトリから解決される。 |
+| `build` | `{ command, outputDirectory, entrypoint }`。書いた場合、そのデプロイ先のビルドの設定は、この設定で決まる。 |
 
-`env` examples:
+`env` の例：
 
 ```typescript
 export default defineComputeConfig({
@@ -89,9 +89,9 @@ export default defineComputeConfig({
 });
 ```
 
-Do not put secrets directly in committed `vars`. Keep secret values in platform env, CI secrets, or dotenv files that are intentionally managed outside version control.
+コミットする `vars` に、秘密の値を直接書かないでください。秘密の値は、Platform の環境変数、CI のシークレット、またはバージョン管理の外で意図して管理している dotenv ファイルに置きます。
 
-`build` examples:
+`build` の例：
 
 ```typescript
 export default defineComputeConfig({
@@ -105,9 +105,9 @@ export default defineComputeConfig({
 });
 ```
 
-Use `command: null` to skip the build step only when the app root already contains the deployable artifact.
+`command: null` でビルドの手順を飛ばすのは、アプリのルートにデプロイできる成果物がすでにあるときだけにしてください。
 
-For a custom or prebuilt artifact, make the deploy target explicit:
+独自やビルド済みの成果物では、デプロイ先を明示します。
 
 ```typescript
 export default defineComputeConfig({
@@ -122,13 +122,13 @@ export default defineComputeConfig({
 });
 ```
 
-`build.entrypoint` is relative to `build.outputDirectory` when an output directory is set. For Bun/Hono configs without an output directory, an entrypoint-backed build can supply the source entrypoint. Do not set both `entry` and `build.entrypoint` unless they describe the same file.
+出力のディレクトリを設定している場合、`build.entrypoint` は `build.outputDirectory` からの相対パスになります。出力のディレクトリがない Bun や Hono の設定では、エントリーポイントを使うビルドが、ソースのエントリーポイントを指定できます。`entry` と `build.entrypoint` が同じファイルを指すのでなければ、両方を書かないでください。
 
-A config `build` block is accepted for every supported framework: the config-backed build types are `nextjs`, `nuxt`, `astro`, `nestjs`, `tanstack-start`, `custom`, and `bun` (`hono` builds through the `bun` strategy). Only `custom` requires one (`build.outputDirectory` and `build.entrypoint`); for the others it overrides inferred build settings.
+設定の `build` は、対応しているすべてのフレームワークで使えます。設定でビルドできる種類は、`nextjs`、`nuxt`、`astro`、`nestjs`、`tanstack-start`、`custom`、`bun` です（`hono` は `bun` の方式でビルドされる）。必須なのは `custom` だけで（`build.outputDirectory` と `build.entrypoint`）、ほかのフレームワークでは、推測されたビルドの設定を上書きします。
 
-## Monorepos and Multi-App Repos
+## モノレポと複数のアプリのリポジトリ
 
-For monorepos, put `prisma.compute.ts` at the repo or workspace root and use `apps`. This keeps project binding and local `.prisma/` state at the repo root while each app builds from its own `root`.
+モノレポでは、リポジトリやワークスペースのルートに `prisma.compute.ts` を置いて、`apps` を使います。こうすると、プロジェクトとのつなぎ込みやローカルの `.prisma/` の状態はリポジトリのルートに置いたまま、それぞれのアプリを自分の `root` からビルドできます。
 
 ```typescript
 import { defineComputeConfig } from "@prisma/compute-sdk/config";
@@ -165,7 +165,7 @@ export default defineComputeConfig({
 });
 ```
 
-Target selection:
+デプロイ先の選び方：
 
 ```bash
 bunx @prisma/cli@latest app deploy web
@@ -174,36 +174,36 @@ bunx @prisma/cli@latest app build api
 bunx @prisma/cli@latest app run api --port 8080
 ```
 
-If no `[app]` argument is passed, commands can infer the target from the invocation directory when it is inside a configured `root`. The deepest matching root wins. If no target is inferred from a multi-app config, a bare deploy can deploy all targets in declaration order:
+`[app]` の引数を渡さなくても、実行したディレクトリが設定された `root` の中なら、コマンドはデプロイ先を推測できます。当てはまるルートが複数あれば、一番深いものが使われます。複数のアプリの設定でデプロイ先を推測できない場合、引数なしの deploy は、書かれた順にすべてのデプロイ先をデプロイできます。
 
 ```bash
 bunx @prisma/cli@latest app deploy --branch feature/foo --json --no-interactive
 ```
 
-Deploy-all rejects per-app overrides such as `--app`, `--framework`, `--entry`, `--http-port`, `--region`, `--env`, and `PRISMA_APP_ID`. Project, branch, production, and confirmation flags still apply to the whole run. Keep database setup in explicit database and project-env commands.
+すべてをデプロイするときは、`--app`、`--framework`、`--entry`、`--http-port`、`--region`、`--env`、`PRISMA_APP_ID` のような、アプリごとの上書きは受け付けられません。プロジェクト、ブランチ、本番、確認のフラグは、実行全体に効きます。データベースの準備は、データベースとプロジェクトの環境変数のコマンドで明示的に行ってください。
 
-`app build` and `app run` still need one target in multi-app configs because a local build/run command cannot operate N apps at once.
+ローカルのビルドや実行のコマンドは、一度に複数のアプリを扱えないため、複数のアプリの設定でも、`app build` と `app run` には1つのデプロイ先の指定が必要です。
 
-Additional target rules:
+そのほかのデプロイ先のルール：
 
-- A single-entry `apps` map can deploy its only target without an argument.
-- With a single `app` config, `[app]` is accepted only when it equals the configured `name`.
-- `[app]` without any compute config file is a usage error.
+- 項目が1つだけの `apps` なら、引数なしでその唯一のデプロイ先をデプロイできる。
+- 単一の `app` の設定では、`[app]` は設定された `name` と同じときだけ受け付けられる。
+- Compute の設定ファイルがないのに `[app]` を書くと、使い方のエラーになる。
 
-## Precedence
+## 優先順位
 
-Explicit flags win over config values:
+明示したフラグは、設定の値より優先されます。
 
-- `--framework` overrides `framework`
-- `--entry` overrides `entry`
-- `--http-port` overrides `httpPort`
-- `--region` overrides `region`
-- any `--env` flag replaces all config env inputs
-- `--app` and `PRISMA_APP_ID` rank above config app names
+- `--framework` は `framework` を上書きする
+- `--entry` は `entry` を上書きする
+- `--http-port` は `httpPort` を上書きする
+- `--region` は `region` を上書きする
+- `--env` フラグを1つでも付けると、設定の環境変数の入力がすべて置き換わる
+- `--app` と `PRISMA_APP_ID` は、設定のアプリ名より優先される
 
-`region` is not an app selector. Config `region` and `--region` are only used when deploy creates a new app. If the selected app already exists, deploy keeps that app's existing region.
+`region` は、アプリを選ぶためのものではありません。設定の `region` と `--region` は、deploy で新しいアプリを作るときにだけ使われます。選んだアプリがすでにあれば、deploy はそのアプリの今のリージョンのままにします。
 
-`prisma.compute.ts` never selects Workspace, Project, Branch, or production intent. Keep those in CLI flags, environment variables, `.prisma/local.json`, or CI configuration:
+`prisma.compute.ts` で、Workspace、Project、Branch、本番へのデプロイの意図を選ぶことはありません。これらは、CLI のフラグ、環境変数、`.prisma/local.json`、CI の設定に置きます。
 
 ```bash
 bunx @prisma/cli@latest app deploy api \
@@ -213,10 +213,10 @@ bunx @prisma/cli@latest app deploy api \
   --yes
 ```
 
-## Database Scope
+## データベースの範囲
 
-The config does not declare databases. Keep database intent in `database create`, project env commands, or external automation. Read [`app-deploy-cli.md`](app-deploy-cli.md) for deploy-all, migration, and env-var guardrails.
+設定でデータベースは宣言しません。データベースについての意図は、`database create`、プロジェクトの環境変数のコマンド、または外部の自動化に置いてください。すべてをデプロイするとき、マイグレーション、環境変数についての注意は、[`app-deploy-cli.md`](app-deploy-cli.md) を読んでください。
 
-## Relationship to `prisma.config.ts`
+## `prisma.config.ts` との関係
 
-Do not put Compute deploy defaults in `prisma.config.ts`. Prisma ORM uses `prisma.config.ts`, while Compute uses `prisma.compute.ts`.
+Compute のデプロイのデフォルトを `prisma.config.ts` に書かないでください。Prisma ORM は `prisma.config.ts` を、Compute は `prisma.compute.ts` を使います。

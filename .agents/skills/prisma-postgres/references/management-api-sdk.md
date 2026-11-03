@@ -1,24 +1,24 @@
 # management-api-sdk
 
-Use `@prisma/management-api-sdk` for typed API integration with optional OAuth and token refresh.
+型付きで API を組み込むには、`@prisma/management-api-sdk` を使います。必要なら OAuth とトークンの更新も使えます。
 
-The Platform API evolves independently from Prisma ORM. Inspect the installed package's generated `api.d.ts` for exact paths and request/response shapes.
+Platform の API は、Prisma ORM とは別に変わっていきます。正確なパスと、リクエスト・返り値の形は、インストールしたパッケージの生成された `api.d.ts` で確認してください。
 
-## Priority
+## 優先度
 
-HIGH
+高（HIGH）
 
-## Why It Matters
+## なぜ大事か
 
-The SDK provides typed endpoint methods and removes boilerplate around auth and refresh handling, which reduces errors in production provisioning flows.
+SDK には型付きのエンドポイントのメソッドがあり、認証や更新の処理の決まりきったコードを書かずに済むので、本番での用意の流れのエラーが減ります。
 
-## Install
+## インストール
 
 ```bash
 npm install @prisma/management-api-sdk
 ```
 
-## Simple client (existing token)
+## シンプルな Client（既存のトークン）
 
 ```typescript
 import { createManagementApiClient } from '@prisma/management-api-sdk'
@@ -27,19 +27,19 @@ const client = createManagementApiClient({ token: process.env.PRISMA_SERVICE_TOK
 const { data: workspaces } = await client.GET('/v1/workspaces')
 ```
 
-Check the generated client result before using `data`; typed clients surface HTTP failures separately. Never log a full response from connection/key creation because it may contain one-time credentials.
+`data` を使う前に、生成された Client の結果を確認してください。型付きの Client は、HTTP の失敗を別に返します。接続やキーを作成したときの返り値は、一度だけの認証情報が入っていることがあるので、全体を絶対にログに出さないでください。
 
-## Workspace service tokens
+## ワークスペースのサービストークン
 
-The typed client exposes routes to list, create, and revoke workspace service tokens:
+型付きの Client には、ワークスペースのサービストークンの一覧・作成・取り消しのためのルートがあります。
 
 - `GET /v1/workspaces/{workspaceId}/service-tokens`
 - `POST /v1/workspaces/{workspaceId}/service-tokens`
 - `DELETE /v1/workspaces/{workspaceId}/service-tokens/{serviceTokenId}`
 
-Creation accepts a display `name`. The response's `data.value` is the complete token and is returned exactly once; transfer it directly to the intended secret store without logging the response. Later list calls return metadata and `valueHint`, not the token value. Treat revocation as destructive and resolve both ids explicitly.
+作成では、表示用の `name` を受け付けます。返り値の `data.value` がトークンの全体で、一度だけ返されます。返り値をログに出さずに、目的のシークレットの保存場所に直接移してください。そのあとの一覧の呼び出しが返すのは、情報と `valueHint` だけで、トークンの値は返りません。取り消しはデータを壊す操作として扱い、両方の ID を明示して確定させてください。
 
-## Full SDK (OAuth + refresh)
+## 完全な SDK（OAuth と更新）
 
 ```typescript
 import { createManagementApiSdk, type TokenStorage } from '@prisma/management-api-sdk'
@@ -57,14 +57,14 @@ const api = createManagementApiSdk({
 })
 ```
 
-## OAuth SDK flow
+## SDK での OAuth の流れ
 
-1. Call `getLoginUrl()` and persist `state` + `verifier`.
-2. Redirect user to login URL.
-3. Handle callback with `handleCallback()`.
-4. Use `api.client` for typed endpoint calls.
-5. Call `logout()` when needed.
+1. `getLoginUrl()` を呼び、`state` と `verifier` を保存する。
+2. ユーザーをログインの URL にリダイレクトする。
+3. `handleCallback()` でコールバックを処理する。
+4. 型付きのエンドポイントの呼び出しには `api.client` を使う。
+5. 必要なときに `logout()` を呼ぶ。
 
-## References
+## 参考
 
-- [Management API SDK docs](https://www.prisma.io/docs/postgres/introduction/management-api-sdk)
+- [Management API の SDK のドキュメント](https://www.prisma.io/docs/postgres/introduction/management-api-sdk)

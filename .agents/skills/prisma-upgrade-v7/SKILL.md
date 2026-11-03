@@ -1,121 +1,120 @@
 ---
 name: prisma-upgrade-v7
-description: Complete migration guide from Prisma ORM v6 to v7 covering all breaking changes. Use when upgrading Prisma versions, encountering v7 errors, or migrating existing projects. Triggers on "upgrade to prisma 7", "prisma 7 migration", "prisma-client generator", "driver adapter required".
+description: Prisma ORM v6 から v7 への、互換性のない変更をすべて扱う完全な移行ガイド。Prisma のバージョンを上げるとき、v7 のエラーが出たとき、既存のプロジェクトを移行するときに使う。"upgrade to prisma 7"、"prisma 7 migration"、"prisma-client generator"、"driver adapter required" で起動する。
 license: MIT
 metadata:
   author: prisma
   version: "7.6.0"
 ---
 
-# Upgrade to Prisma ORM 7
+# Prisma ORM 7 へのバージョンアップ
 
-Complete guide for migrating from Prisma ORM v6 to v7. This upgrade introduces significant breaking changes around the new `prisma-client` generator, driver adapters, `prisma.config.ts`, explicit environment loading, and generated client entrypoints.
+Prisma ORM v6 から v7 へ移行するための完全なガイドです。このバージョンアップでは、新しい `prisma-client` ジェネレーター、ドライバーアダプター、`prisma.config.ts`、環境変数の明示的な読み込み、生成される Client の入り口（エントリーポイント）について、大きな互換性のない変更が入ります。
 
-## When to Apply
+## 使う場面
 
-Reference this skill when:
-- Upgrading from Prisma v6 to v7
-- Updating to the `prisma-client` generator
-- Setting up driver adapters
-- Configuring `prisma.config.ts`
-- Fixing import errors after upgrade
+次のようなときに、このスキルを参照します。
+- Prisma v6 から v7 に上げる
+- `prisma-client` ジェネレーターに切り替える
+- ドライバーアダプターを準備する
+- `prisma.config.ts` を設定する
+- バージョンアップのあとの import のエラーを直す
 
-## Rule Categories by Priority
+## 優先度別のルールの分類
 
-| Priority | Category | Impact | Prefix |
+| 優先度 | 分類 | 影響 | 接頭辞 |
 |----------|----------|--------|--------|
-| 1 | Schema Migration | CRITICAL | `schema-changes` |
-| 2 | Database Connectivity | CRITICAL | `driver-adapters` |
-| 3 | Module System | CRITICAL | `esm-support` |
-| 4 | Config and Env | HIGH | `prisma-config`, `env-variables` |
-| 5 | Removed Features | HIGH | `removed-features` |
-| 6 | Accelerate | HIGH | `accelerate-users` |
+| 1 | スキーマの移行 | 最重要 | `schema-changes` |
+| 2 | データベースへの接続 | 最重要 | `driver-adapters` |
+| 3 | モジュールの仕組み | 最重要 | `esm-support` |
+| 4 | 設定と環境変数 | 高 | `prisma-config`, `env-variables` |
+| 5 | なくなった機能 | 高 | `removed-features` |
+| 6 | Accelerate | 高 | `accelerate-users` |
 
-## Quick Reference
+## クイックリファレンス
 
-- `schema-changes` - generator migration, required output paths, generated entrypoints, and `Prisma.validator` replacement
-- `driver-adapters` - required adapter installation for SQL providers, pool differences, and Prisma Postgres adapter choices
-- `esm-support` - ESM-first setup plus CommonJS fallback with `moduleFormat = "cjs"`
-- `prisma-config` - creating and using `prisma.config.ts`
-- `env-variables` - explicit environment loading
-- `removed-features` - removed middleware, metrics, and legacy CLI behavior
-- `accelerate-users` - migration notes for Accelerate users
+- `schema-changes` - ジェネレーターの移行、必須になった出力先のパス、生成される入り口、`Prisma.validator` の置き換え
+- `driver-adapters` - SQL のプロバイダーで必須のアダプターのインストール、プールの違い、Prisma Postgres のアダプターの選び方
+- `esm-support` - ESM を基本にした構成と、`moduleFormat = "cjs"` を使った CommonJS の代わりの方法
+- `prisma-config` - `prisma.config.ts` の作り方と使い方
+- `env-variables` - 環境変数の明示的な読み込み
+- `removed-features` - なくなったミドルウェア、メトリクス、以前の CLI の動き
+- `accelerate-users` - Accelerate の利用者向けの移行の注意
 
-## Using MongoDB? This guide does not apply
+## MongoDB を使っている？ このガイドは当てはまりません
 
-Prisma 7 has no MongoDB connector. Do not apply any step in this guide to a project with
-`provider = "mongodb"` — see the `prisma-mongodb-upgrade` skill for the actual decision
-(stay on v6 deliberately vs migrate to Prisma Next).
+Prisma 7 には MongoDB のコネクターがありません。
+`provider = "mongodb"` のプロジェクトに、このガイドの手順を1つも当てはめないでください。実際に選ぶこと（意図して v6 のままにするか、Prisma Next に移行するか）は、`prisma-mongodb-upgrade` スキルを見てください。
 
-## Important Notes
+## 大事な注意
 
-- **MongoDB projects should stay on Prisma 6.x or migrate to Prisma Next** - do not migrate MongoDB apps to Prisma 7's SQL client path (see `prisma-mongodb-upgrade`)
-- **Node.js 20.19.0+** required
-- **TypeScript 5.4.0+** required
-- **Latest stable Prisma ORM version**: `7.6.0`
+- **MongoDB のプロジェクトは、Prisma 6.x のままにするか、Prisma Next に移行する** - MongoDB のアプリを、Prisma 7 の SQL の Client の流れに移さない（`prisma-mongodb-upgrade` を見る）
+- **Node.js 20.19.0 以上**が必要
+- **TypeScript 5.4.0 以上**が必要
+- **最新の安定版の Prisma ORM のバージョン**：`7.6.0`
 
-## Upgrade Steps Overview
+## バージョンアップの手順の概要
 
-1. Update packages to v7
-2. Choose your module format (`esm` by default, `cjs` if needed)
-3. Update TypeScript configuration
-4. Update the schema generator block
-5. Create `prisma.config.ts`
-6. Install and configure a driver adapter for SQL providers
-7. Update Prisma Client imports
-8. Update client instantiation
-9. Replace deprecated helper patterns like `Prisma.validator`
-10. Run `prisma generate` and test
+1. パッケージを v7 に上げる
+2. モジュールの形式を選ぶ（デフォルトは `esm`、必要なら `cjs`）
+3. TypeScript の設定を更新する
+4. スキーマの generator ブロックを更新する
+5. `prisma.config.ts` を作る
+6. SQL のプロバイダーでは、ドライバーアダプターをインストールして設定する
+7. Prisma Client の import を更新する
+8. Client のインスタンスの作り方を更新する
+9. `Prisma.validator` のような非推奨の補助のパターンを置き換える
+10. `prisma generate` を実行してテストする
 
-## Quick Upgrade Commands
+## バージョンアップのためのコマンド
 
 ```bash
-# Update packages
+# パッケージを上げる
 npm install @prisma/client@7
 npm install -D prisma@7
 
-# Install a driver adapter (PostgreSQL or Prisma Postgres via direct TCP)
+# ドライバーアダプターをインストールする（PostgreSQL、または TCP で直接つなぐ Prisma Postgres）
 npm install @prisma/adapter-pg pg
 
-# Install dotenv for env loading
+# 環境変数を読み込むために dotenv をインストールする
 npm install dotenv
 
-# Regenerate client
+# Client を生成し直す
 npx prisma generate
 ```
 
-## Breaking Changes Summary
+## 互換性のない変更のまとめ
 
-| Change | v6 | v7 |
+| 変更 | v6 | v7 |
 |--------|----|----|
-| Module format | Implicit / mixed | ESM-first, `moduleFormat = "cjs"` supported |
-| Generator provider | `prisma-client-js` | `prisma-client` is the default, while `prisma-client-js` still exists for legacy setups |
-| Output path | Auto (node_modules) | Required explicit |
-| Driver adapters | Optional | Required for SQL providers |
-| Config file | `.env` + schema | `prisma.config.ts` |
-| Env loading | Automatic | Manual (dotenv) |
-| Generated entrypoints | Single package export | `client`, `browser`, `models`, `enums` entrypoints |
-| Type-safe query fragments | `Prisma.validator()` | TypeScript `satisfies` |
-| Middleware | `$use()` | Client Extensions |
-| Metrics | Preview feature | Removed |
+| モジュールの形式 | 暗黙・混在 | ESM が基本。`moduleFormat = "cjs"` にも対応 |
+| ジェネレーターのプロバイダー | `prisma-client-js` | `prisma-client` がデフォルト。以前の構成のために `prisma-client-js` も残っている |
+| 出力先のパス | 自動（node_modules） | 明示が必須 |
+| ドライバーアダプター | 省略可 | SQL のプロバイダーでは必須 |
+| 設定ファイル | `.env` + スキーマ | `prisma.config.ts` |
+| 環境変数の読み込み | 自動 | 手動（dotenv） |
+| 生成される入り口 | パッケージの1つの export | `client`、`browser`、`models`、`enums` の入り口 |
+| 型安全なクエリの部品 | `Prisma.validator()` | TypeScript の `satisfies` |
+| ミドルウェア | `$use()` | Client Extensions |
+| メトリクス | プレビュー機能 | 廃止 |
 
-## Rule Files
+## ルールファイル
 
-Detailed migration guides for each breaking change:
+互換性のない変更ごとの、詳しい移行のガイド：
 
 ```
-references/esm-support.md        - ESM and CommonJS configuration
-references/schema-changes.md     - Generator, output, imports, and generated entrypoints
-references/driver-adapters.md    - Required driver adapter setup
-references/prisma-config.md      - New configuration file
-references/env-variables.md      - Environment variable loading
-references/removed-features.md   - Middleware, metrics, and CLI flags
-references/accelerate-users.md   - Special handling for Accelerate
+references/esm-support.md        - ESM と CommonJS の設定
+references/schema-changes.md     - ジェネレーター、出力先、import、生成される入り口
+references/driver-adapters.md    - 必須のドライバーアダプターの準備
+references/prisma-config.md      - 新しい設定ファイル
+references/env-variables.md      - 環境変数の読み込み
+references/removed-features.md   - ミドルウェア、メトリクス、CLI のフラグ
+references/accelerate-users.md   - Accelerate の特別な扱い
 ```
 
-## Step-by-Step Migration
+## 一歩ずつの移行
 
-### 1. Update package.json for ESM-first projects
+### 1. ESM を基本にするプロジェクトで package.json を更新する
 
 ```json
 {
@@ -123,9 +122,9 @@ references/accelerate-users.md   - Special handling for Accelerate
 }
 ```
 
-If you need to stay on CommonJS, keep your app as CJS and set `moduleFormat = "cjs"` in the generator block instead of forcing ESM.
+CommonJS のままにする必要があるなら、ESM を無理に使わずにアプリは CJS のままにして、generator ブロックで `moduleFormat = "cjs"` を設定します。
 
-### 2. Update tsconfig.json
+### 2. tsconfig.json を更新する
 
 ```json
 {
@@ -139,24 +138,24 @@ If you need to stay on CommonJS, keep your app as CJS and set `moduleFormat = "c
 }
 ```
 
-### 3. Update schema.prisma
+### 3. schema.prisma を更新する
 
 ```prisma
-// Before (v6)
+// 変更前（v6）
 generator client {
   provider = "prisma-client-js"
 }
 
-// After (v7)
+// 変更後（v7）
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
-  // Optional if you need CommonJS:
+  // CommonJS が必要なら（省略可）：
   // moduleFormat = "cjs"
 }
 ```
 
-### 4. Create prisma.config.ts
+### 4. prisma.config.ts を作る
 
 ```typescript
 import 'dotenv/config'
@@ -173,7 +172,7 @@ export default defineConfig({
 })
 ```
 
-### 5. Install a driver adapter (SQL providers only)
+### 5. ドライバーアダプターをインストールする（SQL のプロバイダーだけ）
 
 ```bash
 # PostgreSQL
@@ -185,26 +184,26 @@ npm install @prisma/adapter-mariadb mariadb
 # SQLite
 npm install @prisma/adapter-better-sqlite3 better-sqlite3
 
-# Prisma Postgres in standard Node.js apps (recommended)
+# ふつうの Node.js のアプリでの Prisma Postgres（おすすめ）
 npm install @prisma/adapter-pg pg
 
-# Prisma Postgres serverless driver (edge/serverless)
+# Prisma Postgres のサーバーレスのドライバー（エッジ・サーバーレス）
 npm install @prisma/adapter-ppg @prisma/ppg
 
 # Neon
 npm install @prisma/adapter-neon
 ```
 
-MongoDB does not have a SQL `@prisma/adapter-*` package in the published Prisma 7.6.0 packages. If you're upgrading a MongoDB project, stop and keep that project on the latest Prisma 6.x release instead of following the standard Prisma 7 migration path.
+公開されている Prisma 7.6.0 のパッケージには、MongoDB 用の SQL の `@prisma/adapter-*` パッケージはありません。MongoDB のプロジェクトを上げようとしているなら、そこで止めて、ふつうの Prisma 7 の移行の手順に従わずに、そのプロジェクトを最新の Prisma 6.x のリリースのままにしてください。
 
-### 6. Update client instantiation
+### 6. Client のインスタンスの作り方を更新する
 
 ```typescript
-// Before (v6)
+// 変更前（v6）
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-// After (v7)
+// 変更後（v7）
 import { PrismaClient } from '../generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
@@ -215,7 +214,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter })
 ```
 
-### 7. Replace Prisma.validator with satisfies
+### 7. Prisma.validator を satisfies に置き換える
 
 ```typescript
 import { Prisma } from '../generated/prisma/client'
@@ -227,33 +226,33 @@ const userSelect = {
 } satisfies Prisma.UserSelect
 ```
 
-### 8. Run migrations and generate
+### 8. マイグレーションと生成を実行する
 
 ```bash
 npx prisma generate
-npx prisma migrate dev  # if needed
+npx prisma migrate dev  # 必要なら
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### "Cannot find module" errors
-- Check that the generator `output` path matches your import path
-- Ensure `prisma generate` ran successfully
+### "Cannot find module" のエラー
+- generator の `output` のパスが、import のパスと合っているかを確認する
+- `prisma generate` が成功したことを確認する
 
-### SSL certificate errors
-- Add `ssl: { rejectUnauthorized: false }` to the adapter config if you need to preserve old behavior
-- Or configure your certificates properly with `NODE_EXTRA_CA_CERTS` / OpenSSL CA settings
+### SSL の証明書のエラー
+- 以前の動きを残したいなら、アダプターの設定に `ssl: { rejectUnauthorized: false }` を追加する
+- または、`NODE_EXTRA_CA_CERTS` や OpenSSL の CA の設定で、証明書を正しく設定する
 
-### Connection timeout issues
-- Driver adapters use the underlying driver's defaults, which differ from v6
-- Configure pool settings explicitly on the adapter if needed
+### 接続のタイムアウトの問題
+- ドライバーアダプターは、下にあるドライバーのデフォルトを使うので、v6 とは違う
+- 必要なら、アダプターでプールの設定を明示する
 
-## Resources
+## 資料
 
-- [Official v7 Upgrade Guide](https://www.prisma.io/docs/orm/more/upgrades/to-v7)
-- [Driver Adapters Documentation](https://www.prisma.io/docs/orm/core-concepts/supported-databases/database-drivers)
-- [Prisma Config Reference](https://www.prisma.io/docs/orm/reference/prisma-config-reference)
+- [公式の v7 へのバージョンアップのガイド](https://www.prisma.io/docs/orm/more/upgrades/to-v7)
+- [ドライバーアダプターのドキュメント](https://www.prisma.io/docs/orm/core-concepts/supported-databases/database-drivers)
+- [Prisma Config のリファレンス](https://www.prisma.io/docs/orm/reference/prisma-config-reference)
 
-## How to Use
+## 使い方
 
-Follow `references/schema-changes.md` and `references/driver-adapters.md` first, then apply the remaining reference files based on your project setup.
+まず `references/schema-changes.md` と `references/driver-adapters.md` に従い、そのあと、プロジェクトの構成に合わせて残りのリファレンスファイルを当てはめてください。

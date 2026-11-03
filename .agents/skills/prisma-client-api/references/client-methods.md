@@ -1,24 +1,24 @@
-# Client Methods
+# Client のメソッド
 
-Prisma Client instance methods.
+Prisma Client のインスタンスのメソッドです。
 
 ## $connect()
 
-Explicitly connect to the database:
+データベースに明示的に接続します。
 
 ```typescript
 const prisma = new PrismaClient({ adapter })
 
-// Explicit connection
+// 明示的に接続する
 await prisma.$connect()
 ```
 
-### When to use
+### 使う場面
 
-Usually not needed - Prisma connects automatically on first query. Use for:
-- Fail fast on startup
-- Health checks
-- Pre-warming connections
+ふつうは必要ありません。Prisma は最初のクエリで自動的に接続します。次のようなときに使います。
+- 起動時に、接続できなければすぐに失敗させたい
+- ヘルスチェック
+- 接続を前もって温めておく
 
 ```typescript
 async function main() {
@@ -34,27 +34,27 @@ async function main() {
 
 ## $disconnect()
 
-Close database connection:
+データベースとの接続を閉じます。
 
 ```typescript
 await prisma.$disconnect()
 ```
 
-### Graceful shutdown
+### きれいに終了する
 
 ```typescript
 process.on('beforeExit', async () => {
   await prisma.$disconnect()
 })
 
-// Or with SIGTERM
+// または SIGTERM で
 process.on('SIGTERM', async () => {
   await prisma.$disconnect()
   process.exit(0)
 })
 ```
 
-### In tests
+### テストで使う
 
 ```typescript
 afterAll(async () => {
@@ -64,9 +64,9 @@ afterAll(async () => {
 
 ## $on()
 
-Subscribe to events:
+イベントを受け取ります。
 
-### Query events
+### クエリのイベント
 
 ```typescript
 const prisma = new PrismaClient({
@@ -81,7 +81,7 @@ prisma.$on('query', (e) => {
 })
 ```
 
-### Log events
+### ログのイベント
 
 ```typescript
 const prisma = new PrismaClient({
@@ -100,9 +100,9 @@ prisma.$on('error', (e) => console.error(e.message))
 
 ## $extends()
 
-Add extensions for custom behavior:
+拡張を追加して、独自の動きを加えます。
 
-### Add custom methods
+### 独自のメソッドを追加する
 
 ```typescript
 const prisma = new PrismaClient({ adapter }).$extends({
@@ -114,7 +114,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
 prisma.$log('Hello!')
 ```
 
-### Add model methods
+### モデルにメソッドを追加する
 
 ```typescript
 const prisma = new PrismaClient({ adapter }).$extends({
@@ -130,14 +130,14 @@ const prisma = new PrismaClient({ adapter }).$extends({
 const user = await prisma.user.findByEmail('alice@prisma.io')
 ```
 
-### Query extensions
+### クエリの拡張
 
 ```typescript
 const prisma = new PrismaClient({ adapter }).$extends({
   query: {
     user: {
       async findMany({ args, query }) {
-        // Add default filter
+        // デフォルトの絞り込みを追加する
         args.where = { ...args.where, deletedAt: null }
         return query(args)
       }
@@ -146,7 +146,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
 })
 ```
 
-### Result extensions
+### 結果の拡張
 
 ```typescript
 const prisma = new PrismaClient({ adapter }).$extends({
@@ -163,10 +163,10 @@ const prisma = new PrismaClient({ adapter }).$extends({
 })
 
 const user = await prisma.user.findFirst()
-console.log(user.fullName) // Computed field
+console.log(user.fullName) // 計算で求めたフィールド
 ```
 
-### Chain extensions
+### 拡張をつなげる
 
 ```typescript
 const prisma = new PrismaClient({ adapter })
@@ -177,33 +177,33 @@ const prisma = new PrismaClient({ adapter })
 
 ## $transaction()
 
-See `transactions.md` for details.
+詳しくは `transactions.md` を見てください。
 
 ## $queryRaw() / $executeRaw()
 
-See `raw-queries.md` for details.
+詳しくは `raw-queries.md` を見てください。
 
-## Type utilities
+## 型のユーティリティ
 
-### Prisma namespace
+### Prisma 名前空間
 
 ```typescript
 import { Prisma } from '../generated/client'
 
-// Input types
+// 入力の型
 type UserCreateInput = Prisma.UserCreateInput
 type UserWhereInput = Prisma.UserWhereInput
 
-// Output types
+// 出力の型
 type User = Prisma.UserGetPayload<{}>
 type UserWithPosts = Prisma.UserGetPayload<{
   include: { posts: true }
 }>
 ```
 
-### Type-safe query fragments with satisfies
+### satisfies を使った型安全なクエリの部品
 
-Type-safe query fragments:
+型安全なクエリの部品：
 
 ```typescript
 import { Prisma } from '../generated/client'
@@ -220,4 +220,4 @@ const user = await prisma.user.findUnique({
 })
 ```
 
-With the `prisma-client` generator, use TypeScript `satisfies` for typed query fragments. You may still see older examples that use `Prisma.validator()` with `prisma-client-js`.
+`prisma-client` ジェネレーターでは、型付きのクエリの部品に TypeScript の `satisfies` を使います。`prisma-client-js` で `Prisma.validator()` を使う古い例を見かけることもあります。

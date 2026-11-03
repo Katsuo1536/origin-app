@@ -1,63 +1,63 @@
 # prisma migrate dev
 
-Creates and applies migrations during development. Requires a shadow database.
+開発中に、マイグレーションを作成して適用します。シャドーデータベースが必要です。
 
-## Command
+## コマンド
 
 ```bash
 prisma migrate dev [options]
 ```
 
-## What It Does
+## できること
 
-1. Runs existing migrations in shadow database to detect drift
-2. Applies any pending migrations
-3. Generates new migration from schema changes
-4. Applies new migration to development database
-5. Updates `_prisma_migrations` table
+1. 既存のマイグレーションをシャドーデータベースで実行して、ずれ（ドリフト）を検出する
+2. まだ適用していないマイグレーションを適用する
+3. スキーマの変更から、新しいマイグレーションを生成する
+4. 新しいマイグレーションを、開発用のデータベースに適用する
+5. `_prisma_migrations` テーブルを更新する
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--name` / `-n` | Name the migration |
-| `--create-only` | Create a new migration but do not apply it |
-| `--schema` | Custom path to your Prisma schema |
-| `--config` | Custom path to your Prisma config file |
-| `--url` | Override the datasource URL from the Prisma config file |
+| `--name` / `-n` | マイグレーションに名前を付ける |
+| `--create-only` | 新しいマイグレーションを作成するが、適用はしない |
+| `--schema` | Prisma スキーマの場所を指定する |
+| `--config` | Prisma の設定ファイルの場所を指定する |
+| `--url` | Prisma の設定ファイルにあるデータソースの URL を上書きする |
 
-### Follow-up Commands
+### そのあとに実行するコマンド
 
-- Run `prisma generate` explicitly when you need refreshed client output
-- Run `prisma db seed` explicitly when you need seed data
+- 最新の Client の出力が必要なときは、`prisma generate` を明示的に実行する
+- シードデータが必要なときは、`prisma db seed` を明示的に実行する
 
-Run `prisma generate` as an explicit follow-up when you need refreshed generated artifacts. Do not rely on historical CLI help that described generators as part of `migrate dev`.
+生成物を最新にしたいときは、続けて `prisma generate` を明示的に実行してください。ジェネレーターの実行が `migrate dev` に含まれると説明していた、以前の CLI のヘルプを当てにしないでください。
 
-## Examples
+## 使用例
 
-### Create and apply migration
+### マイグレーションを作成して適用する
 
 ```bash
 prisma migrate dev
 ```
 
-Prompts for migration name if schema changed.
+スキーマが変わっていれば、マイグレーションの名前を聞いてきます。
 
-### Named migration
+### 名前を付けたマイグレーション
 
 ```bash
 prisma migrate dev --name add_users_table
 ```
 
-### Create without applying
+### 適用せずに作成だけする
 
 ```bash
 prisma migrate dev --create-only
 ```
 
-Useful for reviewing migration SQL before applying.
+適用する前に、マイグレーションの SQL を確認したいときに便利です。
 
-### Full workflow
+### 一連の流れ
 
 ```bash
 prisma migrate dev --name my_migration
@@ -65,9 +65,9 @@ prisma generate
 prisma db seed
 ```
 
-## Migration Files
+## マイグレーションのファイル
 
-Created in `prisma/migrations/`:
+`prisma/migrations/` に作成されます。
 
 ```
 prisma/migrations/
@@ -78,9 +78,9 @@ prisma/migrations/
 └── migration_lock.toml
 ```
 
-## Schema Drift Detection
+## スキーマのずれ（ドリフト）の検出
 
-If `migrate dev` detects drift (manual database changes or edited migrations), it prompts to reset:
+`migrate dev` がずれ（データベースを手で変更した、マイグレーションを編集した、など）を検出すると、リセットするかどうかを聞いてきます。
 
 ```
 Drift detected: Your database schema is not in sync.
@@ -88,30 +88,30 @@ Drift detected: Your database schema is not in sync.
 Do you want to reset your database? All data will be lost.
 ```
 
-## When to Use
+## 使う場面
 
-- Local development
-- Adding new models/fields
-- Changing relations
-- Creating indexes
+- ローカルでの開発
+- 新しいモデルやフィールドを追加するとき
+- リレーションを変えるとき
+- インデックスを作成するとき
 
-## When NOT to Use
+## 使わない場面
 
-- Production deployments (use `migrate deploy`)
-- CI/CD pipelines (use `migrate deploy`)
-- MongoDB (use `db push` instead)
+- 本番環境へのデプロイ（`migrate deploy` を使う）
+- CI/CD のパイプライン（`migrate deploy` を使う）
+- MongoDB（代わりに `db push` を使う）
 
-## Common Patterns
+## よくあるパターン
 
-### After schema changes
+### スキーマを変更したあと
 
 ```prisma
-// schema.prisma - Add new field
+// schema.prisma - 新しいフィールドを追加する
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String?
-  createdAt DateTime @default(now())  // New field
+  createdAt DateTime @default(now())  // 新しいフィールド
 }
 ```
 
@@ -119,9 +119,9 @@ model User {
 prisma migrate dev --name add_created_at
 ```
 
-### Handling data loss warnings
+### データが失われる警告への対処
 
-When a migration would cause data loss:
+マイグレーションでデータが失われる場合は、次のように警告が出ます。
 
 ```bash
 prisma migrate dev --name remove_field
@@ -129,9 +129,9 @@ prisma migrate dev --name remove_field
 # Accept with: --accept-data-loss
 ```
 
-## Shadow Database
+## シャドーデータベース
 
-`migrate dev` requires a shadow database for drift detection. Configure in `prisma.config.ts`:
+`migrate dev` は、ずれを検出するためにシャドーデータベースを使います。`prisma.config.ts` で設定します。
 
 ```typescript
 export default defineConfig({
@@ -142,4 +142,4 @@ export default defineConfig({
 })
 ```
 
-For local Prisma Postgres (`prisma dev`), shadow database is handled automatically.
+ローカルの Prisma Postgres（`prisma dev`）では、シャドーデータベースは自動で用意されます。

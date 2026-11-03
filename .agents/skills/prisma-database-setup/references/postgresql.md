@@ -1,15 +1,15 @@
-# PostgreSQL Setup
+# PostgreSQL の準備
 
-Configure Prisma with PostgreSQL.
+PostgreSQL で Prisma を設定します。
 
-## Prerequisites
+## 前提条件
 
-- PostgreSQL database (local or cloud)
-- Connection string
+- PostgreSQL のデータベース（ローカルまたはクラウド）
+- 接続文字列
 
-## 1. Schema Configuration
+## 1. スキーマの設定
 
-In `prisma/schema.prisma`:
+`prisma/schema.prisma` に書きます。
 
 ```prisma
 datasource db {
@@ -22,9 +22,9 @@ generator client {
 }
 ```
 
-## 2. Config Configuration
+## 2. 設定ファイルの設定
 
-In `prisma.config.ts`:
+`prisma.config.ts` に書きます。
 
 ```typescript
 import { defineConfig, env } from 'prisma/config'
@@ -37,37 +37,37 @@ export default defineConfig({
 })
 ```
 
-## 3. Environment Variable
+## 3. 環境変数
 
-In `.env`:
+`.env` に書きます。
 
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
 ```
 
-### Connection String Format
+### 接続文字列の形式
 
 ```
 postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA
 ```
 
-- **USER**: Database user
-- **PASSWORD**: Password (URL encoded if special chars)
-- **HOST**: Hostname (localhost, IP, or domain)
-- **PORT**: Port (default 5432)
-- **DATABASE**: Database name
-- **SCHEMA**: Schema name (default `public`)
+- **USER**：データベースのユーザー
+- **PASSWORD**：パスワード（特殊文字があれば URL エンコードする）
+- **HOST**：ホスト名（localhost、IP アドレス、ドメイン）
+- **PORT**：ポート（デフォルトは 5432）
+- **DATABASE**：データベース名
+- **SCHEMA**：スキーマ名（デフォルトは `public`）
 
-## Driver Adapter
+## ドライバーアダプター
 
-Use a driver adapter for the standard SQL workflow.
+標準の SQL の流れでは、ドライバーアダプターを使います。
 
-1. Install adapter and driver:
+1. アダプターとドライバーをインストールする：
    ```bash
    npm install @prisma/adapter-pg pg
    ```
 
-2. Instantiate Prisma Client with the adapter:
+2. アダプターを使って Prisma Client のインスタンスを作る：
    ```typescript
    import 'dotenv/config'
    import { PrismaClient } from '../generated/client'
@@ -77,16 +77,16 @@ Use a driver adapter for the standard SQL workflow.
    const prisma = new PrismaClient({ adapter })
    ```
 
-## Common Issues
+## よくある問題
 
 ### "Can't reach database server"
-- Check host and port
-- Check firewall settings
-- Ensure database is running
+- ホストとポートを確認する
+- ファイアウォールの設定を確認する
+- データベースが動いていることを確認する
 
 ### "Authentication failed"
-- Check user/password
-- Special characters in password must be URL-encoded
+- ユーザーとパスワードを確認する
+- パスワードの特殊文字は URL エンコードする必要がある
 
 ### "Schema does not exist"
-- Ensure `?schema=public` (or your schema) is in the URL
+- URL に `?schema=public`（または使っているスキーマ）が入っていることを確認する

@@ -1,32 +1,32 @@
-# SDK and API Automation
+# SDK と API による自動化
 
-Use this reference when building automation rather than using `create-prisma` or `@prisma/cli app deploy`.
+`create-prisma` や `@prisma/cli app deploy` を使うのではなく、自動化の仕組みを作るときに、このリファレンスを使います。
 
-## Prefer the CLI for App Workflows
+## アプリの作業には CLI を優先する
 
-For normal app deployment:
+ふつうのアプリのデプロイでは：
 
-1. Use generated `compute:deploy` when present.
-2. Otherwise use `@prisma/cli app build/run/deploy`.
-3. Use SDK/API only for custom automation, platform integrations, or tool builders.
+1. 生成された `compute:deploy` があれば、それを使う。
+2. なければ `@prisma/cli app build/run/deploy` を使う。
+3. SDK や API は、独自の自動化、Platform との連携、ツールを作る人向けにだけ使う。
 
 ## Compute SDK
 
-Install:
+インストール：
 
 ```bash
 npm install @prisma/compute-sdk @prisma/management-api-sdk
 ```
 
-Config helper:
+設定のヘルパー：
 
 ```typescript
 import { defineComputeConfig } from "@prisma/compute-sdk/config";
 ```
 
-Use this import in `prisma.compute.ts` for type checking. The helper is an identity function; the CLI loader aliases the import when it evaluates config files, so a user project does not need the SDK solely to load a Compute config.
+型チェックのために、`prisma.compute.ts` でこの import を使います。このヘルパーは受け取った値をそのまま返す関数です。CLI は設定ファイルを評価するときにこの import を置き換えるので、Compute の設定を読み込むためだけに、ユーザーのプロジェクトに SDK を入れる必要はありません。
 
-Create an authenticated Management API client:
+認証済みの Management API の Client を作る：
 
 ```typescript
 import { createManagementApiClient } from "@prisma/management-api-sdk"
@@ -36,9 +36,9 @@ const apiClient = createManagementApiClient({
 })
 ```
 
-Token naming differs by surface. `@prisma/cli app ...` uses `PRISMA_SERVICE_TOKEN` for non-interactive service-token auth. The SDK examples here use `PRISMA_API_TOKEN` as an application convention for passing a token into `createManagementApiClient`; the SDK itself only receives the `token` string.
+トークンの名前は、使う場所によって違います。`@prisma/cli app ...` は、対話なしのサービストークンの認証に `PRISMA_SERVICE_TOKEN` を使います。ここでの SDK の例は、`createManagementApiClient` にトークンを渡すためのアプリ側の決まりとして `PRISMA_API_TOKEN` を使っています。SDK 自体が受け取るのは、`token` の文字列だけです。
 
-Deploy a prebuilt artifact:
+ビルド済みの成果物をデプロイする：
 
 ```typescript
 import { ComputeClient, PreBuilt } from "@prisma/compute-sdk"
@@ -54,7 +54,7 @@ const result = await compute.deploy({
   }),
   projectId: "proj_abc",
   appName: "my-app",
-  // region: "us-east-1", // optional: explicit placement for a new app
+  // region: "us-east-1", // 省略可：新しいアプリの配置先を明示する
   envVars: { DATABASE_URL: databaseUrl },
   portMapping: { http: 3000 },
 })
@@ -66,25 +66,25 @@ if (result.isOk()) {
 }
 ```
 
-SDK methods return `Result<T, E>`. Check `isOk()` or `isErr()` instead of assuming errors throw. Deploy results expose app/deployment vocabulary including `appId`, `appName`, `projectId`, `region`, `deploymentId`, `deploymentEndpointDomain`, `appEndpointDomain`, `promoted`, `previousDeploymentId`, `previousDeploymentAction`, and `resolvedConfig`.
+SDK のメソッドは `Result<T, E>` を返します。エラーで例外が投げられると決めつけずに、`isOk()` か `isErr()` を確認してください。デプロイの結果には、`appId`、`appName`、`projectId`、`region`、`deploymentId`、`deploymentEndpointDomain`、`appEndpointDomain`、`promoted`、`previousDeploymentId`、`previousDeploymentAction`、`resolvedConfig` など、App と Deployment に関する項目が入っています。
 
-## SDK Build Strategies
+## SDK のビルドの方式
 
-Project Compute SDK strategies:
+Compute SDK のビルドの方式：
 
-- `AutoBuild`: tries supported framework strategies such as Next.js, Nuxt, Astro, NestJS, TanStack Start, then Bun
-- `NextjsBuild`: requires standalone output and returns `server.js`
-- `NuxtBuild`: expects `.output/server/index.mjs`
-- `AstroBuild`: expects `dist/server/entry.mjs`
-- `NestjsBuild`: builds a NestJS HTTP server artifact
-- `TanstackStartBuild`: runs `vite build` and expects a Nitro node server at `.output/server/index.mjs`; keep `tanstackStart()` and `nitro()` in Vite config
-- `CustomBuild`: runs optional configured build settings and stages a configured artifact entrypoint
-- `BunBuild`: runs `bun build` and needs an explicit entrypoint or `package.json` `main`
-- `PreBuilt`: uses an existing artifact directory and relative entrypoint
+- `AutoBuild`：Next.js、Nuxt、Astro、NestJS、TanStack Start、最後に Bun の順に、対応しているフレームワークの方式を試す
+- `NextjsBuild`：standalone の出力が必要で、`server.js` を返す
+- `NuxtBuild`：`.output/server/index.mjs` があることを前提にする
+- `AstroBuild`：`dist/server/entry.mjs` があることを前提にする
+- `NestjsBuild`：NestJS の HTTP サーバーの成果物をビルドする
+- `TanstackStartBuild`：`vite build` を実行し、`.output/server/index.mjs` に Nitro の Node サーバーがあることを前提にする。Vite の設定に `tanstackStart()` と `nitro()` を残しておく
+- `CustomBuild`：設定されたビルドの設定があれば実行し、設定された成果物のエントリーポイントを用意する
+- `BunBuild`：`bun build` を実行する。エントリーポイントの明示か、`package.json` の `main` が必要
+- `PreBuilt`：既存の成果物のディレクトリと、相対パスのエントリーポイントを使う
 
-## Regions
+## リージョン
 
-Known SDK region ids:
+SDK で使えるリージョンの ID：
 
 ```text
 us-east-1
@@ -95,13 +95,13 @@ ap-northeast-1
 ap-southeast-1
 ```
 
-Use `--region` in `@prisma/cli app deploy` or `region` in SDK deploy input only when creating a new Compute app. Existing apps keep their current region.
+`@prisma/cli app deploy` の `--region` や、SDK のデプロイの入力の `region` は、新しい Compute のアプリを作るときにだけ使います。既存のアプリは、今のリージョンのままです。
 
-`region` is optional on `deploy` and `createApp`. Omit it to use the Project/platform default when creating an app; do not hard-code a region unless placement is an application requirement.
+`region` は、`deploy` と `createApp` で省略できます。アプリを作るときに省略すると、Project や Platform のデフォルトが使われます。配置先がアプリの要件でない限り、リージョンを直接書かないでください。
 
-## Repository-snapshot detection
+## リポジトリのスナップショットからの検出
 
-Tooling that already has an in-memory repository tree can detect a deployable app without checking files out:
+リポジトリのファイルの一覧をすでにメモリ上に持っているツールは、ファイルを取り出さずに、デプロイできるアプリを検出できます。
 
 ```typescript
 import { detectComputeApp } from '@prisma/compute-sdk/config'
@@ -117,34 +117,34 @@ const detected = detectComputeApp({
 })
 ```
 
-The result contains `framework`, `frameworkName`, `buildType`, `httpPort`, `entrypoint`, and detection `evidence`, or `null` when nothing is deployable. Paths are repository-relative and unsafe absolute/parent-traversal entrypoints are rejected.
+結果には、`framework`、`frameworkName`、`buildType`、`httpPort`、`entrypoint` と、検出の根拠（`evidence`）が入ります。デプロイできるものがなければ `null` です。パスはリポジトリからの相対パスで、安全でない絶対パスや親ディレクトリへさかのぼるエントリーポイントは拒否されます。
 
-The helper detects one app root. A monorepo consumer must enumerate workspaces and call it once per candidate. Detection reads `dependencies` and `devDependencies` (not peer dependencies), recognizes config files and framework packages, and can infer Bun-backed servers from valid `start`/`serve` script entrypoints.
+このヘルパーが検出するのは、アプリのルート1つだけです。モノレポで使う場合は、ワークスペースを列挙して、候補ごとに1回ずつ呼ぶ必要があります。検出では `dependencies` と `devDependencies` を読み（peer dependencies は読まない）、設定ファイルやフレームワークのパッケージを認識し、正しい `start` や `serve` のスクリプトのエントリーポイントから、Bun で動くサーバーを推測することもできます。
 
-## Management API Concepts
+## Management API の概念
 
-Compute resources map roughly to:
+Compute のリソースは、おおよそ次のように対応します。
 
-- Project: parent container
-- Branch: production or preview scope for env resolution and database/env attachment
-- App: stable app endpoint and branch attachment
-- Deployment: build artifact plus runtime status and preview URL
+- Project：親になる入れ物
+- Branch：環境変数を決めたり、データベースや環境変数をつないだりするための、本番またはプレビューの範囲
+- App：変わらないアプリの入り口（エンドポイント）と、ブランチとのつながり
+- Deployment：ビルドの成果物と、実行の状態、プレビューの URL
 
-Low-level public routes use App/Deployment names:
+低いレベルの公開のルートでは、App と Deployment という名前を使います。
 
-- list/create apps under a project with `/v1/apps`
-- get/update/delete an app
-- create/list deployments for an app
-- get/start/stop/delete deployments with `/v1/deployments/:deploymentId`
-- promote or roll back an app using `deploymentId`
-- stream logs with `/v1/deployments/:deploymentId/logs`
-- manage custom domains
+- プロジェクトの中のアプリの一覧・作成は `/v1/apps`
+- アプリの取得・更新・削除
+- アプリのデプロイの作成・一覧
+- デプロイの取得・開始・停止・削除は `/v1/deployments/:deploymentId`
+- `deploymentId` を使って、アプリを昇格させる・ロールバックする
+- ログの受け取りは `/v1/deployments/:deploymentId/logs`
+- 独自ドメインの管理
 
-Internal compatibility aliases may still appear in code. Prefer App/Deployment names in new docs, skills, and automation.
+コードの中には、互換性のための内部の別名がまだ出てくることがあります。新しいドキュメント、スキル、自動化では、App と Deployment の名前を使ってください。
 
-Environment variables are not embedded directly in the low-level deployment create payload. The attached branch's role selects their scope: a preview branch resolves branch-scoped vars, while a production branch (or no branch) resolves project-scoped production vars. Use project/environment-variable APIs or CLI env commands to write env vars first, and keep the branch name consistent across app creation, database creation, and env writes.
+環境変数は、低いレベルのデプロイ作成のデータに直接は入れません。どの範囲の環境変数を使うかは、つないだブランチの役割で決まります。プレビューのブランチならブランチ単位の変数が、本番のブランチ（またはブランチなし）ならプロジェクト単位の本番の変数が使われます。先に、プロジェクトや環境変数の API か、CLI の環境変数のコマンドで環境変数を書き込み、アプリの作成、データベースの作成、環境変数の書き込みで、ブランチ名を揃えてください。
 
-When using the CLI alongside SDK automation:
+CLI と SDK の自動化を一緒に使うとき：
 
 ```bash
 bunx @prisma/cli@latest project env add --file .env.preview --branch feature/foo
@@ -152,16 +152,16 @@ bunx @prisma/cli@latest database create preview-db --branch feature/foo --json
 bunx @prisma/cli@latest app deploy --branch feature/foo --json --no-interactive
 ```
 
-Production promotion is not just "the same branch with another label"; `app promote <deployment-id>` rebuilds with production env vars.
+本番への昇格は、「同じブランチに別のラベルを付けるだけ」ではありません。`app promote <deployment-id>` は、本番の環境変数を使ってビルドし直します。
 
-## Secrets and Redaction
+## 秘密の情報と伏せ字
 
-Management API deployment inspection exposes env var names with redacted values. Treat any value like `[redacted]` as a marker, not as the deployed value.
+Management API でデプロイを調べると、環境変数の名前は見えますが、値は伏せ字になっています。`[redacted]` のような値は目印であり、実際にデプロイされた値ではありません。
 
-Do not log:
+次のものをログに出さないでください。
 
-- service tokens
-- OAuth tokens
-- full database URLs
-- env var values
-- pre-signed upload URLs
+- サービストークン
+- OAuth のトークン
+- データベースの URL の全体
+- 環境変数の値
+- 署名付きのアップロード用 URL

@@ -1,115 +1,115 @@
 # prisma dev
 
-Starts a local Prisma Postgres database for development. Provides a PostgreSQL-compatible database that runs entirely on your machine.
+開発用に、ローカルのPrisma Postgresデータベースを起動します。自分のPCの中だけで動く、PostgreSQL互換のデータベースです。
 
-## Command
+## コマンド
 
 ```bash
 prisma dev [options]
 ```
 
-## What It Does
+## できること
 
-- Starts a local PostgreSQL-compatible database
-- Runs in your terminal or as a background process
-- Perfect for development and testing
-- Easy migration to Prisma Postgres cloud in production
+- ローカルで、PostgreSQL互換のデータベースを起動する
+- ターミナル上で、またはバックグラウンドで動かせる
+- 開発やテストにぴったり
+- 本番ではPrisma Postgresのクラウド版へ簡単に移行できる
 
-## Options
+## オプション
 
-| Option | Description | Default |
+| オプション | 説明 | デフォルト |
 |--------|-------------|---------|
-| `--name` / `-n` | Name for the database instance | `default` |
-| `--port` / `-p` | HTTP server port | `51213` |
-| `--db-port` / `-P` | Database server port | `51214` |
-| `--shadow-db-port` | Shadow database port (for migrations) | `51215` |
-| `--detach` / `-d` | Run in background | `false` |
-| `--debug` | Enable debug logging | `false` |
+| `--name` / `-n` | データベースのインスタンス名 | `default` |
+| `--port` / `-p` | HTTPサーバーのポート | `51213` |
+| `--db-port` / `-P` | データベースサーバーのポート | `51214` |
+| `--shadow-db-port` | シャドーデータベースのポート（マイグレーション用） | `51215` |
+| `--detach` / `-d` | バックグラウンドで動かす | `false` |
+| `--debug` | デバッグ用のログを出す | `false` |
 
-## Examples
+## 使用例
 
-### Start local database
+### ローカルのデータベースを起動する
 
 ```bash
 prisma dev
 ```
 
-Interactive mode with keyboard shortcuts:
-- `q` - Quit
-- `h` - Show HTTP URL  
-- `t` - Show TCP URLs
+対話モードでは、次のキーが使えます。
+- `q`：終了する
+- `h`：HTTPのURLを表示する
+- `t`：TCPのURLを表示する
 
-### Named instance
+### 名前をつけて起動する
 
 ```bash
 prisma dev --name myproject
 ```
 
-Useful for multiple projects.
+複数のプロジェクトを扱うときに便利です。
 
-### Background mode
+### バックグラウンドで起動する
 
 ```bash
 prisma dev --detach
 ```
 
-Frees your terminal for other commands.
+ターミナルが空くので、ほかのコマンドを打てます。
 
-### Custom ports
+### ポートを指定する
 
 ```bash
 prisma dev --port 5000 --db-port 5432
 ```
 
-## Instance Management
+## インスタンスの管理
 
-### List all instances
+### 一覧を表示する
 
 ```bash
 prisma dev ls
 ```
 
-Shows all local Prisma Postgres instances with status.
+ローカルのPrisma Postgresのインスタンスを、状態つきですべて表示します。
 
-### Start existing instance
+### 作成済みのインスタンスを起動する
 
 ```bash
 prisma dev start myproject
 ```
 
-Starts a previously created instance in background.
+前に作ったインスタンスを、バックグラウンドで起動します。
 
-### Stop instance
+### インスタンスを止める
 
 ```bash
 prisma dev stop myproject
 ```
 
-### Stop with glob pattern
+### パターンを指定して止める
 
 ```bash
 prisma dev stop "myproject*"
 ```
 
-Stops all instances matching pattern.
+パターンに当てはまるインスタンスをすべて止めます。
 
-### Remove instance
+### インスタンスを削除する
 
 ```bash
 prisma dev rm myproject
 ```
 
-Removes instance data from filesystem.
+インスタンスのデータをPCから削除します。
 
-### Force remove (stops first)
+### 強制的に削除する（先に止めてから削除）
 
 ```bash
 prisma dev rm myproject --force
 ```
 
-## Configuration
+## 設定
 
-Configure your `prisma.config.ts` to use local Prisma Postgres:
+ローカルのPrisma Postgresを使うように、`prisma.config.ts` を設定します。
 
 ```typescript
 import 'dotenv/config'
@@ -121,37 +121,37 @@ export default defineConfig({
     path: 'prisma/migrations',
   },
   datasource: {
-    // Local Prisma Postgres URL (from prisma dev output)
+    // ローカルのPrisma PostgresのURL（prisma dev の出力に表示される）
     url: env('DATABASE_URL'),
   },
 })
 ```
 
-## Workflow
+## 作業の流れ
 
-1. Start local database:
+1. ローカルのデータベースを起動する
    ```bash
    prisma dev
    ```
 
-2. In another terminal, run migrations:
+2. 別のターミナルで、マイグレーションを実行する
    ```bash
    prisma migrate dev
    ```
 
-3. Generate client:
+3. クライアントを生成する
    ```bash
    prisma generate
    ```
 
-4. Run your application
+4. アプリを起動する
 
-## Production Migration
+## 本番への移行
 
-When ready for production, switch to Prisma Postgres cloud:
+本番の準備ができたら、Prisma Postgresのクラウド版に切り替えます。
 
 ```bash
 prisma init --db
 ```
 
-Update your `DATABASE_URL` to the cloud connection string.
+`DATABASE_URL` を、クラウドの接続文字列に書き換えてください。

@@ -1,49 +1,49 @@
 # prisma db execute
 
-Execute native commands (SQL) to your database.
+データベースに対して、ネイティブのコマンド（SQL）を実行します。
 
-## Command
+## コマンド
 
 ```bash
 prisma db execute [options]
 ```
 
-## What It Does
+## できること
 
-- Connects to your database using the configured datasource
-- Executes a script provided via file (`--file`) or stdin (`--stdin`)
-- Useful for running raw SQL, maintenance tasks, or applying diffs from `migrate diff`
-- Not supported on MongoDB
+- 設定済みのデータソースを使ってデータベースに接続する
+- ファイル（`--file`）か標準入力（`--stdin`）で渡したスクリプトを実行する
+- 生のSQLの実行、メンテナンス作業、`migrate diff` で出した差分の適用に使える
+- MongoDBには対応していない
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--file` | Path to a file containing the script to execute |
-| `--stdin` | Use terminal standard input as the script |
-| `--config` | Custom path to your Prisma config file |
+| `--file` | 実行するスクリプトが書かれたファイルのパス |
+| `--stdin` | ターミナルの標準入力をスクリプトとして使う |
+| `--config` | Prismaの設定ファイルの場所を指定する |
 
-## Current Option Surface
+## 現在のオプションについて
 
-`prisma db execute` uses the datasource configured in `prisma.config.ts`. Use `--config` if you need a separate config file for another environment.
+`prisma db execute` は、`prisma.config.ts` で設定したデータソースを使います。別の環境用に設定ファイルを分けたいときは `--config` を使ってください。
 
-## Examples
+## 使用例
 
-### Execute from file
+### ファイルから実行する
 
 ```bash
 prisma db execute --file ./script.sql
 ```
 
-### Execute from stdin
+### 標準入力から実行する
 
 ```bash
 echo "TRUNCATE TABLE User;" | prisma db execute --stdin
 ```
 
-### Execute `migrate diff` output
+### `migrate diff` の出力を実行する
 
-Pipe the output of `migrate diff` directly to the database:
+`migrate diff` の出力を、そのままデータベースに流し込みます。
 
 ```bash
 prisma migrate diff \
@@ -53,9 +53,9 @@ prisma migrate diff \
 | prisma db execute --stdin
 ```
 
-## Configuration
+## 設定
 
-Uses `datasource` from `prisma.config.ts`:
+`prisma.config.ts` の `datasource` を使います。
 
 ```typescript
 export default defineConfig({
@@ -65,14 +65,14 @@ export default defineConfig({
 })
 ```
 
-## Use Cases
+## 使いどころ
 
-- **Manual Migrations**: Applying raw SQL changes
-- **Data Maintenance**: Truncating tables, cleaning up data
-- **Schema Synchronization**: Applying `migrate diff` scripts
-- **Debugging**: Running test queries (though typically not for fetching data)
+- **手動のマイグレーション**：生のSQLで変更を適用する
+- **データのメンテナンス**：テーブルを空にする、データを片付ける
+- **スキーマの同期**：`migrate diff` で作ったスクリプトを適用する
+- **デバッグ**：テスト用のクエリを実行する（ただし、データを取り出す用途には普通は使わない）
 
-## Limitations
+## 制限
 
-- **No Data Return**: The command reports success/failure, not query results (rows). Use Prisma Client or `prisma studio` to view data.
-- **SQL Only**: Primarily for SQL databases.
+- **結果は返ってこない**：わかるのは成功したか失敗したかだけで、クエリの結果（行）は表示されません。データを見たいときは Prisma Client か `prisma studio` を使ってください。
+- **SQL向け**：主にSQLのデータベースで使うものです。

@@ -1,46 +1,46 @@
 # prisma migrate diff
 
-Compares database schemas and generates diffs (SQL or summary).
+データベースのスキーマを比べて、差分（SQL または要約）を生成します。
 
-## Command
+## コマンド
 
 ```bash
 prisma migrate diff [options]
 ```
 
-## What It Does
+## できること
 
-- Compares two sources (`--from-...` and `--to-...`)
-- Sources can be:
-    - Empty (`empty`)
-    - Schema file (`schema`)
-    - Migrations directory (`migrations`)
-    - Database URL (`url`) or Configured Datasource (`config-datasource`)
-- Outputs the difference:
-    - Human-readable summary (default)
-    - SQL script (`--script`)
+- 2つの比較元（`--from-...` と `--to-...`）を比べる
+- 比較元に使えるもの：
+    - 空の状態（`empty`）
+    - スキーマファイル（`schema`）
+    - マイグレーションのディレクトリ（`migrations`）
+    - データベースの URL（`url`）または設定済みのデータソース（`config-datasource`）
+- 差分を出力する：
+    - 人が読める要約（デフォルト）
+    - SQL スクリプト（`--script`）
 
-## Options
+## オプション
 
-| Option | Description |
+| オプション | 説明 |
 |--------|-------------|
-| `--script` | Render SQL script to stdout |
-| `--exit-code` | Exit 2 if changes detected, 0 if empty, 1 if error |
-| `--config` | Custom path to your Prisma config file |
+| `--script` | SQL スクリプトを標準出力に出す |
+| `--exit-code` | 変更があれば 2、なければ 0、エラーなら 1 で終了する |
+| `--config` | Prisma の設定ファイルの場所を指定する |
 
-### Sources (Must provide one `from` and one `to`)
+### 比較元（`from` と `to` を1つずつ必ず指定する）
 
 - `--from-empty`, `--to-empty`
 - `--from-schema <path>`, `--to-schema <path>`
 - `--from-migrations <path>`, `--to-migrations <path>`
 - `--from-url <url>`, `--to-url <url>`
-- `--from-config-datasource`, `--to-config-datasource` (uses `prisma.config.ts`)
+- `--from-config-datasource`, `--to-config-datasource`（`prisma.config.ts` を使う）
 
-## Examples
+## 使用例
 
-### Generate SQL for a schema change
+### スキーマの変更から SQL を生成する
 
-Compare current production DB to your local schema:
+今の本番のデータベースと、ローカルのスキーマを比べます。
 
 ```bash
 prisma migrate diff \
@@ -49,9 +49,9 @@ prisma migrate diff \
   --script
 ```
 
-### Review pending migrations
+### まだ適用していないマイグレーションを確認する
 
-Compare database state to migrations directory:
+データベースの状態と、マイグレーションのディレクトリを比べます。
 
 ```bash
 prisma migrate diff \
@@ -59,9 +59,9 @@ prisma migrate diff \
   --to-migrations ./prisma/migrations
 ```
 
-### Create baseline migration
+### 基準（ベースライン）のマイグレーションを作成する
 
-Compare empty state to current schema:
+空の状態と、今のスキーマを比べます。
 
 ```bash
 prisma migrate diff \
@@ -70,9 +70,9 @@ prisma migrate diff \
   --script > prisma/migrations/0_init/migration.sql
 ```
 
-### Check for drift (CI)
+### ずれ（ドリフト）を確認する（CI）
 
-Check if database matches schema:
+データベースがスキーマと一致しているかを確認します。
 
 ```bash
 prisma migrate diff \
@@ -81,9 +81,9 @@ prisma migrate diff \
   --exit-code
 ```
 
-## Use Cases
+## 使いどころ
 
-- **Forward-generating migrations**: Creating SQL without `migrate dev`.
-- **Drift detection**: Checking if DB is in sync.
-- **Baselining**: Creating initial migration from existing DB.
-- **Debugging**: Understanding what `migrate dev` would do.
+- **マイグレーションを先に生成する**：`migrate dev` を使わずに SQL を作る。
+- **ずれの検出**：データベースが同期しているかを確認する。
+- **ベースライン作成**：既存のデータベースから、最初のマイグレーションを作る。
+- **デバッグ**：`migrate dev` が何をしようとしているかを理解する。

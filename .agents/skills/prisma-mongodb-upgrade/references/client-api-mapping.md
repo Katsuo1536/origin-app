@@ -1,61 +1,57 @@
 # client-api-mapping
 
-How v6 Prisma Client calls map to Prisma Next's Mongo client — names map, parity does not.
+v6 の Prisma Client の呼び出しが、Prisma Next の Mongo の Client にどう対応するか。名前は対応しますが、同じ機能があるとは限りません。
 
-## Priority
+## 優先度
 
-CRITICAL
+最重要（CRITICAL）
 
-## Why It Matters
+## なぜ大事か
 
-The v6 and Next client APIs look superficially similar, but none of the v6 MongoDB raw
-methods exist under their old names, aggregation moved to a different lane entirely, and
-transactions go through the driver rather than a façade wrapper. Assuming parity produces
-code that does not compile — or, in the transactions case, code that silently loses
-atomicity.
+v6 と Next の Client の API は、見た目は似ています。しかし、v6 の MongoDB の生の操作のメソッドは、どれも元の名前では存在せず、集計はまったく別の仕組みに移り、トランザクションは窓口（façade）で包まれずにドライバーを通ります。同じ機能があると思い込むと、コンパイルできないコードや、トランザクションの場合には、気づかないうちに処理の一体性（原子性）が失われるコードができてしまいます。
 
-## The mapping
+## 対応表
 
-| v6 call | Prisma Next equivalent | Notes |
+| v6 の呼び出し | Prisma Next での置き換え | 注意 |
 |---------|------------------------|-------|
-| `prisma.user.findMany(...)` | `db.orm.users.where(...).all()` | Fluent ORM lane; storage-name keys (see `schema-contract-mapping.md`) |
+| `prisma.user.findMany(...)` | `db.orm.users.where(...).all()` | メソッドをつなげて書く ORM の仕組み。キーは保存先の名前（`schema-contract-mapping.md` を見る） |
 | `prisma.user.findFirst(...)` | `db.orm.users.where(...).first()` | |
-| `create` / `update` / `upsert` / `delete` / `updateMany` / `deleteMany` | `create` / `update` / `upsert` / `delete` / `updateAll` / `deleteAll` on `db.orm.<collection>` | See Prisma Next's `prisma-next-queries` skill |
-| `prisma.user.aggregate(...)`, `groupBy(...)` | **No ORM equivalent.** Use the typed aggregation-pipeline builder: `db.query.from(...).match(...).group(...).build()` | Prisma Next's `prisma-next-queries` skill covers the builder lane |
-| `$runCommandRaw(...)` ([v6 docs](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#runcommandraw)) | **Name does not exist in Next.** Raw lane is `mongoRaw(...)` → a raw collection with `aggregate`, `insertOne/Many`, `updateOne/Many`, `deleteOne/Many`, `findOneAndUpdate/Delete`. For arbitrary database commands, use the underlying `mongodb` driver directly — it is a user-supplied peer dependency and fully accessible | Check the installed version's raw surface |
-| `<model>.findRaw(...)` ([v6 docs](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#findraw)) | `mongoRaw(...)` collection reads (e.g. `aggregate` with a `$match` stage) | No direct `findRaw` name |
-| `<model>.aggregateRaw(...)` ([v6 docs](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#aggregateraw)) | `mongoRaw(...).aggregate(...)` or the typed pipeline builder | |
-| `$transaction(...)` — works on v6 with a replica set ([v6 docs](https://www.prisma.io/docs/orm/overview/databases/mongodb#replica-set-configuration)) | The façade does not wrap `db.transaction(...)` yet, **but the underlying `mongodb` driver is directly available** (user-supplied peer dependency): multi-document atomicity works today via driver sessions (`client.startSession()` / `session.withTransaction(...)`) on a replica set | A façade wrapper is expected soon; this row will be updated when it merges |
-| `$connect` / `$disconnect` | `connect()` / `close()` on the Mongo façade client | |
+| `create` / `update` / `upsert` / `delete` / `updateMany` / `deleteMany` | `db.orm.<collection>` の `create` / `update` / `upsert` / `delete` / `updateAll` / `deleteAll` | Prisma Next の `prisma-next-queries` スキルを見る |
+| `prisma.user.aggregate(...)`、`groupBy(...)` | **ORM には置き換えがない。** 型付きの集計パイプラインのビルダーを使う：`db.query.from(...).match(...).group(...).build()` | ビルダーの仕組みは、Prisma Next の `prisma-next-queries` スキルで扱っている |
+| `$runCommandRaw(...)`（[v6 のドキュメント](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#runcommandraw)） | **Next にはこの名前はない。** 生の操作の仕組みは `mongoRaw(...)` で、`aggregate`、`insertOne/Many`、`updateOne/Many`、`deleteOne/Many`、`findOneAndUpdate/Delete` を持つ生のコレクションを返す。任意のデータベースのコマンドには、下にある `mongodb` のドライバーを直接使う（利用者が用意する peer dependency で、すべて使える） | インストールしたバージョンの生の操作の機能を確認する |
+| `<model>.findRaw(...)`（[v6 のドキュメント](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#findraw)） | `mongoRaw(...)` のコレクションでの読み取り（例：`$match` の段階を持つ `aggregate`） | `findRaw` という名前は直接はない |
+| `<model>.aggregateRaw(...)`（[v6 のドキュメント](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#aggregateraw)） | `mongoRaw(...).aggregate(...)` か、型付きのパイプラインのビルダー | |
+| `$transaction(...)`：v6 ではレプリカセットで動く（[v6 のドキュメント](https://www.prisma.io/docs/orm/overview/databases/mongodb#replica-set-configuration)） | 窓口は、まだ `db.transaction(...)` を包んでいない。**ただし、下にある `mongodb` のドライバーを直接使える**（利用者が用意する peer dependency）。レプリカセットなら、ドライバーのセッション（`client.startSession()` / `session.withTransaction(...)`）で、今でも複数のドキュメントにまたがる一体的な処理ができる | 窓口で包む仕組みはもうすぐ入る見込み。取り込まれたらこの行は更新される |
+| `$connect` / `$disconnect` | Mongo の窓口の Client の `connect()` / `close()` | |
 
-## Bad
+## 悪い例
 
 ```typescript
-// Assuming v6 names exist in Prisma Next:
-await db.user.$runCommandRaw({ collStats: 'users' }); // no such method
-await db.transaction(async (tx) => { ... });          // no such method on the Mongo façade
+// v6 の名前が Prisma Next にもあると思い込んでいる：
+await db.user.$runCommandRaw({ collStats: 'users' }); // そんなメソッドはない
+await db.transaction(async (tx) => { ... });          // Mongo の窓口にはそんなメソッドはない
 ```
 
-## Good
+## 良い例
 
 ```typescript
-// Raw lane under its Next name:
+// Next での名前を使った、生の操作の仕組み：
 const raw = mongoRaw(db);
 await raw.users.aggregate([{ $match: { status: 'active' } }]);
 
-// Aggregation through the typed pipeline builder:
+// 型付きのパイプラインのビルダーを使った集計：
 const stats = await db.query.from('users').group({ _id: '$role', n: { $count: {} } }).build();
 
-// Multi-document atomicity today: the mongodb driver (a direct dependency of the
-// project) exposes sessions and transactions as usual:
+// 今できる、複数のドキュメントにまたがる一体的な処理：mongodb のドライバー（プロジェクトが
+// 直接依存している）は、いつもどおりセッションとトランザクションを使える：
 const session = mongoClient.startSession();
 await session.withTransaction(async () => {
-  // ...writes...
+  // ...書き込み...
 });
 ```
 
-## References
+## 参考
 
-- [v6 MongoDB raw queries](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#raw-queries-with-mongodb)
-- [v6 replica set requirement for transactions](https://www.prisma.io/docs/orm/overview/databases/mongodb#replica-set-configuration)
-- Prisma Next queries + runtime skills (`skills/prisma-next-queries`, incl. its dedicated `mongo.md`; `skills/prisma-next-runtime`) — authoritative for the Next side; verified @ `a2791c5dd59d579b4b3052942ae7f8fe5e2ee852`
+- [v6 の MongoDB の生のクエリ](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/raw-queries#raw-queries-with-mongodb)
+- [トランザクションには v6 でレプリカセットが必要](https://www.prisma.io/docs/orm/overview/databases/mongodb#replica-set-configuration)
+- Prisma Next の queries と runtime のスキル（`skills/prisma-next-queries`。専用の `mongo.md` も含む。`skills/prisma-next-runtime`）。Next 側についての正式な情報。確認した対象 @ `a2791c5dd59d579b4b3052942ae7f8fe5e2ee852`
